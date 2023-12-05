@@ -36,7 +36,7 @@ typedef enum SceneState {
 }SceneState_t;
 
 typedef void(*render_func_t)(Scene_t*);
-typedef void(*system_func_t)(Scene_t*, float);
+typedef void(*system_func_t)(Scene_t*);
 typedef void(*action_func_t)(Scene_t*, ActionType_t, bool);
 sc_array_def(system_func_t, systems);
 
@@ -46,7 +46,7 @@ struct Scene {
     render_func_t render_function;
     action_func_t action_function;
     EntityManager_t ent_manager;
-    //SceneType_t scene_type;
+    float delta_time;
     SceneState_t state;
     ParticleSystem_t part_sys;
     GameEngine_t *engine;

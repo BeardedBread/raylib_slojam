@@ -3,7 +3,7 @@
 
 #include "raymath.h"
 
-void player_movement_input_system(Scene_t* scene, float delta_time)
+void player_movement_input_system(Scene_t* scene)
 {
     CPlayerState_t* p_pstate;
     unsigned int ent_idx;
@@ -17,12 +17,13 @@ void player_movement_input_system(Scene_t* scene, float delta_time)
     }
 }
 
-void global_external_forces_system(Scene_t* scene, float delta_time)
+void global_external_forces_system(Scene_t* scene)
 {
 }
 
-void movement_update_system(Scene_t* scene, float delta_time)
+void movement_update_system(Scene_t* scene)
 {
+    float delta_time = scene->delta_time;
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     // Update movement
     CTransform_t * p_ctransform;
@@ -85,7 +86,7 @@ void movement_update_system(Scene_t* scene, float delta_time)
         }
     }
 }
-void player_dir_reset_system(Scene_t* scene, float delta_time)
+void player_dir_reset_system(Scene_t* scene)
 {
     CPlayerState_t* p_pstate;
     unsigned int ent_idx;

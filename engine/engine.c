@@ -114,10 +114,11 @@ void free_scene(Scene_t* scene)
 
 inline void update_scene(Scene_t* scene, float delta_time)
 {
+    scene->delta_time = delta_time;
     system_func_t sys;
     sc_array_foreach(&scene->systems, sys)
     {
-        sys(scene, delta_time);
+        sys(scene);
     }
     update_particle_system(&scene->part_sys);
 }
