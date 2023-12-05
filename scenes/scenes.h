@@ -5,6 +5,7 @@
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
     Rectangle game_rec;
+    Vector2 game_field_size;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

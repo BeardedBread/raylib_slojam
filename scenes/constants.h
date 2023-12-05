@@ -1,0 +1,35 @@
+// Constants to be used in game
+#ifndef __CONSTANTS_H
+#define __CONSTANTS_H
+#define GRAV_ACCEL 1500
+#define JUMP_SPEED 70
+#define MOVE_ACCEL 500
+
+#ifndef TILE16_SIZE
+#define PLAYER_WIDTH 30
+#define PLAYER_HEIGHT 42
+#define PLAYER_C_WIDTH 30
+#define PLAYER_C_HEIGHT 26
+#else
+#define PLAYER_WIDTH 14
+#define PLAYER_HEIGHT 30
+#define PLAYER_C_WIDTH 14
+#define PLAYER_C_HEIGHT 14
+#endif
+#define PLAYER_C_YOFFSET (PLAYER_HEIGHT - PLAYER_C_HEIGHT)
+#define PLAYER_C_XOFFSET (PLAYER_WIDTH - PLAYER_C_WIDTH)
+
+#define PLAYER_MAX_SPEED 300
+#define WATER_FRICTION 7.5
+#define GROUND_X_FRICTION 6.1
+#define GROUND_Y_FRICTION 1.0
+
+#define ARROW_SPEED 350
+
+#define MAX_WATER_LEVEL 4
+#define WATER_BBOX_STEP (TILE_SIZE / MAX_WATER_LEVEL)
+
+#define MAX_LEVEL_NUM 50
+#define MAX_N_TILES 4096
+
+#endif // __CONSTANTS_H
