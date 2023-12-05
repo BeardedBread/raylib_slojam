@@ -17,9 +17,9 @@ set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif ()
 
 
+add_subdirectory(engine)
 set(GAME_LIBS
-    raylib
-    m
+    lib_engine
 )
 
 add_executable(${PROJECT_NAME}
@@ -29,13 +29,6 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-    PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${RAYLIB_DIR}/include
-)
-target_link_directories(${PROJECT_NAME}
-    PUBLIC
-    ${RAYLIB_DIR}/lib
 )
 
 if (NOT EMSCRIPTEN)

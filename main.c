@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "engine.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -11,6 +12,14 @@
         return true; // Just preventDefault everything lol
     }
 #endif
+
+Scene_t* scenes[1];
+static GameEngine_t engine = {
+    .scenes = scenes,
+    .max_scenes = 3,
+    .curr_scene = 0,
+    .assets = {0}
+};
 
 const int screenWidth = 1280;
 const int screenHeight = 640;
@@ -50,7 +59,7 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    //InitAudioDevice();
+    init_engine(&engine);
     InitWindow(screenWidth, screenHeight, "raylib");
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -65,6 +74,6 @@ int main(void)
         update_loop();
     }
     #endif
+    deinit_engine(&engine);
     CloseWindow(); 
-    //CloseAudioDevice();
 }
