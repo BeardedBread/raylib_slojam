@@ -18,8 +18,9 @@ endif ()
 
 
 add_subdirectory(engine)
+add_subdirectory(scenes)
 set(GAME_LIBS
-    lib_engine
+    lib_scenes
 )
 
 add_executable(${PROJECT_NAME}

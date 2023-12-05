@@ -1,5 +1,5 @@
 #include "raylib.h"
-#include "engine.h"
+#include "scenes.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -16,7 +16,7 @@
 Scene_t* scenes[1];
 static GameEngine_t engine = {
     .scenes = scenes,
-    .max_scenes = 3,
+    .max_scenes = 1,
     .curr_scene = 0,
     .assets = {0}
 };
@@ -26,40 +26,37 @@ const int screenHeight = 640;
 const float DT = 1/60.0;
 const uint8_t MAX_STEPS = 10;
 
-void update_function(float delta_time)
-{
-    char buf[32];
-    sprintf(buf, "%.6f\n", delta_time);
-}
-
 void update_loop(void)
 {
-    static char buffer[32];
+    Scene_t* scene = engine.scenes[engine.curr_scene];
+    process_inputs(&engine, scene);
 
     float frame_time = GetFrameTime();
-    snprintf(buffer, 32, "Ready to go: %.5f",frame_time);
     uint8_t sim_steps = 0;
-
     while (frame_time > 1e-5 && sim_steps < MAX_STEPS)
     {
         float delta_time = fminf(frame_time, DT);
-        update_function(delta_time);
+        update_scene(scene, delta_time);
         frame_time -= delta_time;
         sim_steps++;
     }
-    //update_function(DT);
-    BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawText(buffer, 64, 64, 24, RED);
-    EndDrawing();
+    update_entity_manager(&scene->ent_manager);
+    render_scene(scene);
+    //update_sfx_list(&engine);
 }
-
 
 int main(void) 
 {
     // Initialization
     //--------------------------------------------------------------------------------------
     init_engine(&engine);
+
+    LevelScene_t lvl_scene;
+    lvl_scene.scene.engine = &engine;
+    init_level_scene(&lvl_scene);
+    scenes[0] = (Scene_t*)&lvl_scene;
+    change_scene(&engine, 0);
+
     InitWindow(screenWidth, screenHeight, "raylib");
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -74,6 +71,7 @@ int main(void)
         update_loop();
     }
     #endif
+    free_level_scene(&lvl_scene);
     deinit_engine(&engine);
     CloseWindow(); 
 }

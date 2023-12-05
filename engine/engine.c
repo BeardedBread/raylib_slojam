@@ -91,7 +91,7 @@ void update_sfx_list(GameEngine_t* engine)
 }
 
 //void init_scene(Scene_t* scene, SceneType_t scene_type, system_func_t render_func, action_func_t action_func)
-void init_scene(Scene_t* scene, system_func_t render_func, action_func_t action_func)
+void init_scene(Scene_t* scene, render_func_t render_func, action_func_t action_func)
 {
     sc_map_init_64(&scene->action_map, 32, 0);
     sc_array_init(&scene->systems);
@@ -112,21 +112,19 @@ void free_scene(Scene_t* scene)
     deinit_particle_system(&scene->part_sys);
 }
 
-inline void update_scene(Scene_t* scene)
+inline void update_scene(Scene_t* scene, float delta_time)
 {
     system_func_t sys;
     sc_array_foreach(&scene->systems, sys)
     {
-        sys(scene);
+        sys(scene, delta_time);
     }
     update_particle_system(&scene->part_sys);
 }
 
 inline void render_scene(Scene_t* scene)
 {
-    BeginDrawing();
     scene->render_function(scene);
-    EndDrawing();
 }
 
 inline void do_action(Scene_t* scene, ActionType_t action, bool pressed)
