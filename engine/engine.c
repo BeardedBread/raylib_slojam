@@ -48,6 +48,12 @@ void process_inputs(GameEngine_t* engine, Scene_t* scene)
         do_action(scene, action, true);
         sc_queue_add_last(&engine->key_buffer, button);
     }
+
+    ActionType_t action = sc_map_get_64(&scene->action_map, MOUSE_BUTTON_RIGHT);
+    if (sc_map_found(&scene->action_map))
+    {
+        do_action(scene, action, IsMouseButtonDown(MOUSE_BUTTON_RIGHT));
+    }
 }
 
 void change_scene(GameEngine_t* engine, unsigned int idx)

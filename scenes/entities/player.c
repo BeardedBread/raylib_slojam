@@ -5,7 +5,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     if (p_ent == NULL) return NULL;
 
     p_ent->position = (Vector2){128,128};
-    p_ent->size = 32;
+    p_ent->size = 24;
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;

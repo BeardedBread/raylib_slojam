@@ -27,6 +27,9 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
             case ACTION_RIGHT:
                 p_playerstate->player_dir.x = (pressed)? 1 : 0;
             break;
+            case ACTION_BOOST:
+                p_playerstate->boosting |= (pressed) ? 1 : 0;
+            break;
             default:
             break;
         }
@@ -85,6 +88,7 @@ void init_level_scene(LevelScene_t* scene)
 
     
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
+    sc_array_add(&scene->scene.systems, &global_external_forces_system);
     sc_array_add(&scene->scene.systems, &movement_update_system);
     sc_array_add(&scene->scene.systems, &player_dir_reset_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
@@ -93,6 +97,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_LEFT);
     sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_RIGHT);
+    sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
 }
 
 void free_level_scene(LevelScene_t* scene)

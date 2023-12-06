@@ -14,11 +14,34 @@ void player_movement_input_system(Scene_t* scene)
         CTransform_t* p_ctransform = get_component(p_player, CTRANSFORM_T);
         
         p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->player_dir), MOVE_ACCEL);
+        p_ctransform->accel = Vector2Scale(p_ctransform->accel, p_pstate->boosting? 2:1);
+        if (p_pstate->boosting == 0b01)
+        {
+            Vector2 mouse_pos = GetMousePosition();
+            Vector2 point_dir = Vector2Subtract(mouse_pos, p_player->position);
+            p_ctransform->velocity = Vector2Scale(
+                Vector2Normalize(point_dir),
+                Vector2Length(p_ctransform->velocity)
+            );
+        }
+        p_pstate->boosting <<= 1;
+        p_pstate->boosting &= 0b11;
     }
 }
 
 void global_external_forces_system(Scene_t* scene)
 {
+    CTransform_t * p_ctransform;
+    unsigned long ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CTRANSFORM_T], ent_idx, p_ctransform)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        // Friction
+        p_ctransform->accel = Vector2Add(
+            p_ctransform->accel,
+            Vector2Scale(p_ctransform->velocity, -0.5)
+        );
+    }
 }
 
 void movement_update_system(Scene_t* scene)
@@ -45,10 +68,10 @@ void movement_update_system(Scene_t* scene)
         );
 
         float mag = Vector2Length(p_ctransform->velocity);
-        p_ctransform->velocity = Vector2Scale(
-            Vector2Normalize(p_ctransform->velocity),
-            (mag > PLAYER_MAX_SPEED)? PLAYER_MAX_SPEED:mag
-        );
+        //p_ctransform->velocity = Vector2Scale(
+        //    Vector2Normalize(p_ctransform->velocity),
+        //    (mag > PLAYER_MAX_SPEED)? PLAYER_MAX_SPEED:mag
+        //);
 
         // 3 dp precision
         if (fabs(p_ctransform->velocity.x) < 1e-3) p_ctransform->velocity.x = 0;
@@ -63,26 +86,44 @@ void movement_update_system(Scene_t* scene)
         memset(&p_ctransform->accel, 0, sizeof(p_ctransform->accel));
 
         // Level boundary collision
-        if (p_ent->position.x - p_ent->size < 0)
+        //if (p_ent->position.x - p_ent->size < 0)
+        //{
+        //    p_ent->position.x =  p_ent->size;
+        //    p_ctransform->velocity.x = 0;
+        //}
+        //else if (p_ent->position.x + p_ent->size > data->game_field_size.x)
+        //{
+        //    p_ent->position.x =  data->game_field_size.x - p_ent->size;
+        //    p_ctransform->velocity.x = 0;
+        //}
+        //
+        //if (p_ent->position.y - p_ent->size < 0)
+        //{
+        //    p_ent->position.y =  p_ent->size;
+        //    p_ctransform->velocity.y = 0;
+        //}
+        //else if (p_ent->position.y + p_ent->size > data->game_field_size.y)
+        //{
+        //    p_ent->position.y =  data->game_field_size.y - p_ent->size;
+        //    p_ctransform->velocity.y = 0;
+        //}
+
+        if (p_ent->position.x < 0)
         {
-            p_ent->position.x =  p_ent->size;
-            p_ctransform->velocity.x = 0;
+            p_ent->position.x += data->game_field_size.x;
         }
-        else if (p_ent->position.x + p_ent->size > data->game_field_size.x)
+        else if (p_ent->position.x > data->game_field_size.x)
         {
-            p_ent->position.x =  data->game_field_size.x - p_ent->size;
-            p_ctransform->velocity.x = 0;
+            p_ent->position.x -= data->game_field_size.x;
         }
         
-        if (p_ent->position.y - p_ent->size < 0)
+        if (p_ent->position.y < 0)
         {
-            p_ent->position.y =  p_ent->size;
-            p_ctransform->velocity.y = 0;
+            p_ent->position.y += data->game_field_size.y;
         }
-        else if (p_ent->position.y + p_ent->size > data->game_field_size.y)
+        else if (p_ent->position.y > data->game_field_size.y)
         {
-            p_ent->position.y =  data->game_field_size.y - p_ent->size;
-            p_ctransform->velocity.y = 0;
+            p_ent->position.y -= data->game_field_size.y;
         }
     }
 }
