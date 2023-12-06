@@ -22,7 +22,7 @@ static GameEngine_t engine = {
 };
 
 const int screenWidth = 1280;
-const int screenHeight = 640;
+const int screenHeight = 960;
 const float DT = 1/60.0;
 const uint8_t MAX_STEPS = 10;
 
@@ -50,6 +50,7 @@ int main(void)
     // Initialization
     //--------------------------------------------------------------------------------------
     init_engine(&engine);
+    InitWindow(screenWidth, screenHeight, "raylib");
 
     LevelScene_t lvl_scene;
     lvl_scene.scene.engine = &engine;
@@ -57,7 +58,6 @@ int main(void)
     scenes[0] = (Scene_t*)&lvl_scene;
     change_scene(&engine, 0);
 
-    InitWindow(screenWidth, screenHeight, "raylib");
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     #if defined(PLATFORM_WEB)
