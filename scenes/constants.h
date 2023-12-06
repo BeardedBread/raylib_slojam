@@ -4,6 +4,7 @@
 #define GRAV_ACCEL 1500
 #define JUMP_SPEED 70
 #define MOVE_ACCEL 500
+#define PLAYER_MAX_SPEED 300
 
 #define PLAYER_WIDTH 30
 #define PLAYER_HEIGHT 42
