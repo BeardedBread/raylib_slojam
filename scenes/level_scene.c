@@ -70,29 +70,44 @@ static void arena_render_func(Scene_t* scene)
             snprintf(buffer, 32, "%.3f %.3f", p_ent->position.x, p_ent->position.y);
             DrawCircleV(p_ent->position, p_ent->size, PURPLE);
             
+            int8_t flip_x = 0;
+            int8_t flip_y = 0;
             if (p_ent->position.x < p_ent->size)
             {
-                Vector2 clone_pos = p_ent->position;
-                clone_pos.x += data->game_field_size.x;
-                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                flip_x = 1;
             }
             if (p_ent->position.x > data->game_field_size.x - p_ent->size)
             {
-                Vector2 clone_pos = p_ent->position;
-                clone_pos.x -= data->game_field_size.x;
-                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                flip_x = -1;
             }
 
             if (p_ent->position.y < p_ent->size)
             {
-                Vector2 clone_pos = p_ent->position;
-                clone_pos.y += data->game_field_size.y;
-                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                flip_y = 1;
             }
             if (p_ent->position.y > data->game_field_size.y - p_ent->size)
             {
-                Vector2 clone_pos = p_ent->position;
-                clone_pos.y -= data->game_field_size.y;
+                flip_y = -1;
+            }
+
+            Vector2 clone_pos = p_ent->position;
+            if (flip_x != 0 && flip_y != 0)
+            {
+                clone_pos.x += flip_x * data->game_field_size.x;
+                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                clone_pos.y += flip_y * data->game_field_size.y;
+                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                clone_pos.x -= flip_x * data->game_field_size.x;
+                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+            }
+            else if (flip_x != 0)
+            {
+                clone_pos.x += flip_x * data->game_field_size.x;
+                DrawCircleV(clone_pos, p_ent->size, PURPLE);
+            }
+            else
+            {
+                clone_pos.y += flip_y * data->game_field_size.y;
                 DrawCircleV(clone_pos, p_ent->size, PURPLE);
             }
             DrawText(buffer, 64, 64, 24, RED);
