@@ -2,7 +2,7 @@
 #include "ent_impl.h"
 #include "game_systems.h"
 #include "constants.h"
-
+#include "raymath.h"
 #include <stdio.h>
 
 static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
@@ -110,6 +110,13 @@ static void arena_render_func(Scene_t* scene)
                 clone_pos.y += flip_y * data->game_field_size.y;
                 DrawCircleV(clone_pos, p_ent->size, PURPLE);
             }
+
+            CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+            Vector2 look_dir = Vector2Add(
+                p_ent->position,
+                Vector2Scale(p_pstate->aim_dir, 64)
+            );
+            DrawCircleV(look_dir, 8, BLACK);
             DrawText(buffer, 64, 64, 24, RED);
         }
     EndTextureMode();

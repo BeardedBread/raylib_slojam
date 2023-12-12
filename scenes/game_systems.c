@@ -26,6 +26,9 @@ void player_movement_input_system(Scene_t* scene)
         }
         p_pstate->boosting <<= 1;
         p_pstate->boosting &= 0b11;
+
+        // Mouse aim direction
+        p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(GetMousePosition(), p_player->position));
     }
 }
 
