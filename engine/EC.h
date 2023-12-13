@@ -68,14 +68,15 @@ typedef struct _CContainer_t {
 } CContainer_t;
 
 typedef struct _CHitBoxes_t {
-    Rectangle box;
+    Vector2 offset;
+    float size;
     uint8_t atk;
     bool one_hit;
 } CHitBoxes_t;
 
 typedef struct _CHurtbox_t {
     Vector2 offset;
-    Vector2 size;
+    float size;
     uint8_t def;
     unsigned int damage_src;
 } CHurtbox_t;

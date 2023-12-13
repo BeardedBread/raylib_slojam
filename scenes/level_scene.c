@@ -131,6 +131,10 @@ static void arena_render_func(Scene_t* scene)
                 DrawCircleV(look_dir, 8, BLACK);
                 DrawText(buffer, 64, 64, 24, RED);
             }
+            else if (p_ent->m_tag == ENEMY_ENT_TAG)
+            {
+                DrawCircleV(p_ent->position, p_ent->size, RED);
+            }
             else
             {
                 DrawCircleV(p_ent->position, p_ent->size, BLUE);
@@ -149,12 +153,15 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_rec = (Rectangle){25, 25, ARENA_SIZE, ARENA_SIZE};
     
     create_player(&scene->scene.ent_manager);
+    Entity_t* p_ent = create_enemy(&scene->scene.ent_manager);
+    p_ent->position = (Vector2){256,256};
     update_entity_manager(&scene->scene.ent_manager);
 
     
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
     sc_array_add(&scene->scene.systems, &global_external_forces_system);
     sc_array_add(&scene->scene.systems, &movement_update_system);
+    sc_array_add(&scene->scene.systems, &hitbox_update_system);
     sc_array_add(&scene->scene.systems, &player_dir_reset_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
     

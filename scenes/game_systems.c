@@ -156,6 +156,45 @@ void movement_update_system(Scene_t* scene)
         }
     }
 }
+
+void hitbox_update_system(Scene_t* scene)
+{
+    static bool checked_entities[MAX_COMP_POOL_SIZE] = {0};
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+
+    unsigned int ent_idx;
+    CHitBoxes_t* p_hitbox;
+    sc_map_foreach(&scene->ent_manager.component_map[CHITBOXES_T], ent_idx, p_hitbox)
+    {
+        bool hit = false;
+        Entity_t *p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        if (!p_ent->m_alive) continue;
+        CTransform_t* p_ctransform = get_component(p_ent, CTRANSFORM_T);
+
+        memset(checked_entities, 0, sizeof(checked_entities));
+
+        unsigned int other_ent_idx;
+        CHurtbox_t* p_hurtbox;
+        sc_map_foreach(&scene->ent_manager.component_map[CHURTBOX_T], other_ent_idx, p_hurtbox)
+        {
+            if (other_ent_idx == ent_idx) continue;
+            if (checked_entities[other_ent_idx]) continue;
+
+            Entity_t* p_other_ent = get_entity(&scene->ent_manager, other_ent_idx);
+            if (!p_other_ent->m_alive) continue;
+
+            float dist = Vector2Distance(p_ent->position, p_other_ent->position);
+
+            if (dist < p_ent->size + p_other_ent->size)
+            {
+           
+                remove_entity(&scene->ent_manager, p_other_ent->m_id);
+            }
+
+        }
+    }
+}
+
 void player_dir_reset_system(Scene_t* scene)
 {
     CPlayerState_t* p_pstate;

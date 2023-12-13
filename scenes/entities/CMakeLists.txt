@@ -1,6 +1,7 @@
 add_library(lib_entities STATIC
     player.c
     bullet.c
+    enemies.c
 )
 target_include_directories(lib_entities
     PUBLIC

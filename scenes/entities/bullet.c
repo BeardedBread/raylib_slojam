@@ -10,5 +10,8 @@ Entity_t* create_bullet(EntityManager_t* ent_manager)
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
 
+    CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
+    p_hitbox->size = 4;
+
     return p_ent;
 }
