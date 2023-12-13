@@ -39,6 +39,7 @@ typedef struct _CTransform_t {
     Vector2 velocity;
     Vector2 accel;
     bool active;
+    bool wraparound;
 } CTransform_t;
 
 // This is to store the occupying tiles
@@ -53,6 +54,7 @@ typedef struct _CPlayerState_t {
     Vector2 player_dir;
     Vector2 aim_dir;
     uint8_t boosting;
+    uint8_t shoot;
 } CPlayerState_t;
 
 typedef enum ContainerItem {

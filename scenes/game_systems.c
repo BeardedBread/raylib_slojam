@@ -1,6 +1,8 @@
 #include "game_systems.h"
+#include "EC.h"
 #include "constants.h"
 
+#include "ent_impl.h"
 #include "raymath.h"
 
 void player_movement_input_system(Scene_t* scene)
@@ -29,6 +31,16 @@ void player_movement_input_system(Scene_t* scene)
 
         // Mouse aim direction
         p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(GetMousePosition(), p_player->position));
+
+        // Shoot
+        if (p_pstate->shoot > 0)
+        {
+            Entity_t* p_bullet = create_bullet(&scene->ent_manager);
+            CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+            bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, 300);
+            p_bullet->position = p_player->position;
+            p_pstate->shoot = 0;
+        }
     }
 }
 
@@ -110,23 +122,37 @@ void movement_update_system(Scene_t* scene)
         //    p_ent->position.y =  data->game_field_size.y - p_ent->size;
         //    p_ctransform->velocity.y = 0;
         //}
-
-        if (p_ent->position.x < 0)
+        if (p_ctransform->wraparound)
         {
-            p_ent->position.x += data->game_field_size.x;
+            if (p_ent->position.x < 0)
+            {
+                p_ent->position.x += data->game_field_size.x;
+            }
+            else if (p_ent->position.x > data->game_field_size.x)
+            {
+                p_ent->position.x -= data->game_field_size.x;
+            }
+            
+            if (p_ent->position.y < 0)
+            {
+                p_ent->position.y += data->game_field_size.y;
+            }
+            else if (p_ent->position.y > data->game_field_size.y)
+            {
+                p_ent->position.y -= data->game_field_size.y;
+            }
         }
-        else if (p_ent->position.x > data->game_field_size.x)
+        else
         {
-            p_ent->position.x -= data->game_field_size.x;
-        }
-        
-        if (p_ent->position.y < 0)
-        {
-            p_ent->position.y += data->game_field_size.y;
-        }
-        else if (p_ent->position.y > data->game_field_size.y)
-        {
-            p_ent->position.y -= data->game_field_size.y;
+            if (p_ent->position.x < 0
+             || (p_ent->position.x > data->game_field_size.x)
+            
+             || (p_ent->position.y < 0)
+             || (p_ent->position.y > data->game_field_size.y)
+             )
+            {
+                remove_entity(&scene->ent_manager, p_ent->m_id);
+            }
         }
     }
 }

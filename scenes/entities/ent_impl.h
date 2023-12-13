@@ -9,5 +9,6 @@ typedef enum EntityTag {
 } EntityTag_t;
 
 Entity_t* create_player(EntityManager_t* ent_manager);
+Entity_t* create_bullet(EntityManager_t* ent_manager);
 
 #endif // _ENT_IMPL_H
