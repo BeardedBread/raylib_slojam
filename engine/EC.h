@@ -40,6 +40,7 @@ typedef struct _CTransform_t {
     Vector2 accel;
     bool active;
     bool wraparound;
+    float shape_factor;
 } CTransform_t;
 
 // This is to store the occupying tiles

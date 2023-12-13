@@ -37,7 +37,7 @@ void player_movement_input_system(Scene_t* scene)
         {
             Entity_t* p_bullet = create_bullet(&scene->ent_manager);
             CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-            bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, 300);
+            bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, 600);
             p_bullet->position = p_player->position;
             p_pstate->shoot = 0;
         }
@@ -54,7 +54,7 @@ void global_external_forces_system(Scene_t* scene)
         // Friction
         p_ctransform->accel = Vector2Add(
             p_ctransform->accel,
-            Vector2Scale(p_ctransform->velocity, -0.5)
+            Vector2Scale(p_ctransform->velocity, -0.5 * p_ctransform->shape_factor)
         );
     }
 }

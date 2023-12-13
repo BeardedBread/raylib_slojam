@@ -75,7 +75,7 @@ static void arena_render_func(Scene_t* scene)
         ClearBackground(RAYWHITE);
         
 
-        sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
+        sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
             if (p_ent->m_tag == PLAYER_ENT_TAG)
             {
