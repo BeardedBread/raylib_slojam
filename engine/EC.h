@@ -14,15 +14,15 @@ typedef struct Entity Entity_t;
 typedef enum ComponentEnum {
     CTRANSFORM_T = 0,
     CBBOX_T,
-    CTILECOORD_T,
+    //CTILECOORD_T,
     CPLAYERSTATE_T,
     CCONTAINER_T,
     CHITBOXES_T,
     CHURTBOX_T,
     CSPRITE_T,
-    CMOVEABLE_T,
     CLIFETIMER_T,
     CEMITTER_T,
+    CWEAPON_T,
 } ComponentEnum_t;
 
 typedef struct _CBBox_t {
@@ -67,11 +67,25 @@ typedef struct _CContainer_t {
     uint8_t layers;
 } CContainer_t;
 
+typedef enum DamageType
+{
+    DMG_MELEE = 0,
+    DMG_PROJ,
+}DamageType;
+
+typedef struct _CWeapon {
+    float base_dmg;
+    float proj_speed;
+    float fire_rate;
+    float cooldown_timer;
+} CWeapon_t;
+
 typedef struct _CHitBoxes_t {
     Vector2 offset;
     float size;
     uint8_t atk;
     bool one_hit;
+    DamageType dmg_type;
 } CHitBoxes_t;
 
 typedef struct _CHurtbox_t {

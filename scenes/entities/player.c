@@ -1,3 +1,4 @@
+#include "EC.h"
 #include "ent_impl.h"
 Entity_t* create_player(EntityManager_t* ent_manager)
 {
@@ -13,6 +14,10 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_ct->shape_factor = 1.0f;
 
     add_component(p_ent, CPLAYERSTATE_T);
+    CWeapon_t* p_weapon = add_component(p_ent, CWEAPON_T);
+    p_weapon->base_dmg = 5;
+    p_weapon->fire_rate = 5.5f;
+    p_weapon->proj_speed = 800;
 
     return p_ent;
 }

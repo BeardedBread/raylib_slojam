@@ -5,6 +5,19 @@
 #include "ent_impl.h"
 #include "raymath.h"
 
+void weapon_cooldown_system(Scene_t* scene)
+{
+    CWeapon_t* p_weapon ;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CWEAPON_T], ent_idx, p_weapon)
+    {
+        if (p_weapon->cooldown_timer > 0)
+        {
+            p_weapon->cooldown_timer -= scene->delta_time;
+        }
+    }
+}
+
 void player_movement_input_system(Scene_t* scene)
 {
     CPlayerState_t* p_pstate;
@@ -35,10 +48,15 @@ void player_movement_input_system(Scene_t* scene)
         // Shoot
         if (p_pstate->shoot > 0)
         {
-            Entity_t* p_bullet = create_bullet(&scene->ent_manager);
-            CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-            bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, 600);
-            p_bullet->position = p_player->position;
+            CWeapon_t* p_weapon = get_component(p_player, CWEAPON_T);
+            if (p_weapon != NULL && p_weapon->cooldown_timer <= 0)
+            {
+                Entity_t* p_bullet = create_bullet(&scene->ent_manager);
+                CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+                bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
+                p_bullet->position = p_player->position;
+                p_weapon->cooldown_timer = 1.0f / p_weapon->fire_rate;
+            }
             p_pstate->shoot = 0;
         }
     }

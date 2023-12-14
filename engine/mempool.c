@@ -1,4 +1,6 @@
 #include "mempool.h"
+#include "EC.h"
+#include "engine_conf.h"
 //#include "sc/queue/sc_queue.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -65,27 +67,29 @@ typedef struct MemPool {
 static Entity_t entity_buffer[MAX_COMP_POOL_SIZE];
 static CBBox_t bbox_buffer[MAX_COMP_POOL_SIZE];
 static CTransform_t ctransform_buffer[MAX_COMP_POOL_SIZE];
-static CTileCoord_t ctilecoord_buffer[MAX_COMP_POOL_SIZE];
-static CPlayerState_t cplayerstate_buffer[8]; // Only player is expected to have this
+//static CTileCoord_t ctilecoord_buffer[MAX_COMP_POOL_SIZE];
+static CPlayerState_t cplayerstate_buffer[MAX_COMP_POOL_SIZE]; // Only player is expected to have this
 static CContainer_t ccontainer_buffer[MAX_COMP_POOL_SIZE];
 static CHitBoxes_t chitboxes_buffer[MAX_COMP_POOL_SIZE];
 static CHurtbox_t churtbox_buffer[MAX_COMP_POOL_SIZE];
 static CSprite_t csprite_buffer[MAX_COMP_POOL_SIZE];
 static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
-static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE]; // Only player is expected to have this
+static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
+static CWeapon_t cweapon_buffer[MAX_COMP_POOL_SIZE];
 
 // Static allocate mempools
 static MemPool_t comp_mempools[N_COMPONENTS] = {
     {ctransform_buffer, MAX_COMP_POOL_SIZE, sizeof(CTransform_t), NULL, {0}},
     {bbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CBBox_t), NULL, {0}},
-    {ctilecoord_buffer, MAX_COMP_POOL_SIZE, sizeof(CTileCoord_t), NULL, {0}},
-    {cplayerstate_buffer, 8, sizeof(CPlayerState_t), NULL, {0}},
+    //{ctilecoord_buffer, MAX_COMP_POOL_SIZE, sizeof(CTileCoord_t), NULL, {0}},
+    {cplayerstate_buffer, MAX_COMP_POOL_SIZE, sizeof(CPlayerState_t), NULL, {0}},
     {ccontainer_buffer, MAX_COMP_POOL_SIZE, sizeof(CContainer_t), NULL, {0}},
     {chitboxes_buffer, MAX_COMP_POOL_SIZE, sizeof(CHitBoxes_t), NULL, {0}},
     {churtbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CHurtbox_t), NULL, {0}},
     {csprite_buffer, MAX_COMP_POOL_SIZE, sizeof(CSprite_t), NULL, {0}},
     {clifetimer_buffer, MAX_COMP_POOL_SIZE, sizeof(CLifeTimer_t), NULL, {0}},
     {cemitter_buffer, MAX_COMP_POOL_SIZE, sizeof(CEmitter_t), NULL, {0}},
+    {cweapon_buffer, MAX_COMP_POOL_SIZE, sizeof(CWeapon_t), NULL, {0}},
 };
 static MemPool_t ent_mempool = {
     .buffer = entity_buffer,

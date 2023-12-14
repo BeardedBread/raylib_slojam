@@ -158,6 +158,7 @@ void init_level_scene(LevelScene_t* scene)
     update_entity_manager(&scene->scene.ent_manager);
 
     
+    sc_array_add(&scene->scene.systems, &weapon_cooldown_system);
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
     sc_array_add(&scene->scene.systems, &global_external_forces_system);
     sc_array_add(&scene->scene.systems, &movement_update_system);
