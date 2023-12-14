@@ -164,6 +164,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &movement_update_system);
     sc_array_add(&scene->scene.systems, &hitbox_update_system);
     sc_array_add(&scene->scene.systems, &player_dir_reset_system);
+    sc_array_add(&scene->scene.systems, &life_update_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
     
     sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);

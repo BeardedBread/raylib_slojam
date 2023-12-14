@@ -96,8 +96,10 @@ typedef struct _CHurtbox_t {
 } CHurtbox_t;
 
 typedef struct _CLifeTimer_t {
-    uint8_t timer;
-    uint8_t life_time;
+    int16_t current_life;
+    int16_t max_life;
+    int16_t corruption;
+    int16_t poison_value;
 } CLifeTimer_t;
 
 // Credits to bedroomcoders.co.uk for this

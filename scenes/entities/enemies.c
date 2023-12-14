@@ -12,5 +12,10 @@ Entity_t* create_enemy(EntityManager_t* ent_manager)
 
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
     p_hurtbox->size = 8;
+
+    CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
+    p_life->current_life = 4;
+    p_life->max_life = 4;
+
     return p_ent;
 }

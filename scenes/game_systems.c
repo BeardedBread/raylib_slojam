@@ -5,6 +5,19 @@
 #include "ent_impl.h"
 #include "raymath.h"
 
+void life_update_system(Scene_t* scene)
+{
+    CLifeTimer_t* p_life;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CLIFETIMER_T], ent_idx, p_life)
+    {
+        if (p_life->current_life <= 0)
+        {
+            remove_entity(&scene->ent_manager, ent_idx);
+        }
+    }
+}
+
 void weapon_cooldown_system(Scene_t* scene)
 {
     CWeapon_t* p_weapon ;
@@ -55,6 +68,10 @@ void player_movement_input_system(Scene_t* scene)
                 CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                 bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
                 p_bullet->position = p_player->position;
+
+                CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+                bullet_hitbox->atk = p_weapon->base_dmg;
+
                 p_weapon->cooldown_timer = 1.0f / p_weapon->fire_rate;
             }
             p_pstate->shoot = 0;
@@ -184,15 +201,14 @@ void hitbox_update_system(Scene_t* scene)
     CHitBoxes_t* p_hitbox;
     sc_map_foreach(&scene->ent_manager.component_map[CHITBOXES_T], ent_idx, p_hitbox)
     {
-        bool hit = false;
         Entity_t *p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (!p_ent->m_alive) continue;
-        CTransform_t* p_ctransform = get_component(p_ent, CTRANSFORM_T);
 
         memset(checked_entities, 0, sizeof(checked_entities));
 
         unsigned int other_ent_idx;
         CHurtbox_t* p_hurtbox;
+        CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
         sc_map_foreach(&scene->ent_manager.component_map[CHURTBOX_T], other_ent_idx, p_hurtbox)
         {
             if (other_ent_idx == ent_idx) continue;
@@ -205,10 +221,20 @@ void hitbox_update_system(Scene_t* scene)
 
             if (dist < p_ent->size + p_other_ent->size)
             {
-           
-                remove_entity(&scene->ent_manager, p_other_ent->m_id);
+                CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
+                if (p_other_life != NULL)
+                {
+                    p_other_life->current_life -= p_hitbox->atk;
+                }
+                if (p_life != NULL)
+                {
+                    p_life->current_life--;
+                    if (p_life->current_life <= 0)
+                    {
+                        break;
+                    }
+                }
             }
-
         }
     }
 }
