@@ -65,7 +65,7 @@ typedef struct MemPool {
 
 // Static allocate buffers
 static Entity_t entity_buffer[MAX_COMP_POOL_SIZE];
-static CBBox_t bbox_buffer[MAX_COMP_POOL_SIZE];
+//static CBBox_t bbox_buffer[MAX_COMP_POOL_SIZE];
 static CTransform_t ctransform_buffer[MAX_COMP_POOL_SIZE];
 //static CTileCoord_t ctilecoord_buffer[MAX_COMP_POOL_SIZE];
 static CPlayerState_t cplayerstate_buffer[MAX_COMP_POOL_SIZE]; // Only player is expected to have this
@@ -76,11 +76,13 @@ static CSprite_t csprite_buffer[MAX_COMP_POOL_SIZE];
 static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
 static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
 static CWeapon_t cweapon_buffer[MAX_COMP_POOL_SIZE];
+static CAIFunction_t caifunc_buffer[MAX_COMP_POOL_SIZE];
+static CSpawn_t cspawn_buffer[MAX_COMP_POOL_SIZE];
 
 // Static allocate mempools
 static MemPool_t comp_mempools[N_COMPONENTS] = {
     {ctransform_buffer, MAX_COMP_POOL_SIZE, sizeof(CTransform_t), NULL, {0}},
-    {bbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CBBox_t), NULL, {0}},
+    //{bbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CBBox_t), NULL, {0}},
     //{ctilecoord_buffer, MAX_COMP_POOL_SIZE, sizeof(CTileCoord_t), NULL, {0}},
     {cplayerstate_buffer, MAX_COMP_POOL_SIZE, sizeof(CPlayerState_t), NULL, {0}},
     {ccontainer_buffer, MAX_COMP_POOL_SIZE, sizeof(CContainer_t), NULL, {0}},
@@ -90,6 +92,8 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {clifetimer_buffer, MAX_COMP_POOL_SIZE, sizeof(CLifeTimer_t), NULL, {0}},
     {cemitter_buffer, MAX_COMP_POOL_SIZE, sizeof(CEmitter_t), NULL, {0}},
     {cweapon_buffer, MAX_COMP_POOL_SIZE, sizeof(CWeapon_t), NULL, {0}},
+    {caifunc_buffer, MAX_COMP_POOL_SIZE, sizeof(CAIFunction_t), NULL, {0}},
+    {cspawn_buffer, MAX_COMP_POOL_SIZE, sizeof(CSpawn_t), NULL, {0}},
 };
 static MemPool_t ent_mempool = {
     .buffer = entity_buffer,

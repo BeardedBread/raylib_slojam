@@ -5,6 +5,32 @@
 #include "ent_impl.h"
 #include "raymath.h"
 
+void ai_update_system(Scene_t* scene)
+{
+    CAIFunction_t* p_ai;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CAIFUNC_T], ent_idx, p_ai)
+    {
+        Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
+        p_ai->func[0](p_ent, p_ai->data, scene);
+    }
+}
+
+void spawned_update_system(Scene_t* scene)
+{
+    CSpawn_t* p_spwn;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CSPAWNED_T], ent_idx, p_spwn)
+    {
+        Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
+        if (!p_ent->m_alive)
+        {
+            CAIFunction_t* p_ai = get_component(p_spwn->spawner, CAIFUNC_T);
+            p_ai->func[1](p_ent, p_ai->data, scene);
+        }
+    }
+}
+
 void life_update_system(Scene_t* scene)
 {
     CLifeTimer_t* p_life;

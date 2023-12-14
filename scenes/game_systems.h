@@ -8,4 +8,6 @@ void movement_update_system(Scene_t* scene);
 void hitbox_update_system(Scene_t* scene);
 void player_dir_reset_system(Scene_t* scene);
 void life_update_system(Scene_t* scene);
+void ai_update_system(Scene_t* scene);
+void spawned_update_system(Scene_t* scene);
 #endif // _GAME_SYSTEMS_H

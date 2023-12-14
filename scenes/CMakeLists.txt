@@ -2,6 +2,7 @@ add_subdirectory(entities)
 add_library(lib_scenes STATIC
     level_scene.c
     game_systems.c
+    spawner.c
 )
 target_include_directories(lib_scenes
     PUBLIC

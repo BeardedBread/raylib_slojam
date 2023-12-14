@@ -13,7 +13,7 @@ typedef struct Entity Entity_t;
 
 typedef enum ComponentEnum {
     CTRANSFORM_T = 0,
-    CBBOX_T,
+    //CBBOX_T,
     //CTILECOORD_T,
     CPLAYERSTATE_T,
     CCONTAINER_T,
@@ -23,6 +23,8 @@ typedef enum ComponentEnum {
     CLIFETIMER_T,
     CEMITTER_T,
     CWEAPON_T,
+    CAIFUNC_T,
+    CSPAWNED_T
 } ComponentEnum_t;
 
 typedef struct _CBBox_t {
@@ -101,6 +103,18 @@ typedef struct _CLifeTimer_t {
     int16_t corruption;
     int16_t poison_value;
 } CLifeTimer_t;
+
+// This is so bad
+typedef void (*ai_func_t)(Entity_t* self, void* data, void* scene_data);
+typedef struct _CAIFunction_t {
+    void* scene_data;
+    void* data;
+    ai_func_t func[4]; // AI function slots, 0 - main, the rest is custom
+} CAIFunction_t;
+
+typedef struct _CSpawn_t {
+    Entity_t* spawner;
+} CSpawn_t;
 
 // Credits to bedroomcoders.co.uk for this
 typedef struct Sprite {
