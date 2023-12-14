@@ -52,6 +52,8 @@ static void level_scene_render_func(Scene_t* scene)
 
     static char mem_stats[512];
     print_mempool_stats(mem_stats);
+
+    Entity_t* p_ent;
     BeginDrawing();
         ClearBackground(LIGHTGRAY);
         DrawTextureRec(
@@ -60,7 +62,14 @@ static void level_scene_render_func(Scene_t* scene)
             (Vector2){data->game_rec.x, data->game_rec.y},
             WHITE
         );
-        DrawText(mem_stats, data->game_rec.x + data->game_rec.width, data->game_rec.y, 12, BLACK);
+        DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y, 12, BLACK);
+        sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
+        {
+            CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
+            sprintf(mem_stats, "HP: %u/%u ( %u )", p_life->current_life, p_life->max_life, p_life->corruption);
+            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 300, 32, BLACK);
+            break;
+        }
 
     EndDrawing();
 }
