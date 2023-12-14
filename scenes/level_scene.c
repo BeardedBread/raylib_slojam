@@ -68,6 +68,10 @@ static void level_scene_render_func(Scene_t* scene)
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
             sprintf(mem_stats, "HP: %u/%u ( %u )", p_life->current_life, p_life->max_life, p_life->corruption);
             DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 300, 32, BLACK);
+
+            CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+            sprintf(mem_stats, "Redirection: %.2f", p_pstate->boost_cooldown);
+            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 360, 32, BLACK);
             break;
         }
 

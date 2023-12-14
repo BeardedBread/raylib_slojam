@@ -58,6 +58,7 @@ typedef struct _CPlayerState_t {
     Vector2 aim_dir;
     uint8_t boosting;
     uint8_t shoot;
+    float boost_cooldown;
 } CPlayerState_t;
 
 typedef enum ContainerItem {

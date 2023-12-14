@@ -70,26 +70,37 @@ void player_movement_input_system(Scene_t* scene)
         
         p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->player_dir), MOVE_ACCEL);
         p_ctransform->accel = Vector2Scale(p_ctransform->accel, p_pstate->boosting? 2:1);
-        if (p_pstate->boosting == 0b01)
-        {
-            Vector2 mouse_pos = GetMousePosition();
-            Vector2 point_dir = Vector2Subtract(mouse_pos, p_player->position);
-            p_ctransform->velocity = Vector2Scale(
-                Vector2Normalize(point_dir),
-                Vector2Length(p_ctransform->velocity)
-            );
-        }
-        p_pstate->boosting <<= 1;
-        p_pstate->boosting &= 0b11;
 
         // Mouse aim direction
         if (p_player->m_tag == PLAYER_ENT_TAG)
         {
-            
             Vector2 raw_mouse_pos = GetMousePosition();
             raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
             p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(raw_mouse_pos, p_player->position));
         }
+
+        if (p_pstate->boost_cooldown > 0)
+        {
+            p_pstate->boost_cooldown -= scene->delta_time;
+        }
+
+        if (p_pstate->boosting == 0b01)
+        {
+            if (p_pstate->boost_cooldown <= 0)
+            {
+                p_ctransform->velocity = Vector2Scale(
+                    p_pstate->aim_dir,
+                    Vector2Length(p_ctransform->velocity)
+                );
+                p_pstate->boost_cooldown = 3.0f;
+            }
+            else
+            {
+                p_pstate->boosting &= ~(0b01);
+            }
+        }
+        p_pstate->boosting <<= 1;
+        p_pstate->boosting &= 0b11;
 
         // Shoot
         if (p_pstate->shoot > 0)
