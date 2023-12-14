@@ -59,6 +59,7 @@ void weapon_cooldown_system(Scene_t* scene)
 
 void player_movement_input_system(Scene_t* scene)
 {
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     CPlayerState_t* p_pstate;
     unsigned int ent_idx;
 
@@ -82,7 +83,13 @@ void player_movement_input_system(Scene_t* scene)
         p_pstate->boosting &= 0b11;
 
         // Mouse aim direction
-        p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(GetMousePosition(), p_player->position));
+        if (p_player->m_tag == PLAYER_ENT_TAG)
+        {
+            
+            Vector2 raw_mouse_pos = GetMousePosition();
+            raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
+            p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(raw_mouse_pos, p_player->position));
+        }
 
         // Shoot
         if (p_pstate->shoot > 0)

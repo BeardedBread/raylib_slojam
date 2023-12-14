@@ -128,7 +128,10 @@ static void arena_render_func(Scene_t* scene)
                     p_ent->position,
                     Vector2Scale(p_pstate->aim_dir, 64)
                 );
-                DrawCircleV(look_dir, 8, BLACK);
+                DrawLineEx(p_ent->position, look_dir, 2, BLACK);
+                Vector2 raw_mouse_pos = GetMousePosition();
+                raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
+                DrawCircleV(raw_mouse_pos, 2, BLACK);
                 DrawText(buffer, 64, 64, 24, RED);
             }
             else if (p_ent->m_tag == ENEMY_ENT_TAG)
