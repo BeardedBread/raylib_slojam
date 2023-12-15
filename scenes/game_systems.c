@@ -69,7 +69,6 @@ void player_movement_input_system(Scene_t* scene)
         CTransform_t* p_ctransform = get_component(p_player, CTRANSFORM_T);
         
         p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->player_dir), MOVE_ACCEL);
-        p_ctransform->accel = Vector2Scale(p_ctransform->accel, p_pstate->boosting? 2:1);
 
         // Mouse aim direction
         if (p_player->m_tag == PLAYER_ENT_TAG)
@@ -88,9 +87,10 @@ void player_movement_input_system(Scene_t* scene)
         {
             if (p_pstate->boost_cooldown <= 0)
             {
+                float boost_speed = Vector2Length(p_ctransform->velocity);
                 p_ctransform->velocity = Vector2Scale(
                     p_pstate->aim_dir,
-                    Vector2Length(p_ctransform->velocity)
+                    boost_speed > 400 ? boost_speed : 400
                 );
                 p_pstate->boost_cooldown = 3.0f;
             }
