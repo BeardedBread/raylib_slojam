@@ -90,10 +90,20 @@ static void arena_render_func(Scene_t* scene)
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
-            if (p_ent->m_tag == PLAYER_ENT_TAG)
+            Color c = BLUE;
+            if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
-                snprintf(buffer, 32, "%.3f %.3f", p_ent->position.x, p_ent->position.y);
-                DrawCircleV(p_ent->position, p_ent->size, PURPLE);
+                c = RED;
+            }
+            else if (p_ent->m_tag == PLAYER_ENT_TAG)
+            {
+                c = PURPLE;
+            }
+            DrawCircleV(p_ent->position, p_ent->size, c);
+
+            CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+            if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)
+            {
                 
                 int8_t flip_x = 0;
                 int8_t flip_y = 0;
@@ -119,43 +129,38 @@ static void arena_render_func(Scene_t* scene)
                 if (flip_x != 0 && flip_y != 0)
                 {
                     clone_pos.x += flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                    DrawCircleV(clone_pos, p_ent->size, c);
                     clone_pos.y += flip_y * data->game_field_size.y;
-                    DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                    DrawCircleV(clone_pos, p_ent->size, c);
                     clone_pos.x -= flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                    DrawCircleV(clone_pos, p_ent->size, c);
                 }
                 else if (flip_x != 0)
                 {
                     clone_pos.x += flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                    DrawCircleV(clone_pos, p_ent->size, c);
                 }
                 else
                 {
                     clone_pos.y += flip_y * data->game_field_size.y;
-                    DrawCircleV(clone_pos, p_ent->size, PURPLE);
+                    DrawCircleV(clone_pos, p_ent->size, c);
                 }
 
-                CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+            }
+            
+            CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+            if (p_pstate != NULL)
+            {
                 Vector2 look_dir = Vector2Add(
                     p_ent->position,
                     Vector2Scale(p_pstate->aim_dir, 64)
                 );
                 DrawLineEx(p_ent->position, look_dir, 2, BLACK);
-                Vector2 raw_mouse_pos = GetMousePosition();
-                raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
-                DrawCircleV(raw_mouse_pos, 2, BLACK);
-                DrawText(buffer, 64, 64, 24, RED);
-            }
-            else if (p_ent->m_tag == ENEMY_ENT_TAG)
-            {
-                DrawCircleV(p_ent->position, p_ent->size, RED);
-            }
-            else
-            {
-                DrawCircleV(p_ent->position, p_ent->size, BLUE);
             }
         }
+        Vector2 raw_mouse_pos = GetMousePosition();
+        raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
+        DrawCircleV(raw_mouse_pos, 2, BLACK);
     EndTextureMode();
 }
 
