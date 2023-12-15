@@ -8,6 +8,10 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_ent->position = (Vector2){128,128};
     p_ent->size = 8;
 
+    CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
+    p_hurtbox->size = 8;
+    p_hurtbox->src = DMGSRC_PLAYER;
+
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
     p_ct->edge_b = EDGE_WRAPAROUND;

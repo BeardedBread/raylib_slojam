@@ -115,6 +115,7 @@ void player_movement_input_system(Scene_t* scene)
 
                 CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                 bullet_hitbox->atk = p_weapon->base_dmg;
+                bullet_hitbox->src = DMGSRC_PLAYER;
 
                 p_weapon->cooldown_timer = 1.0f / p_weapon->fire_rate;
             }
@@ -252,6 +253,18 @@ void movement_update_system(Scene_t* scene)
         
     }
 }
+void invuln_update_system(Scene_t* scene)
+{
+    unsigned int ent_idx;
+    CHurtbox_t* p_hurtbox;
+    sc_map_foreach(&scene->ent_manager.component_map[CHURTBOX_T], ent_idx, p_hurtbox)
+    {
+        if (p_hurtbox->invuln_timer > 0)
+        {
+            p_hurtbox->invuln_timer -= scene->delta_time;
+        }
+    }
+}
 
 void hitbox_update_system(Scene_t* scene)
 {
@@ -274,14 +287,18 @@ void hitbox_update_system(Scene_t* scene)
         {
             if (other_ent_idx == ent_idx) continue;
             if (checked_entities[other_ent_idx]) continue;
+            if (p_hurtbox->invuln_timer > 0) continue;
 
             Entity_t* p_other_ent = get_entity(&scene->ent_manager, other_ent_idx);
+
+            if (p_hitbox->src == p_hurtbox->src) continue;
             if (!p_other_ent->m_alive) continue;
 
             float dist = Vector2Distance(p_ent->position, p_other_ent->position);
 
             if (dist < p_ent->size + p_other_ent->size)
             {
+                p_hurtbox->invuln_timer = 0.4f;
                 CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
                 if (p_other_life != NULL)
                 {

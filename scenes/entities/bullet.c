@@ -14,7 +14,6 @@ Entity_t* create_bullet(EntityManager_t* ent_manager)
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = 6;
     p_hitbox->dmg_type = DMG_PROJ;
-    p_hitbox->one_hit = true;
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;

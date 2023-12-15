@@ -85,6 +85,13 @@ typedef enum DamageType
     DMG_PROJ,
 }DamageType;
 
+typedef enum DamageSource
+{
+    DMGSRC_NEUTRAL = 0,
+    DMGSRC_PLAYER,
+    DMGSRC_ENEMY,
+}DamageSource;
+
 typedef struct _CWeapon {
     float base_dmg;
     float proj_speed;
@@ -98,13 +105,16 @@ typedef struct _CHitBoxes_t {
     uint8_t atk;
     bool one_hit;
     DamageType dmg_type;
+    DamageSource src;
 } CHitBoxes_t;
 
 typedef struct _CHurtbox_t {
     Vector2 offset;
     float size;
-    uint8_t def;
+    float invuln_timer;
+    DamageSource src;
     unsigned int damage_src;
+    uint8_t def;
 } CHurtbox_t;
 
 typedef struct _CLifeTimer_t {
