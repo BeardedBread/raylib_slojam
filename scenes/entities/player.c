@@ -10,7 +10,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
-    p_ct->wraparound = true;
+    p_ct->edge_b = EDGE_WRAPAROUND;
     p_ct->shape_factor = 1.0f;
 
     add_component(p_ent, CPLAYERSTATE_T);

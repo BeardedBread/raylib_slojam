@@ -154,6 +154,7 @@ void movement_update_system(Scene_t* scene)
             memset(&p_ctransform->accel, 0, sizeof(Vector2));
             continue;
         }
+        p_ctransform->prev_position = p_ent->position;
         p_ctransform->prev_velocity = p_ctransform->velocity;
 
         p_ctransform->velocity = Vector2Add(
@@ -180,28 +181,43 @@ void movement_update_system(Scene_t* scene)
         memset(&p_ctransform->accel, 0, sizeof(p_ctransform->accel));
 
         // Level boundary collision
-        //if (p_ent->position.x - p_ent->size < 0)
-        //{
-        //    p_ent->position.x =  p_ent->size;
-        //    p_ctransform->velocity.x = 0;
-        //}
-        //else if (p_ent->position.x + p_ent->size > data->game_field_size.x)
-        //{
-        //    p_ent->position.x =  data->game_field_size.x - p_ent->size;
-        //    p_ctransform->velocity.x = 0;
-        //}
-        //
-        //if (p_ent->position.y - p_ent->size < 0)
-        //{
-        //    p_ent->position.y =  p_ent->size;
-        //    p_ctransform->velocity.y = 0;
-        //}
-        //else if (p_ent->position.y + p_ent->size > data->game_field_size.y)
-        //{
-        //    p_ent->position.y =  data->game_field_size.y - p_ent->size;
-        //    p_ctransform->velocity.y = 0;
-        //}
-        if (p_ctransform->wraparound)
+        if (p_ctransform->edge_b == EDGE_BOUNCE)
+        {
+            if (
+                p_ent->position.x - p_ent->size < 0
+                && p_ctransform->prev_position.x + p_ent->size >= 0
+            )
+            {
+                p_ent->position.x =  p_ent->size;
+                p_ctransform->velocity.x *= -1.0f;
+            }
+            else if (
+                p_ent->position.x + p_ent->size > data->game_field_size.x
+                && p_ctransform->prev_position.x - p_ent->size <= data->game_field_size.x
+            )
+            {
+                p_ent->position.x =  data->game_field_size.x - p_ent->size;
+                p_ctransform->velocity.x *= -1.0f;
+            }
+            
+            if (
+                p_ent->position.y - p_ent->size < 0
+                && p_ctransform->prev_position.y + p_ent->size >= 0
+            )
+            {
+                p_ent->position.y =  p_ent->size;
+                p_ctransform->velocity.y *= -1.0f;
+            }
+            else if (
+                p_ent->position.y + p_ent->size > data->game_field_size.y
+                && p_ctransform->prev_position.y - p_ent->size <= data->game_field_size.y
+            )
+            {
+                p_ent->position.y =  data->game_field_size.y - p_ent->size;
+                p_ctransform->velocity.y *= -1.0f;
+            }
+        }
+        else if (p_ctransform->edge_b == EDGE_WRAPAROUND)
         {
             if (p_ent->position.x < 0)
             {

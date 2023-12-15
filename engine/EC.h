@@ -35,13 +35,19 @@ typedef struct _CBBox_t {
     bool fragile;
 } CBBox_t;
 
+typedef enum EdgeBehaviour {
+    EDGE_DESTROY = 0,
+    EDGE_BOUNCE,
+    EDGE_WRAPAROUND
+}EdgeBehaviour_t;
+
 typedef struct _CTransform_t {
     Vector2 prev_position;
     Vector2 prev_velocity;
     Vector2 velocity;
     Vector2 accel;
     bool active;
-    bool wraparound;
+    EdgeBehaviour_t edge_b;
     float shape_factor;
 } CTransform_t;
 

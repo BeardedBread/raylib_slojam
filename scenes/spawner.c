@@ -30,12 +30,19 @@ void spawn_logic_func(Entity_t* self, void* data, void* scene)
         Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager);
         CSpawn_t* p_spwn = add_component(p_ent, CSPAWNED_T);
         p_spwn->spawner = self;
+        spwn_data->countdown_timer = 1.0f;
+        spwn_data->spawned++;
+
         p_ent->position = (Vector2){
             GetRandomValue(0, lvl_scene->data.game_field_size.x),
             GetRandomValue(0, lvl_scene->data.game_field_size.y)
         };
-        spwn_data->countdown_timer = 1.0f;
-        spwn_data->spawned++;
+        CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+        p_ct->velocity = (Vector2){
+            GetRandomValue(-200, 200),
+            GetRandomValue(-200, 200)
+        };
+
     }
 
 }

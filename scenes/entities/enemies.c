@@ -9,6 +9,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager)
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
+    p_ct->edge_b = EDGE_BOUNCE;
 
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
     p_hurtbox->size = 10;
