@@ -162,7 +162,7 @@ void movement_update_system(Scene_t* scene)
             Vector2Scale(p_ctransform->accel, delta_time)
         );
 
-        float mag = Vector2Length(p_ctransform->velocity);
+        //float mag = Vector2Length(p_ctransform->velocity);
         //p_ctransform->velocity = Vector2Scale(
         //    Vector2Normalize(p_ctransform->velocity),
         //    (mag > PLAYER_MAX_SPEED)? PLAYER_MAX_SPEED:mag
@@ -180,12 +180,24 @@ void movement_update_system(Scene_t* scene)
         );
         memset(&p_ctransform->accel, 0, sizeof(p_ctransform->accel));
 
+        // Absolute boundary
+        if (p_ent->position.x < -180
+         || (p_ent->position.x > data->game_field_size.x + 180)
+        
+         || (p_ent->position.y < -180)
+         || (p_ent->position.y > data->game_field_size.y + 180)
+         )
+        {
+            remove_entity(&scene->ent_manager, p_ent->m_id);
+            continue;
+        }
+
         // Level boundary collision
         if (p_ctransform->edge_b == EDGE_BOUNCE)
         {
             if (
                 p_ent->position.x - p_ent->size < 0
-                && p_ctransform->prev_position.x + p_ent->size >= 0
+                && p_ctransform->prev_position.x - p_ent->size >= 0
             )
             {
                 p_ent->position.x =  p_ent->size;
@@ -193,7 +205,7 @@ void movement_update_system(Scene_t* scene)
             }
             else if (
                 p_ent->position.x + p_ent->size > data->game_field_size.x
-                && p_ctransform->prev_position.x - p_ent->size <= data->game_field_size.x
+                && (p_ctransform->prev_position.x + p_ent->size <= data->game_field_size.x )
             )
             {
                 p_ent->position.x =  data->game_field_size.x - p_ent->size;
@@ -202,7 +214,7 @@ void movement_update_system(Scene_t* scene)
             
             if (
                 p_ent->position.y - p_ent->size < 0
-                && p_ctransform->prev_position.y + p_ent->size >= 0
+                && p_ctransform->prev_position.y - p_ent->size >= 0
             )
             {
                 p_ent->position.y =  p_ent->size;
@@ -210,7 +222,7 @@ void movement_update_system(Scene_t* scene)
             }
             else if (
                 p_ent->position.y + p_ent->size > data->game_field_size.y
-                && p_ctransform->prev_position.y - p_ent->size <= data->game_field_size.y
+                && p_ctransform->prev_position.y + p_ent->size <= data->game_field_size.y
             )
             {
                 p_ent->position.y =  data->game_field_size.y - p_ent->size;
@@ -237,18 +249,7 @@ void movement_update_system(Scene_t* scene)
                 p_ent->position.y -= data->game_field_size.y;
             }
         }
-        else
-        {
-            if (p_ent->position.x < 0
-             || (p_ent->position.x > data->game_field_size.x)
-            
-             || (p_ent->position.y < 0)
-             || (p_ent->position.y > data->game_field_size.y)
-             )
-            {
-                remove_entity(&scene->ent_manager, p_ent->m_id);
-            }
-        }
+        
     }
 }
 

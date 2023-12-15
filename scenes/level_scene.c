@@ -86,7 +86,7 @@ static void arena_render_func(Scene_t* scene)
     
     BeginTextureMode(data->game_viewport);
         ClearBackground(RAYWHITE);
-        
+        BeginMode2D(data->cam);
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
@@ -161,6 +161,8 @@ static void arena_render_func(Scene_t* scene)
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
         DrawCircleV(raw_mouse_pos, 2, BLACK);
+
+        EndMode2D();
     EndTextureMode();
 }
 
@@ -172,6 +174,15 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_field_size = (Vector2){ARENA_SIZE, ARENA_SIZE};
     scene->data.game_viewport = LoadRenderTexture(ARENA_SIZE, ARENA_SIZE);
     scene->data.game_rec = (Rectangle){25, 25, ARENA_SIZE, ARENA_SIZE};
+    
+    memset(&scene->data.cam, 0, sizeof(Camera2D));
+    scene->data.cam.zoom = 1.0;
+    scene->data.cam.target = (Vector2){
+        0,0
+    };
+    scene->data.cam.offset = (Vector2){
+        0,0
+    };
     
     create_player(&scene->scene.ent_manager);
     create_spawner(&scene->scene.ent_manager);

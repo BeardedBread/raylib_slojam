@@ -27,22 +27,52 @@ void spawn_logic_func(Entity_t* self, void* data, void* scene)
     spwn_data->countdown_timer -= lvl_scene->scene.delta_time;
     if (spwn_data->countdown_timer <= 0.0f)
     {
-        Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager);
+        float enemy_sz = 32;
+        Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager, enemy_sz);
         CSpawn_t* p_spwn = add_component(p_ent, CSPAWNED_T);
         p_spwn->spawner = self;
-        spwn_data->countdown_timer = 1.0f;
+        spwn_data->countdown_timer = 2.0f;
         spwn_data->spawned++;
 
-        p_ent->position = (Vector2){
-            GetRandomValue(0, lvl_scene->data.game_field_size.x),
-            GetRandomValue(0, lvl_scene->data.game_field_size.y)
-        };
         CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
-        p_ct->velocity = (Vector2){
-            GetRandomValue(-200, 200),
-            GetRandomValue(-200, 200)
-        };
+        // Pick a side
+        uint8_t side = GetRandomValue(0, 3);
+        float speed = GetRandomValue(100, 300);
+        float angle = 90.0f * side;
+        switch (side)
+        {
+            case 0:
+                p_ent->position = (Vector2){
+                    -80,
+                    GetRandomValue(0, lvl_scene->data.game_field_size.y - enemy_sz)
+                };
+            break;
+            case 1:
+                p_ent->position = (Vector2){
+                    GetRandomValue(0, lvl_scene->data.game_field_size.x - enemy_sz),
+                    -80
+                };
+            break;
+            case 2:
+                p_ent->position = (Vector2){
+                    lvl_scene->data.game_field_size.x + 80,
+                    GetRandomValue(0, lvl_scene->data.game_field_size.y - enemy_sz)
+                };
+            break;
+            default:
+                p_ent->position = (Vector2){
+                    GetRandomValue(0, lvl_scene->data.game_field_size.x - enemy_sz),
+                    lvl_scene->data.game_field_size.y + 80
+                };
+            break;
+        }
 
+        angle += GetRandomValue(-30, 30);
+        angle = angle * PI / 180;
+        p_ct->velocity = (Vector2){
+            speed * cosf(angle),
+            speed * sinf(angle),
+        };
     }
 
 }
