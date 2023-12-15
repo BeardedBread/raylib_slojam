@@ -10,6 +10,13 @@ struct SpawnData
     uint16_t spawned;
 };
 
+void split_spawn_logic_func(Entity_t* self, void* data, void* scene)
+{
+    struct SpawnData* spwn_data = (struct SpawnData*)data;
+
+    spwn_data->spawned++;
+}
+
 void despawn_logic_func(Entity_t* self, void* data, void* scene)
 {
     struct SpawnData* spwn_data = (struct SpawnData*)data;
@@ -22,7 +29,7 @@ void spawn_logic_func(Entity_t* self, void* data, void* scene)
     LevelScene_t* lvl_scene = (LevelScene_t*)scene;
     struct SpawnData* spwn_data = (struct SpawnData*)data;
 
-    if (spwn_data->spawned == 15) return;
+    if (spwn_data->spawned >= 15) return;
 
     spwn_data->countdown_timer -= lvl_scene->scene.delta_time;
     if (spwn_data->countdown_timer <= 0.0f)
@@ -73,6 +80,7 @@ void spawn_logic_func(Entity_t* self, void* data, void* scene)
             speed * cosf(angle),
             speed * sinf(angle),
         };
+
     }
 
 }
@@ -86,6 +94,7 @@ Entity_t* create_spawner(EntityManager_t* ent_manager)
     p_ai->data = calloc(1, sizeof(struct SpawnData));
     p_ai->func[0] = &spawn_logic_func;
     p_ai->func[1] = &despawn_logic_func;
+    p_ai->func[2] = &split_spawn_logic_func;
     return p_ent;
 }
 

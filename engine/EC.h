@@ -36,7 +36,7 @@ typedef struct _CBBox_t {
 } CBBox_t;
 
 typedef enum EdgeBehaviour {
-    EDGE_DESTROY = 0,
+    EDGE_NORMAL = 0,
     EDGE_BOUNCE,
     EDGE_WRAPAROUND
 }EdgeBehaviour_t;
@@ -68,12 +68,15 @@ typedef struct _CPlayerState_t {
 } CPlayerState_t;
 
 typedef enum ContainerItem {
-    CONTAINER_EMPTY,
+    CONTAINER_EMPTY = 0,
+    CONTAINER_BULLETS,
+    CONTAINER_ENEMY,
+    CONTAINER_BOMB,
 } ContainerItem_t;
 
 typedef struct _CContainer_t {
     ContainerItem_t item;
-    uint8_t layers;
+    uint8_t num;
 } CContainer_t;
 
 typedef enum DamageType

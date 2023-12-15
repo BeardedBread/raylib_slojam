@@ -18,6 +18,9 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     p_life->current_life = 4;
     p_life->max_life = 4;
 
+    CContainer_t* p_container = add_component(p_ent, CCONTAINER_T);
+    p_container->item = CONTAINER_ENEMY;
+    p_container->num = 2;
     return p_ent;
 }
 

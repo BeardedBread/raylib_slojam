@@ -300,6 +300,60 @@ void hitbox_update_system(Scene_t* scene)
     }
 }
 
+void container_destroy_system(Scene_t* scene)
+{
+    unsigned int ent_idx;
+    CContainer_t* p_container;
+    sc_map_foreach(&scene->ent_manager.component_map[CCONTAINER_T], ent_idx, p_container)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        if (p_ent->m_alive) continue;
+        CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+        CSpawn_t* p_spwn = get_component(p_ent, CSPAWNED_T);
+        float angle = 0.0f;
+        float speed = 100.0f;
+        if (p_ct != NULL)
+        {
+            angle = atan2f(p_ct->velocity.y, p_ct->velocity.x);
+            speed = Vector2Length(p_ct->velocity);
+        }
+
+        switch (p_container->item)
+        {
+            case CONTAINER_ENEMY:
+            {
+                if (p_ent->size <= 8 || p_container->num == 0) break;
+
+                float increment = 2 * PI / p_container->num;
+                angle += increment / 2;
+                for (uint8_t i = 0; i < p_container->num; ++i)
+                {
+                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / 2);
+                    p_enemy->position = p_ent->position;
+
+                    CTransform_t* enemy_ct = get_component(p_enemy, CTRANSFORM_T);
+                    enemy_ct->velocity = (Vector2){
+                        speed * cosf(angle),
+                        speed * sinf(angle),
+                    };
+                    angle += increment;
+                    if (p_spwn != NULL)
+                    {
+
+                        CAIFunction_t* p_ai = get_component(p_spwn->spawner, CAIFUNC_T);
+                        p_ai->func[2](p_ent, p_ai->data, scene);
+                        CSpawn_t* new_spwn = add_component(p_enemy, CSPAWNED_T);
+                        new_spwn->spawner = p_spwn->spawner;
+                    }
+                }
+            }
+            break;
+            default:
+            break;
+        }
+    }
+}
+
 void player_dir_reset_system(Scene_t* scene)
 {
     CPlayerState_t* p_pstate;
