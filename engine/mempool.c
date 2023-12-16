@@ -76,6 +76,7 @@ static CSprite_t csprite_buffer[MAX_COMP_POOL_SIZE];
 static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
 static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
 static CWeapon_t cweapon_buffer[MAX_COMP_POOL_SIZE];
+static CWeaponStore_t cweaponstore_buffer[16];
 static CAIFunction_t caifunc_buffer[MAX_COMP_POOL_SIZE];
 static CSpawn_t cspawn_buffer[MAX_COMP_POOL_SIZE];
 
@@ -92,6 +93,7 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {clifetimer_buffer, MAX_COMP_POOL_SIZE, sizeof(CLifeTimer_t), NULL, {0}},
     {cemitter_buffer, MAX_COMP_POOL_SIZE, sizeof(CEmitter_t), NULL, {0}},
     {cweapon_buffer, MAX_COMP_POOL_SIZE, sizeof(CWeapon_t), NULL, {0}},
+    {cweaponstore_buffer, 16, sizeof(CWeaponStore_t), NULL, {0}},
     {caifunc_buffer, MAX_COMP_POOL_SIZE, sizeof(CAIFunction_t), NULL, {0}},
     {cspawn_buffer, MAX_COMP_POOL_SIZE, sizeof(CSpawn_t), NULL, {0}},
 };

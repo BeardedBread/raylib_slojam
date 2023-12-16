@@ -1,5 +1,21 @@
 #include "EC.h"
 #include "ent_impl.h"
+
+CWeapon_t all_weapons[2] = {
+    // Pistol
+    {
+        .base_dmg = 5, .proj_speed = 800, .fire_rate = 5.5f,
+        .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
+        .weapon_idx = 0,
+    },
+    // Shotgun
+    {
+        .base_dmg = 7, .proj_speed = 1100, .fire_rate = 1.3f,
+        .cooldown_timer = 0, .spread_range = 3*PI/180, .n_bullets = 7,
+        .weapon_idx = 1,
+    },
+};
+
 Entity_t* create_player(EntityManager_t* ent_manager)
 {
     Entity_t* p_ent = add_entity(ent_manager, PLAYER_ENT_TAG);
@@ -19,10 +35,14 @@ Entity_t* create_player(EntityManager_t* ent_manager)
 
     add_component(p_ent, CPLAYERSTATE_T);
 
+    CWeaponStore_t* p_weaponstore = add_component(p_ent, CWEAPONSTORE_T);
+    memcpy(p_weaponstore->weapons, all_weapons, sizeof(all_weapons));
+    p_weaponstore->n_weapons = 2;
+    p_weaponstore->unlocked[0] = true;
+    p_weaponstore->unlocked[1] = true;
+
     CWeapon_t* p_weapon = add_component(p_ent, CWEAPON_T);
-    p_weapon->base_dmg = 5;
-    p_weapon->fire_rate = 5.5f;
-    p_weapon->proj_speed = 800;
+    *p_weapon = p_weaponstore->weapons[0];
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 30;

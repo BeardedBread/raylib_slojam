@@ -14,6 +14,9 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
     sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
     {
         CPlayerState_t* p_playerstate = get_component(p_player, CPLAYERSTATE_T);
+        CWeaponStore_t* p_weaponstore = get_component(p_player, CWEAPONSTORE_T);
+        CWeapon_t* p_weapon = get_component(p_player, CWEAPON_T);
+        uint8_t new_weapon = p_weapon->weapon_idx;
         switch(action)
         {
             case ACTION_UP:
@@ -34,8 +37,28 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
             case ACTION_SHOOT:
                 p_playerstate->shoot |= (pressed) ? 1 : 0;
             break;
+            case ACTION_SELECT1:
+                new_weapon = 0;
+            break;
+            case ACTION_SELECT2:
+                new_weapon = 1;
+            break;
+            case ACTION_SELECT3:
+                new_weapon = 2;
+            break;
+            case ACTION_SELECT4:
+                new_weapon = 3;
+            break;
             default:
             break;
+        }
+        if (new_weapon != p_weapon->weapon_idx)
+        {
+            if (new_weapon < p_weaponstore->n_weapons && p_weaponstore->unlocked[new_weapon])
+            {
+                p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
+                *p_weapon = p_weaponstore->weapons[new_weapon];
+            }
         }
     }
     return;
@@ -206,6 +229,10 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_LEFT);
     sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_RIGHT);
+    sc_map_put_64(&scene->scene.action_map, KEY_ONE, ACTION_SELECT1);
+    sc_map_put_64(&scene->scene.action_map, KEY_TWO, ACTION_SELECT2);
+    sc_map_put_64(&scene->scene.action_map, KEY_THREE, ACTION_SELECT3);
+    sc_map_put_64(&scene->scene.action_map, KEY_FOUR, ACTION_SELECT4);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
 }

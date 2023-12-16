@@ -23,6 +23,7 @@ typedef enum ComponentEnum {
     CLIFETIMER_T,
     CEMITTER_T,
     CWEAPON_T,
+    CWEAPONSTORE_T,
     CAIFUNC_T,
     CSPAWNED_T
 } ComponentEnum_t;
@@ -97,7 +98,16 @@ typedef struct _CWeapon {
     float proj_speed;
     float fire_rate;
     float cooldown_timer;
+    float spread_range;
+    uint8_t n_bullets;
+    uint8_t weapon_idx;
 } CWeapon_t;
+
+typedef struct _CWeaponStore {
+    uint8_t n_weapons;
+    CWeapon_t weapons[8];
+    bool unlocked[8];
+} CWeaponStore_t;
 
 typedef struct _CHitBoxes_t {
     Vector2 offset;

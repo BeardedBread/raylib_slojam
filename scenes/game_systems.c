@@ -108,14 +108,58 @@ void player_movement_input_system(Scene_t* scene)
             CWeapon_t* p_weapon = get_component(p_player, CWEAPON_T);
             if (p_weapon != NULL && p_weapon->cooldown_timer <= 0)
             {
-                Entity_t* p_bullet = create_bullet(&scene->ent_manager);
-                CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-                bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
-                p_bullet->position = p_player->position;
+                uint8_t bullets = p_weapon->n_bullets;
+                float angle = atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x);
+                float angle_increment = 0.0f;
+                if (p_weapon->n_bullets % 2 == 1)
+                {
+                    Entity_t* p_bullet = create_bullet(&scene->ent_manager);
+                    CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+                    bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
+                    p_bullet->position = p_player->position;
+                    CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+                    bullet_hitbox->atk = p_weapon->base_dmg;
+                    bullet_hitbox->src = DMGSRC_PLAYER;
 
-                CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
-                bullet_hitbox->atk = p_weapon->base_dmg;
-                bullet_hitbox->src = DMGSRC_PLAYER;
+                    bullets--;
+                    angle -= p_weapon->spread_range;
+                    angle_increment = p_weapon->spread_range;
+                }
+                else
+                {
+                    angle -= p_weapon->spread_range / 2;
+                    angle_increment = p_weapon->spread_range / 2;
+                }
+
+                bullets >>= 1;
+
+                for (uint8_t i = 0; i < bullets; i++)
+                {
+                    Entity_t* p_bullet = create_bullet(&scene->ent_manager);
+                    CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+                    bullet_ct->velocity = (Vector2){
+                        p_weapon->proj_speed * cosf(angle),
+                        p_weapon->proj_speed * sinf(angle),
+                    };
+                    p_bullet->position = p_player->position;
+                    CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+                    bullet_hitbox->atk = p_weapon->base_dmg;
+                    bullet_hitbox->src = DMGSRC_PLAYER;
+
+                    p_bullet = create_bullet(&scene->ent_manager);
+                    bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+                    bullet_ct->velocity = (Vector2){
+                        p_weapon->proj_speed * cosf(angle + 2 * angle_increment),
+                        p_weapon->proj_speed * sinf(angle + 2 * angle_increment),
+                    };
+                    p_bullet->position = p_player->position;
+                    bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+                    bullet_hitbox->atk = p_weapon->base_dmg;
+                    bullet_hitbox->src = DMGSRC_PLAYER;
+
+                    angle -= p_weapon->spread_range;
+                    angle_increment += p_weapon->spread_range;
+                }
 
                 p_weapon->cooldown_timer = 1.0f / p_weapon->fire_rate;
             }
