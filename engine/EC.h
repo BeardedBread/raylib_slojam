@@ -99,6 +99,7 @@ typedef struct _CWeapon {
     float fire_rate;
     float cooldown_timer;
     float spread_range;
+    float bullet_lifetime;
     uint8_t n_bullets;
     uint8_t weapon_idx;
 } CWeapon_t;
@@ -130,8 +131,9 @@ typedef struct _CHurtbox_t {
 typedef struct _CLifeTimer_t {
     int16_t current_life;
     int16_t max_life;
-    int16_t corruption;
-    int16_t poison_value;
+    float corruption;
+    float poison;
+    float poison_value;
 } CLifeTimer_t;
 
 // This is so bad

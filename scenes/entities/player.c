@@ -6,13 +6,13 @@ CWeapon_t all_weapons[2] = {
     {
         .base_dmg = 5, .proj_speed = 800, .fire_rate = 5.5f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .weapon_idx = 0,
+        .bullet_lifetime = 0, .weapon_idx = 0,
     },
     // Shotgun
     {
         .base_dmg = 7, .proj_speed = 1100, .fire_rate = 1.3f,
-        .cooldown_timer = 0, .spread_range = 3*PI/180, .n_bullets = 7,
-        .weapon_idx = 1,
+        .cooldown_timer = 0, .spread_range = 5*PI/180, .n_bullets = 7,
+        .bullet_lifetime = 4.6f, .weapon_idx = 1,
     },
 };
 

@@ -41,6 +41,15 @@ void life_update_system(Scene_t* scene)
         {
             remove_entity(&scene->ent_manager, ent_idx);
         }
+        else
+        {
+            p_life->poison += p_life->poison_value;
+            if (p_life->poison > 100.0f)
+            {
+                p_life->current_life--;
+                p_life->poison -= 100.0f;
+            }
+        }
     }
 }
 
@@ -121,6 +130,9 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
 
+                    CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
+                    bullet_life->poison_value = p_weapon->bullet_lifetime;
+
                     bullets--;
                     angle -= p_weapon->spread_range;
                     angle_increment = p_weapon->spread_range;
@@ -146,6 +158,9 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
 
+                    CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
+                    bullet_life->poison_value = p_weapon->bullet_lifetime;
+
                     p_bullet = create_bullet(&scene->ent_manager);
                     bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                     bullet_ct->velocity = (Vector2){
@@ -156,6 +171,9 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
+
+                    bullet_life = get_component(p_bullet, CLIFETIMER_T);
+                    bullet_life->poison_value = p_weapon->bullet_lifetime;
 
                     angle -= p_weapon->spread_range;
                     angle_increment += p_weapon->spread_range;
