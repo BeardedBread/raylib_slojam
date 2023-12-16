@@ -13,8 +13,6 @@ typedef struct Entity Entity_t;
 
 typedef enum ComponentEnum {
     CTRANSFORM_T = 0,
-    //CBBOX_T,
-    //CTILECOORD_T,
     CPLAYERSTATE_T,
     CCONTAINER_T,
     CHITBOXES_T,
@@ -25,6 +23,7 @@ typedef enum ComponentEnum {
     CWEAPON_T,
     CWEAPONSTORE_T,
     CAIFUNC_T,
+    CSPAWNER_T,
     CSPAWNED_T
 } ComponentEnum_t;
 
@@ -137,12 +136,30 @@ typedef struct _CLifeTimer_t {
 } CLifeTimer_t;
 
 // This is so bad
-typedef void (*ai_func_t)(Entity_t* self, void* data, void* scene_data);
+typedef void (*decision_func_t)(Entity_t* self, void* data, void* scene_data);
 typedef struct _CAIFunction_t {
-    void* scene_data;
     void* data;
-    ai_func_t func[4]; // AI function slots, 0 - main, the rest is custom
+    decision_func_t func;
 } CAIFunction_t;
+
+typedef struct SpawnerData
+{
+    float countdown_timer;
+    uint16_t spawned;
+} SpawnerData;
+
+typedef void (*spawner_func_t)(Entity_t* self, SpawnerData* data, void* scene_data);
+typedef struct _CSpawner_t {
+    SpawnerData data;
+    spawner_func_t spawner_main_logic;
+    spawner_func_t spawnee_despawn_logic;
+    spawner_func_t child_spawn_logic;
+} CSpawner_t;
+
+typedef struct _CHoming_t {
+    Vector2 target_pos;
+    Vector2 target_vel;
+} CHoming_t;
 
 typedef struct _CSpawn_t {
     Entity_t* spawner;

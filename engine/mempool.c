@@ -77,7 +77,8 @@ static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
 static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
 static CWeapon_t cweapon_buffer[MAX_COMP_POOL_SIZE];
 static CWeaponStore_t cweaponstore_buffer[16];
-static CAIFunction_t caifunc_buffer[MAX_COMP_POOL_SIZE];
+static CAIFunction_t caifunc_buffer[1024];
+static CSpawner_t cspawner_buffer[32];
 static CSpawn_t cspawn_buffer[MAX_COMP_POOL_SIZE];
 
 // Static allocate mempools
@@ -94,7 +95,8 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {cemitter_buffer, MAX_COMP_POOL_SIZE, sizeof(CEmitter_t), NULL, {0}},
     {cweapon_buffer, MAX_COMP_POOL_SIZE, sizeof(CWeapon_t), NULL, {0}},
     {cweaponstore_buffer, 16, sizeof(CWeaponStore_t), NULL, {0}},
-    {caifunc_buffer, MAX_COMP_POOL_SIZE, sizeof(CAIFunction_t), NULL, {0}},
+    {caifunc_buffer, 1024, sizeof(CAIFunction_t), NULL, {0}},
+    {cspawner_buffer, 32, sizeof(CSpawner_t), NULL, {0}},
     {cspawn_buffer, MAX_COMP_POOL_SIZE, sizeof(CSpawn_t), NULL, {0}},
 };
 static MemPool_t ent_mempool = {

@@ -7,12 +7,12 @@
 
 void ai_update_system(Scene_t* scene)
 {
-    CAIFunction_t* p_ai;
+    CSpawner_t* p_spawner;
     unsigned int ent_idx;
-    sc_map_foreach(&scene->ent_manager.component_map[CAIFUNC_T], ent_idx, p_ai)
+    sc_map_foreach(&scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
     {
         Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
-        p_ai->func[0](p_ent, p_ai->data, scene);
+        p_spawner->spawner_main_logic(p_ent, &p_spawner->data, scene);
     }
 }
 
@@ -25,8 +25,8 @@ void spawned_update_system(Scene_t* scene)
         Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
         if (!p_ent->m_alive)
         {
-            CAIFunction_t* p_ai = get_component(p_spwn->spawner, CAIFUNC_T);
-            p_ai->func[1](p_ent, p_ai->data, scene);
+            CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
+            p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
         }
     }
 }
@@ -419,8 +419,8 @@ void container_destroy_system(Scene_t* scene)
                     if (p_spwn != NULL)
                     {
 
-                        CAIFunction_t* p_ai = get_component(p_spwn->spawner, CAIFUNC_T);
-                        p_ai->func[2](p_ent, p_ai->data, scene);
+                        CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
+                        p_spawner->child_spawn_logic(p_ent, &p_spawner->data, scene);
                         CSpawn_t* new_spwn = add_component(p_enemy, CSPAWNED_T);
                         new_spwn->spawner = p_spwn->spawner;
                     }
