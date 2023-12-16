@@ -47,7 +47,7 @@ void life_update_system(Scene_t* scene)
             if (p_life->poison > 100.0f)
             {
                 p_life->current_life--;
-                p_life->poison -= 100.0f;
+                p_life->poison = 0.0f;
             }
         }
     }

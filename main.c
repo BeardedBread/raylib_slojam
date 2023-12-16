@@ -32,13 +32,13 @@ void update_loop(void)
     process_inputs(&engine, scene);
 
     float frame_time = GetFrameTime();
-    uint8_t sim_steps = 0;
-    while (frame_time > 1e-5 && sim_steps < MAX_STEPS)
+    //uint8_t sim_steps = 0;
+    //while (frame_time > 1e-5 && sim_steps < MAX_STEPS)
     {
         float delta_time = fminf(frame_time, DT);
         update_scene(scene, delta_time);
         frame_time -= delta_time;
-        sim_steps++;
+        //sim_steps++;
     }
     update_entity_manager(&scene->ent_manager);
     render_scene(scene);

@@ -89,12 +89,23 @@ static void level_scene_render_func(Scene_t* scene)
         sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
         {
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
-            sprintf(mem_stats, "HP: %u/%u ( %u )", p_life->current_life, p_life->max_life, p_life->corruption);
+            sprintf(mem_stats, "HP: %u/%u ( %.2f )", p_life->current_life, p_life->max_life, p_life->corruption);
             DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 300, 32, BLACK);
 
             CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
             sprintf(mem_stats, "Redirection: %.2f", p_pstate->boost_cooldown);
             DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 360, 32, BLACK);
+
+            CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
+            const char* weapon_name = "?";
+            switch (p_weapon->weapon_idx)
+            {
+                case 0: weapon_name = "Nails";break;
+                case 1: weapon_name = "Thumper";break;
+                default: break;
+            }
+            sprintf(mem_stats, "%s: %.2f", weapon_name, p_weapon->cooldown_timer);
+            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 420, 32, BLACK);
             break;
         }
 
@@ -105,7 +116,6 @@ static void arena_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     Entity_t* p_ent;
-    static char buffer[32];
     
     BeginTextureMode(data->game_viewport);
         ClearBackground(RAYWHITE);
