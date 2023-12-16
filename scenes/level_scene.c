@@ -171,9 +171,9 @@ void init_level_scene(LevelScene_t* scene)
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
 
-    scene->data.game_field_size = (Vector2){ARENA_SIZE, ARENA_SIZE};
-    scene->data.game_viewport = LoadRenderTexture(ARENA_SIZE, ARENA_SIZE);
-    scene->data.game_rec = (Rectangle){25, 25, ARENA_SIZE, ARENA_SIZE};
+    scene->data.game_field_size = (Vector2){ARENA_WIDTH, ARENA_HEIGHT};
+    scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
+    scene->data.game_rec = (Rectangle){25, 25, ARENA_WIDTH, ARENA_HEIGHT};
     
     memset(&scene->data.cam, 0, sizeof(Camera2D));
     scene->data.cam.zoom = 1.0;

@@ -11,6 +11,7 @@
 #define PLAYER_C_WIDTH 30
 #define PLAYER_C_HEIGHT 26
 
-#define ARENA_SIZE 800
+#define ARENA_WIDTH 1000
+#define ARENA_HEIGHT 800
 
 #endif // __CONSTANTS_H
