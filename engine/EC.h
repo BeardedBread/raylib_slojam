@@ -46,6 +46,7 @@ typedef struct _CTransform_t {
     Vector2 prev_position;
     Vector2 prev_velocity;
     Vector2 velocity;
+    float velocity_cap;
     Vector2 accel;
     bool active;
     EdgeBehaviour_t edge_b;
@@ -102,6 +103,7 @@ typedef struct _CWeapon {
     float bullet_lifetime;
     uint8_t n_bullets;
     uint8_t weapon_idx;
+    bool homing;
 } CWeapon_t;
 
 typedef struct _CWeaponStore {

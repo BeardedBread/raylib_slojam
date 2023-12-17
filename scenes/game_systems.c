@@ -65,6 +65,13 @@ void homing_update_system(Scene_t* scene)
             remove_component(p_ent, CHOMING_T);
             continue;
         }
+
+        float vel = Vector2Length(p_ct->velocity);
+        if (vel > p_ct->velocity_cap)
+        {
+            p_ct->velocity = Vector2Scale(Vector2Normalize(p_ct->velocity), vel);
+        }
+
         Vector2 self_pos = p_ent->position;
         Vector2 self_vel = p_ct->velocity;
 
@@ -111,7 +118,6 @@ void homing_update_system(Scene_t* scene)
             Vector2Normalize(to_predict),
             rocket_accel
         );
-
     }
 }
 
@@ -210,6 +216,7 @@ void player_movement_input_system(Scene_t* scene)
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
                     CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                     bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
+                    bullet_ct->velocity_cap = p_weapon->proj_speed;
                     p_bullet->position = p_player->position;
                     CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                     bullet_hitbox->atk = p_weapon->base_dmg;
@@ -218,12 +225,14 @@ void player_movement_input_system(Scene_t* scene)
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
 
-                    // For testing, make this bullet homing
-                    unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
-                    CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
-                    p_homing->target_idx = target_idx;
-                    bullet_life->poison_value = 0;
-                    bullet_ct->shape_factor = 7;
+                    if (p_weapon->homing)
+                    {
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->target_idx = target_idx;
+                        bullet_life->poison_value = 0;
+                        bullet_ct->shape_factor = 7;
+                    }
 
                     bullets--;
                     angle -= p_weapon->spread_range;

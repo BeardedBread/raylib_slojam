@@ -102,6 +102,7 @@ static void level_scene_render_func(Scene_t* scene)
             {
                 case 0: weapon_name = "Nails";break;
                 case 1: weapon_name = "Thumper";break;
+                case 2: weapon_name = "Maws";break;
                 default: break;
             }
             sprintf(mem_stats, "%s: %.2f", weapon_name, p_weapon->cooldown_timer);
