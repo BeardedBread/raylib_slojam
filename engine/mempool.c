@@ -80,12 +80,11 @@ static CWeaponStore_t cweaponstore_buffer[16];
 static CAIFunction_t caifunc_buffer[1024];
 static CSpawner_t cspawner_buffer[32];
 static CSpawn_t cspawn_buffer[MAX_COMP_POOL_SIZE];
+static CHoming_t choming_buffer[MAX_COMP_POOL_SIZE];
 
 // Static allocate mempools
 static MemPool_t comp_mempools[N_COMPONENTS] = {
     {ctransform_buffer, MAX_COMP_POOL_SIZE, sizeof(CTransform_t), NULL, {0}},
-    //{bbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CBBox_t), NULL, {0}},
-    //{ctilecoord_buffer, MAX_COMP_POOL_SIZE, sizeof(CTileCoord_t), NULL, {0}},
     {cplayerstate_buffer, MAX_COMP_POOL_SIZE, sizeof(CPlayerState_t), NULL, {0}},
     {ccontainer_buffer, MAX_COMP_POOL_SIZE, sizeof(CContainer_t), NULL, {0}},
     {chitboxes_buffer, MAX_COMP_POOL_SIZE, sizeof(CHitBoxes_t), NULL, {0}},
@@ -98,6 +97,7 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {caifunc_buffer, 1024, sizeof(CAIFunction_t), NULL, {0}},
     {cspawner_buffer, 32, sizeof(CSpawner_t), NULL, {0}},
     {cspawn_buffer, MAX_COMP_POOL_SIZE, sizeof(CSpawn_t), NULL, {0}},
+    {choming_buffer, MAX_COMP_POOL_SIZE, sizeof(CHoming_t), NULL, {0}},
 };
 static MemPool_t ent_mempool = {
     .buffer = entity_buffer,

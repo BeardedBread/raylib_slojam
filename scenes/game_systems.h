@@ -10,6 +10,7 @@ void hitbox_update_system(Scene_t* scene);
 void container_destroy_system(Scene_t* scene);
 void player_dir_reset_system(Scene_t* scene);
 void life_update_system(Scene_t* scene);
+void homing_update_system(Scene_t* scene);
 void ai_update_system(Scene_t* scene);
 void spawned_update_system(Scene_t* scene);
 #endif // _GAME_SYSTEMS_H

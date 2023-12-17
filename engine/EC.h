@@ -24,7 +24,8 @@ typedef enum ComponentEnum {
     CWEAPONSTORE_T,
     CAIFUNC_T,
     CSPAWNER_T,
-    CSPAWNED_T
+    CSPAWNED_T,
+    CHOMING_T,
 } ComponentEnum_t;
 
 typedef struct _CBBox_t {
@@ -157,6 +158,7 @@ typedef struct _CSpawner_t {
 } CSpawner_t;
 
 typedef struct _CHoming_t {
+    unsigned long target_idx;
     Vector2 target_pos;
     Vector2 target_vel;
 } CHoming_t;

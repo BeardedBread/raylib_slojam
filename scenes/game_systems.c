@@ -5,6 +5,25 @@
 #include "ent_impl.h"
 #include "raymath.h"
 
+static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos)
+{
+    Entity_t* p_target;
+    float shortest_dist = 1e6;
+    unsigned long target_idx = MAX_ENTITIES;
+    sc_map_foreach_value(&scene->ent_manager.entities, p_target)
+    {
+        if (p_target->m_tag != ENEMY_ENT_TAG) continue;
+
+        float curr_dist = Vector2DistanceSqr(p_target->position, pos);
+        if (curr_dist < shortest_dist)
+        {
+            shortest_dist = curr_dist;
+            target_idx = p_target->m_id;
+        }
+    }
+    return target_idx;
+}
+
 void ai_update_system(Scene_t* scene)
 {
     CSpawner_t* p_spawner;
@@ -28,6 +47,71 @@ void spawned_update_system(Scene_t* scene)
             CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
             p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
         }
+    }
+}
+
+void homing_update_system(Scene_t* scene)
+{
+    CHoming_t* p_homing;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CHOMING_T], ent_idx, p_homing)
+    {
+        Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
+        if (!p_ent->m_alive) continue;
+
+        CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+        if (p_ct == NULL)
+        {
+            remove_component(p_ent, CHOMING_T);
+            continue;
+        }
+        Vector2 self_pos = p_ent->position;
+        Vector2 self_vel = p_ct->velocity;
+
+        Entity_t* p_target = get_entity(&scene->ent_manager, p_homing->target_idx);
+        if (p_target == NULL || !p_target->m_alive)
+        {
+            // Re-target but don't update
+            unsigned long target_idx = find_closest_entity(scene, self_pos);
+            if (target_idx != MAX_ENTITIES)
+            {
+                p_homing->target_idx = target_idx;
+            }
+            continue;
+        }
+
+        Vector2 target_pos = p_target->position;
+        Vector2 target_vel = {0,0};
+        CTransform_t* target_ct = get_component(p_target, CTRANSFORM_T);
+        if (p_ct != NULL)
+        {
+            target_vel = target_ct->velocity;
+        }
+
+        Vector2 v_s = Vector2Subtract(target_vel, self_vel);
+        Vector2 to_target = Vector2Subtract(target_pos, self_pos);
+        float v_c = Vector2DotProduct(
+            Vector2Scale(v_s, -1.0f),
+            Vector2Normalize(to_target)
+        );
+
+        const float rocket_accel = 4000.0f;
+        float eta =
+            -v_c / rocket_accel
+            + sqrtf(
+                v_c * v_c / (rocket_accel * rocket_accel)
+                + 2 * Vector2Length(to_target) / rocket_accel
+            )
+        ;
+
+        Vector2 predict_pos = Vector2Add(target_pos, Vector2Scale(target_vel, eta));
+
+        Vector2 to_predict = Vector2Subtract(predict_pos, self_pos);
+        p_ct->accel = Vector2Scale(
+            Vector2Normalize(to_predict),
+            rocket_accel
+        );
+
     }
 }
 
@@ -72,6 +156,9 @@ void player_movement_input_system(Scene_t* scene)
     CPlayerState_t* p_pstate;
     unsigned int ent_idx;
 
+    Vector2 raw_mouse_pos = GetMousePosition();
+    raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
+
     sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
     {
         Entity_t* p_player = get_entity(&scene->ent_manager, ent_idx);
@@ -82,8 +169,6 @@ void player_movement_input_system(Scene_t* scene)
         // Mouse aim direction
         if (p_player->m_tag == PLAYER_ENT_TAG)
         {
-            Vector2 raw_mouse_pos = GetMousePosition();
-            raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
             p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(raw_mouse_pos, p_player->position));
         }
 
@@ -132,6 +217,13 @@ void player_movement_input_system(Scene_t* scene)
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
+
+                    // For testing, make this bullet homing
+                    unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                    CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                    p_homing->target_idx = target_idx;
+                    bullet_life->poison_value = 0;
+                    bullet_ct->shape_factor = 7;
 
                     bullets--;
                     angle -= p_weapon->spread_range;
