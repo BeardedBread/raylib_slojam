@@ -73,8 +73,6 @@ static void level_scene_render_func(Scene_t* scene)
     draw_rec.y = 0;
     draw_rec.height *= -1;
 
-    static char mem_stats[512];
-    print_mempool_stats(mem_stats);
 
     Entity_t* p_ent;
     BeginDrawing();
@@ -85,16 +83,34 @@ static void level_scene_render_func(Scene_t* scene)
             (Vector2){data->game_rec.x, data->game_rec.y},
             WHITE
         );
-        DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y, 12, BLACK);
+
+        draw_rec = data->shop_rec;
+        draw_rec.x = 0;
+        draw_rec.y = 0;
+        draw_rec.height *= -1;
+        DrawTextureRec(
+            data->shop_viewport.texture,
+            draw_rec,
+            (Vector2){data->shop_rec.x, data->shop_rec.y},
+            WHITE
+        );
+
+        static char mem_stats[512];
+        //print_mempool_stats(mem_stats);
+        //DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y, 12, BLACK);
         sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
         {
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
             sprintf(mem_stats, "HP: %u/%u ( %.2f )", p_life->current_life, p_life->max_life, p_life->corruption);
-            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 300, 32, BLACK);
+            DrawText(
+                mem_stats, data->game_rec.x,
+                data->game_rec.y + data->game_rec.height,
+                32,BLACK
+            );
 
             CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
             sprintf(mem_stats, "Redirection: %.2f", p_pstate->boost_cooldown);
-            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 360, 32, BLACK);
+            DrawText(mem_stats, 10, 50, 32, BLACK);
 
             CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
             const char* weapon_name = "?";
@@ -106,7 +122,7 @@ static void level_scene_render_func(Scene_t* scene)
                 default: break;
             }
             sprintf(mem_stats, "%s: %.2f", weapon_name, p_weapon->cooldown_timer);
-            DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y + 420, 32, BLACK);
+            DrawText(mem_stats, 10, 110, 32, BLACK);
             break;
         }
 
@@ -197,6 +213,72 @@ static void arena_render_func(Scene_t* scene)
         DrawCircleV(raw_mouse_pos, 2, BLACK);
 
         EndMode2D();
+
+    EndTextureMode();
+}
+
+void shop_render_func(Scene_t* scene)
+{
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+    //Entity_t* p_ent;
+    const int ICON_SIZE = 75; 
+    const int ICON_HALF_SIZE = (ICON_SIZE >> 1); 
+    const int DOT_SIZE = 10;
+    const int DOT_SPACING = 60;
+    const int DESCRPTION_BOX_WIDTH = 330;
+    const int DESCRPTION_BOX_HEIGHT = 130;
+    const int start_x = 50;
+    const int start_y = 50;
+    BeginTextureMode(data->shop_viewport);
+        ClearBackground(RAYWHITE);
+
+        Vector2 center = {start_x, start_y};
+        // Stats Upgrades: Hardcoded to 4 upgrades lol
+        for (uint8_t i = 0; i < 4; ++i)
+        {
+            Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+
+            center.x += ICON_HALF_SIZE + 30;
+            for (uint8_t i = 0; i < 3; ++i)
+            {
+                DrawCircleV(center, DOT_SIZE, BLACK);
+                center.x += DOT_SPACING;
+            }
+            center.x -= DOT_SPACING;
+
+            //center.x += BTN_HALF_SIZE;
+            //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
+            //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
+
+            center.x += ICON_HALF_SIZE + 10;
+            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+
+            center.x = start_x;
+            center.y += 100;
+        }
+
+        // Full heal
+        Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+        DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+        center.x += ICON_HALF_SIZE + 10;
+        DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+        center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
+
+        // Escape
+        tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+        DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+        center.x += ICON_HALF_SIZE + 10;
+        DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+
+        center.x = start_x - 20;
+        center.y += 20 + ICON_HALF_SIZE;
+
+        DrawRectangleLinesEx(
+            (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
+            3, BLACK
+        );
+
     EndTextureMode();
 }
 
@@ -207,7 +289,10 @@ void init_level_scene(LevelScene_t* scene)
 
     scene->data.game_field_size = (Vector2){ARENA_WIDTH, ARENA_HEIGHT};
     scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
-    scene->data.game_rec = (Rectangle){25, 25, ARENA_WIDTH, ARENA_HEIGHT};
+    scene->data.game_rec = (Rectangle){10, 10, ARENA_WIDTH, ARENA_HEIGHT};
+
+    scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
+    scene->data.shop_rec = (Rectangle){ARENA_WIDTH + 20, 10, 400, ARENA_HEIGHT - 150};
     
     memset(&scene->data.cam, 0, sizeof(Camera2D));
     scene->data.cam.zoom = 1.0;
@@ -240,6 +325,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
+    sc_array_add(&scene->scene.systems, &shop_render_func);
     
     sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
@@ -256,5 +342,6 @@ void init_level_scene(LevelScene_t* scene)
 void free_level_scene(LevelScene_t* scene)
 {
     UnloadRenderTexture(scene->data.game_viewport); // Unload render texture
+    UnloadRenderTexture(scene->data.shop_viewport); // Unload render texture
     free_scene(&scene->scene);
 }

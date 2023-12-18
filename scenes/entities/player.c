@@ -4,7 +4,7 @@
 CWeapon_t all_weapons[3] = {
     // Pistol
     {
-        .base_dmg = 10, .proj_speed = 800, .fire_rate = 5.5f,
+        .base_dmg = 10, .proj_speed = 800, .fire_rate = 4.5f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 0, .weapon_idx = 0, .homing = false,
     },
@@ -18,7 +18,7 @@ CWeapon_t all_weapons[3] = {
     {
         .base_dmg = 7, .proj_speed = 500, .fire_rate = 2.6f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 2.2f, .weapon_idx = 2, .homing = true,
+        .bullet_lifetime = 3.0f, .weapon_idx = 2, .homing = true,
     },
 };
 
