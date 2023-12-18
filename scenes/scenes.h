@@ -19,14 +19,22 @@ typedef struct UpgradeStoreInventory
     StoreItem escape;
 } UpgradeStoreInventory;
 
+typedef struct ShopSceneData {
+    RenderTexture2D shop_viewport;
+    Rectangle shop_rec;
+    UpgradeStoreInventory store;
+} ShopSceneData;
+
+typedef struct ShopScene {
+    Scene_t scene;
+    ShopSceneData data;
+} ShopScene_t;
+
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
     Camera2D cam;
     Rectangle game_rec;
     Vector2 game_field_size;
-    RenderTexture2D shop_viewport;
-    Rectangle shop_rec;
-    UpgradeStoreInventory store;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

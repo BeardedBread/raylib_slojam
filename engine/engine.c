@@ -131,15 +131,30 @@ inline void update_scene(Scene_t* scene, float delta_time)
     {
         sys(scene);
     }
+
+    if (scene->type == MAIN_SCENE && scene->subscene != NULL)
+    {
+        sc_array_foreach(&scene->subscene->systems, sys)
+        {
+            sys(scene->subscene);
+        }
+    }
+
     update_particle_system(&scene->part_sys);
 }
 
 inline void render_scene(Scene_t* scene)
 {
-    scene->render_function(scene);
+    if (scene->render_function != NULL)
+    {
+        scene->render_function(scene);
+    }
 }
 
 inline void do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
-    scene->action_function(scene, action, pressed);
+    if (scene->action_function != NULL)
+    {
+        scene->action_function(scene, action, pressed);
+    }
 }

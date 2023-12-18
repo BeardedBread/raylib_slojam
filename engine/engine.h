@@ -24,15 +24,16 @@ typedef struct GameEngine {
     struct sc_queue_32 key_buffer;
 } GameEngine_t;
 
-//typedef enum SceneType {
-//    LEVEL_SCENE = 0,
-//    MENU_SCENE,
-//}SceneType_t;
+typedef enum SceneType {
+    MAIN_SCENE = 0,
+    SUB_SCENE,
+}SceneType_t;
 
 typedef enum SceneState {
-    SCENE_PLAYING = 0,
-    SCENE_SUSPENDED,
-    SCENE_ENDED,
+    SCENE_PLAYING = 0, // Action, System, Render Active
+    SCENE_PAUSED, // System Inactive, Action + Render Active
+    SCENE_SUSPENDED, // All Inactive
+    SCENE_ENDED, // All Inactive + Reset to default
 }SceneState_t;
 
 typedef void(*render_func_t)(Scene_t*);
@@ -48,7 +49,10 @@ struct Scene {
     EntityManager_t ent_manager;
     float delta_time;
     SceneState_t state;
+    SceneType_t type;
     ParticleSystem_t part_sys;
+    Scene_t* subscene;
+    Vector2 subscene_pos;
     GameEngine_t *engine;
 };
 

@@ -67,6 +67,7 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 static void level_scene_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+    ShopScene_t* shop_scene = (ShopScene_t*)scene->subscene;
     
     Rectangle draw_rec = data->game_rec;
     draw_rec.x = 0;
@@ -84,14 +85,17 @@ static void level_scene_render_func(Scene_t* scene)
             WHITE
         );
 
-        draw_rec = data->shop_rec;
+        draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = 0;
         draw_rec.y = 0;
         draw_rec.height *= -1;
         DrawTextureRec(
-            data->shop_viewport.texture,
+            shop_scene->data.shop_viewport.texture,
             draw_rec,
-            (Vector2){data->shop_rec.x, data->shop_rec.y},
+            (Vector2){
+                shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                shop_scene->data.shop_rec.y = scene->subscene_pos.y
+            },
             WHITE
         );
 
@@ -103,14 +107,18 @@ static void level_scene_render_func(Scene_t* scene)
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
             sprintf(mem_stats, "HP: %u/%u ( %.2f )", p_life->current_life, p_life->max_life, p_life->corruption);
             DrawText(
-                mem_stats, data->game_rec.x,
-                data->game_rec.y + data->game_rec.height,
+                mem_stats, scene->subscene_pos.x,
+                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 10,
                 32,BLACK
             );
 
             CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
             sprintf(mem_stats, "Redirection: %.2f", p_pstate->boost_cooldown);
-            DrawText(mem_stats, 10, 50, 32, BLACK);
+            DrawText(
+                mem_stats, scene->subscene_pos.x,
+                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 42,
+                32,BLACK
+            );
 
             CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
             const char* weapon_name = "?";
@@ -122,7 +130,11 @@ static void level_scene_render_func(Scene_t* scene)
                 default: break;
             }
             sprintf(mem_stats, "%s: %.2f", weapon_name, p_weapon->cooldown_timer);
-            DrawText(mem_stats, 10, 110, 32, BLACK);
+            DrawText(
+                mem_stats, scene->subscene_pos.x,
+                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 74,
+                32,BLACK
+            );
             break;
         }
 
@@ -219,7 +231,7 @@ static void arena_render_func(Scene_t* scene)
 
 void shop_render_func(Scene_t* scene)
 {
-    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+    ShopSceneData* data = &(((ShopScene_t*)scene)->data);
     //Entity_t* p_ent;
     const int ICON_SIZE = 75; 
     const int ICON_HALF_SIZE = (ICON_SIZE >> 1); 
@@ -291,8 +303,6 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
     scene->data.game_rec = (Rectangle){10, 10, ARENA_WIDTH, ARENA_HEIGHT};
 
-    scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
-    scene->data.shop_rec = (Rectangle){ARENA_WIDTH + 20, 10, 400, ARENA_HEIGHT - 150};
     
     memset(&scene->data.cam, 0, sizeof(Camera2D));
     scene->data.cam.zoom = 1.0;
@@ -325,8 +335,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
-    sc_array_add(&scene->scene.systems, &shop_render_func);
-    
+
     sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_LEFT);
@@ -337,11 +346,22 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_FOUR, ACTION_SELECT4);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
+
+    scene->scene.subscene->type = SUB_SCENE;
+    scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
+    init_scene(scene->scene.subscene, NULL, NULL);
+    sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
+    ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
+    shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 150};
 }
 
 void free_level_scene(LevelScene_t* scene)
 {
     UnloadRenderTexture(scene->data.game_viewport); // Unload render texture
-    UnloadRenderTexture(scene->data.shop_viewport); // Unload render texture
+                                                    //
+    ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
+    UnloadRenderTexture(shop_scene->data.shop_viewport); // Unload render texture
     free_scene(&scene->scene);
+    free_scene(scene->scene.subscene);
 }
