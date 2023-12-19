@@ -1,6 +1,8 @@
 #include "engine.h"
 #include "mempool.h"
 
+#include "raymath.h"
+
 void init_engine(GameEngine_t* engine)
 {
     InitAudioDevice();
@@ -21,6 +23,17 @@ void deinit_engine(GameEngine_t* engine)
 
 void process_inputs(GameEngine_t* engine, Scene_t* scene)
 {
+    Vector2 raw_mouse_pos = GetMousePosition();
+
+    if ((scene->state_bits & ACTION_BIT))
+    {
+        scene->mouse_pos = raw_mouse_pos;
+    }
+    if (scene->subscene != NULL && (scene->subscene->state_bits & ACTION_BIT))
+    {
+        scene->subscene->mouse_pos = Vector2Subtract(raw_mouse_pos, scene->subscene_pos);
+    }
+
     unsigned int sz = sc_queue_size(&engine->key_buffer);
     // Process any existing pressed key
     for (size_t i = 0; i < sz; i++)
@@ -49,23 +62,39 @@ void process_inputs(GameEngine_t* engine, Scene_t* scene)
         sc_queue_add_last(&engine->key_buffer, button);
     }
 
+
+    // Mouse button handling
     ActionType_t action = sc_map_get_64(&scene->action_map, MOUSE_BUTTON_RIGHT);
     if (sc_map_found(&scene->action_map))
     {
-        do_action(scene, action, IsMouseButtonDown(MOUSE_BUTTON_RIGHT));
+        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+        {
+            do_action(scene, action, true);
+        }
+        else if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+        {
+            do_action(scene, action, false);
+        }
     }
     action = sc_map_get_64(&scene->action_map, MOUSE_BUTTON_LEFT);
     if (sc_map_found(&scene->action_map))
     {
-        do_action(scene, action, IsMouseButtonDown(MOUSE_BUTTON_LEFT));
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        {
+            do_action(scene, action, true);
+        }
+        else if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        {
+            do_action(scene, action, false);
+        }
     }
 }
 
 void change_scene(GameEngine_t* engine, unsigned int idx)
 {
-    engine->scenes[engine->curr_scene]->state = SCENE_ENDED;
+    engine->scenes[engine->curr_scene]->state_bits = 0;
     engine->curr_scene = idx;
-    engine->scenes[engine->curr_scene]->state = SCENE_PLAYING;
+    engine->scenes[engine->curr_scene]->state_bits = 0b111;
 }
 
 bool load_sfx(GameEngine_t* engine, const char* snd_name, uint32_t tag_idx)
@@ -112,7 +141,7 @@ void init_scene(Scene_t* scene, render_func_t render_func, action_func_t action_
     //scene->scene_type = scene_type;
     scene->render_function = render_func;
     scene->action_function = action_func;
-    scene->state = SCENE_ENDED;
+    scene->state_bits = 0b000;
 }
 
 void free_scene(Scene_t* scene)
@@ -154,8 +183,14 @@ inline void render_scene(Scene_t* scene)
 
 inline void do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
-    if (scene->action_function != NULL)
+    ActionResult res = ACTION_PROPAGATE;
+    if ((scene->state_bits & ACTION_BIT) && scene->action_function != NULL)
     {
-        scene->action_function(scene, action, pressed);
+        res = scene->action_function(scene, action, pressed);
+    }
+    if (scene->subscene != NULL && res == ACTION_PROPAGATE)
+    {
+        // Recurse for subscene
+        do_action(scene->subscene, action, pressed);
     }
 }

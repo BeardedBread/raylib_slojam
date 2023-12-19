@@ -164,8 +164,7 @@ void player_movement_input_system(Scene_t* scene)
     CPlayerState_t* p_pstate;
     unsigned int ent_idx;
 
-    Vector2 raw_mouse_pos = GetMousePosition();
-    raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
+    Vector2 raw_mouse_pos = Vector2Subtract(scene->mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
 
     sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
     {

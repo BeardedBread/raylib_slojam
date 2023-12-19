@@ -8,7 +8,7 @@
 #include "mempool.h"
 #include <stdio.h>
 
-static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
+static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
     //LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     Entity_t* p_player;
@@ -54,15 +54,10 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
             case ACTION_PAUSE:
                 if (!pressed)
                 {
-                    if (scene->time_scale > 0.5)
-                    {
-                        scene->time_scale = 0.0f;
-                        scene->subscene->state = SCENE_PLAYING;
-                    }
-                    else {
-                        scene->time_scale = 1.0f;
-                        scene->subscene->state = SCENE_SUSPENDED;
-                    }
+                    scene->time_scale = 0.0f;
+                    scene->state_bits = 0b110;
+                    scene->subscene->state_bits = 0b111;
+                    return ACTION_CONSUMED;
                 }
             break;
             default:
@@ -77,7 +72,7 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
             }
         }
     }
-    return;
+    return ACTION_PROPAGATE;
 }
 
 static void level_scene_render_func(Scene_t* scene)
@@ -259,7 +254,7 @@ void shop_render_func(Scene_t* scene)
     const int start_y = 50;
     BeginTextureMode(data->shop_viewport);
         ClearBackground(RAYWHITE);
-        if (scene->state == SCENE_PLAYING)
+        if (scene->state_bits & RENDER_BIT)
         {
             Vector2 center = {start_x, start_y};
             // Stats Upgrades: Hardcoded to 4 upgrades lol
@@ -310,6 +305,30 @@ void shop_render_func(Scene_t* scene)
         }
 
     EndTextureMode();
+}
+
+static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pressed)
+{
+    switch(action)
+    {
+        case ACTION_SHOOT:
+            if (!pressed)
+            {
+                printf("Clicked %.2f, %.2f\n", scene->mouse_pos.x, scene->mouse_pos.y);
+            }
+        break;
+        case ACTION_PAUSE:
+            if (!pressed)
+            {
+                scene->parent_scene->time_scale = 1.0f;
+                scene->parent_scene->state_bits = 0b111;
+                scene->state_bits = 0b000;
+            }
+        break;
+        default:
+        break;
+    }
+    return ACTION_CONSUMED;
 }
 
 void init_level_scene(LevelScene_t* scene)
@@ -368,11 +387,14 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
 
     scene->scene.subscene->type = SUB_SCENE;
-    scene->scene.subscene->state = SCENE_SUSPENDED;
+    init_scene(scene->scene.subscene, NULL, &shop_do_action);
+
+    scene->scene.subscene->parent_scene = &scene->scene;
+    scene->scene.subscene->subscene = NULL;
     scene->scene.time_scale = 1.0f;
     scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
-    init_scene(scene->scene.subscene, NULL, NULL);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
+
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
     shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 150};

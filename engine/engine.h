@@ -36,10 +36,19 @@ typedef enum SceneState {
     SCENE_ENDED, // All Inactive + Reset to default
 }SceneState_t;
 
+typedef enum ActionResult {
+    ACTION_PROPAGATE = 0,
+    ACTION_CONSUMED,
+} ActionResult;
+
 typedef void(*render_func_t)(Scene_t*);
 typedef void(*system_func_t)(Scene_t*);
-typedef void(*action_func_t)(Scene_t*, ActionType_t, bool);
+typedef ActionResult(*action_func_t)(Scene_t*, ActionType_t, bool);
 sc_array_def(system_func_t, systems);
+
+#define ACTION_BIT 1
+#define SYSTEM_BIT (1 << 1)
+#define RENDER_BIT (1 << 2)
 
 struct Scene {
     struct sc_map_64 action_map; // key -> actions
@@ -49,11 +58,16 @@ struct Scene {
     EntityManager_t ent_manager;
     float delta_time;
     float time_scale;
-    SceneState_t state;
+    Vector2 mouse_pos; // Relative to the scene
+    //SceneState_t state;
+    uint8_t state_bits;
     SceneType_t type;
     ParticleSystem_t part_sys;
+
+    Scene_t* parent_scene;
     Scene_t* subscene;
     Vector2 subscene_pos;
+
     GameEngine_t *engine;
 };
 
