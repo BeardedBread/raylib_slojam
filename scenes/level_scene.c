@@ -1,5 +1,6 @@
 #include "actions.h"
 #include "assets_tag.h"
+#include "engine.h"
 #include "level_ent.h"
 #include "game_systems.h"
 #include "constants.h"
@@ -56,9 +57,11 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
                     if (scene->time_scale > 0.5)
                     {
                         scene->time_scale = 0.0f;
+                        scene->subscene->state = SCENE_PLAYING;
                     }
                     else {
                         scene->time_scale = 1.0f;
+                        scene->subscene->state = SCENE_SUSPENDED;
                     }
                 }
             break;
@@ -113,8 +116,8 @@ static void level_scene_render_func(Scene_t* scene)
         );
 
         static char mem_stats[512];
-        //print_mempool_stats(mem_stats);
-        //DrawText(mem_stats, data->game_rec.x + data->game_rec.width + 10, data->game_rec.y, 12, BLACK);
+        print_mempool_stats(mem_stats);
+        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, BLACK);
         sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
         {
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
@@ -256,53 +259,55 @@ void shop_render_func(Scene_t* scene)
     const int start_y = 50;
     BeginTextureMode(data->shop_viewport);
         ClearBackground(RAYWHITE);
-
-        Vector2 center = {start_x, start_y};
-        // Stats Upgrades: Hardcoded to 4 upgrades lol
-        for (uint8_t i = 0; i < 4; ++i)
+        if (scene->state == SCENE_PLAYING)
         {
+            Vector2 center = {start_x, start_y};
+            // Stats Upgrades: Hardcoded to 4 upgrades lol
+            for (uint8_t i = 0; i < 4; ++i)
+            {
+                Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+                DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+
+                center.x += ICON_HALF_SIZE + 30;
+                for (uint8_t i = 0; i < 3; ++i)
+                {
+                    DrawCircleV(center, DOT_SIZE, BLACK);
+                    center.x += DOT_SPACING;
+                }
+                center.x -= DOT_SPACING;
+
+                //center.x += BTN_HALF_SIZE;
+                //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
+                //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
+
+                center.x += ICON_HALF_SIZE + 10;
+                DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+
+                center.x = start_x;
+                center.y += 100;
+            }
+
+            // Full heal
             Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
             DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+            center.x += ICON_HALF_SIZE + 10;
+            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+            center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
 
-            center.x += ICON_HALF_SIZE + 30;
-            for (uint8_t i = 0; i < 3; ++i)
-            {
-                DrawCircleV(center, DOT_SIZE, BLACK);
-                center.x += DOT_SPACING;
-            }
-            center.x -= DOT_SPACING;
-
-            //center.x += BTN_HALF_SIZE;
-            //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
-            //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
-
+            // Escape
+            tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
             center.x += ICON_HALF_SIZE + 10;
             DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
 
-            center.x = start_x;
-            center.y += 100;
+            center.x = start_x - 20;
+            center.y += 20 + ICON_HALF_SIZE;
+
+            DrawRectangleLinesEx(
+                (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
+                3, BLACK
+            );
         }
-
-        // Full heal
-        Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-        DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-        center.x += ICON_HALF_SIZE + 10;
-        DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-        center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
-
-        // Escape
-        tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-        DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-        center.x += ICON_HALF_SIZE + 10;
-        DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-
-        center.x = start_x - 20;
-        center.y += 20 + ICON_HALF_SIZE;
-
-        DrawRectangleLinesEx(
-            (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
-            3, BLACK
-        );
 
     EndTextureMode();
 }
@@ -363,6 +368,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
 
     scene->scene.subscene->type = SUB_SCENE;
+    scene->scene.subscene->state = SCENE_SUSPENDED;
     scene->scene.time_scale = 1.0f;
     scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
     init_scene(scene->scene.subscene, NULL, NULL);

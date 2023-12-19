@@ -84,8 +84,10 @@ void homing_update_system(Scene_t* scene)
             {
                 p_homing->target_idx = target_idx;
             }
+            p_ct->shape_factor = 0;
             continue;
         }
+        p_ct->shape_factor = 7;
 
         Vector2 target_pos = p_target->position;
         Vector2 target_vel = {0,0};
