@@ -8,6 +8,7 @@ typedef enum ActionType
     ACTION_RIGHT,
     ACTION_BOOST,
     ACTION_SHOOT,
+    ACTION_PAUSE,
     ACTION_SELECT1,
     ACTION_SELECT2,
     ACTION_SELECT3,

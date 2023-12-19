@@ -1,3 +1,4 @@
+#include "actions.h"
 #include "assets_tag.h"
 #include "level_ent.h"
 #include "game_systems.h"
@@ -48,6 +49,18 @@ static void level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
             break;
             case ACTION_SELECT4:
                 new_weapon = 3;
+            break;
+            case ACTION_PAUSE:
+                if (!pressed)
+                {
+                    if (scene->time_scale > 0.5)
+                    {
+                        scene->time_scale = 0.0f;
+                    }
+                    else {
+                        scene->time_scale = 1.0f;
+                    }
+                }
             break;
             default:
             break;
@@ -302,6 +315,7 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_field_size = (Vector2){ARENA_WIDTH, ARENA_HEIGHT};
     scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
     scene->data.game_rec = (Rectangle){10, 10, ARENA_WIDTH, ARENA_HEIGHT};
+    scene->scene.time_scale = 1.0f;
 
     
     memset(&scene->data.cam, 0, sizeof(Camera2D));
@@ -346,8 +360,10 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_FOUR, ACTION_SELECT4);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
+    sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
 
     scene->scene.subscene->type = SUB_SCENE;
+    scene->scene.time_scale = 1.0f;
     scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
     init_scene(scene->scene.subscene, NULL, NULL);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);

@@ -125,7 +125,7 @@ void free_scene(Scene_t* scene)
 
 inline void update_scene(Scene_t* scene, float delta_time)
 {
-    scene->delta_time = delta_time;
+    scene->delta_time = delta_time * scene->time_scale;
     system_func_t sys;
     sc_array_foreach(&scene->systems, sys)
     {
@@ -134,6 +134,7 @@ inline void update_scene(Scene_t* scene, float delta_time)
 
     if (scene->type == MAIN_SCENE && scene->subscene != NULL)
     {
+        scene->subscene->delta_time = delta_time * scene->subscene->time_scale;
         sc_array_foreach(&scene->subscene->systems, sys)
         {
             sys(scene->subscene);

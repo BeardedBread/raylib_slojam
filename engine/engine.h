@@ -48,6 +48,7 @@ struct Scene {
     action_func_t action_function;
     EntityManager_t ent_manager;
     float delta_time;
+    float time_scale;
     SceneState_t state;
     SceneType_t type;
     ParticleSystem_t part_sys;
