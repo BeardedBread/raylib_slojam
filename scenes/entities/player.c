@@ -12,7 +12,7 @@ CWeapon_t all_weapons[3] = {
     {
         .base_dmg = 5, .proj_speed = 1100, .fire_rate = 1.3f,
         .cooldown_timer = 0, .spread_range = 5*PI/180, .n_bullets = 7,
-        .bullet_lifetime = 4.6f, .weapon_idx = 1, .homing = false,
+        .bullet_lifetime = 4.6f * 60.0f, .weapon_idx = 1, .homing = false,
     },
     // Homing Rockets
     {

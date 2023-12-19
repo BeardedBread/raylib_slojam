@@ -133,7 +133,7 @@ void life_update_system(Scene_t* scene)
         }
         else
         {
-            p_life->poison += p_life->poison_value;
+            p_life->poison += p_life->poison_value * scene->delta_time;
             if (p_life->poison > 100.0f)
             {
                 p_life->current_life--;
