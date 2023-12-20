@@ -2,12 +2,30 @@
 #define SCENES_H
 #include "engine.h"
 
+typedef struct UIButton {
+    Rectangle box;
+    bool pressed;
+} UIButton;
+
 typedef struct StoreItem
 {
     float cost;
     int8_t cap;
     int8_t remaining;
 } StoreItem;
+
+typedef struct UpgradeBox {
+    UIButton buttons;
+    const StoreItem* item;
+} UpgradeBox;
+
+typedef struct ShopUI {
+    UpgradeBox upgrades[5];
+    Rectangle Desc_box;
+    int icon_size;
+    int dot_size;
+    Vector2 pos;
+} ShopUI;
 
 typedef struct UpgradeStoreInventory
 {
@@ -22,6 +40,8 @@ typedef struct UpgradeStoreInventory
 typedef struct ShopSceneData {
     RenderTexture2D shop_viewport;
     Rectangle shop_rec;
+    ShopUI ui;
+    bool refresh_rec;
     UpgradeStoreInventory store;
 } ShopSceneData;
 

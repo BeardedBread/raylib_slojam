@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "raymath.h"
 #include "mempool.h"
+#include "scenes.h"
 #include <stdio.h>
 
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
@@ -331,6 +332,69 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
     return ACTION_CONSUMED;
 }
 
+static void generate_shop_UI(ShopSceneData* data)
+{
+    const int padding = 5;
+    const int DOT_SPACING = 60;
+    const int DESCRPTION_BOX_WIDTH = 330;
+    const int DESCRPTION_BOX_HEIGHT = 130;
+    //Entity_t* p_ent;
+   // BeginTextureMode(data->shop_viewport);
+   //     ClearBackground(RAYWHITE);
+   //     if (scene->state_bits & RENDER_BIT)
+        {
+            Vector2 center = {start_x, start_y};
+            // Stats Upgrades: Hardcoded to 4 upgrades lol
+            for (uint8_t i = 0; i < 4; ++i)
+            {
+                Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+                DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+
+                center.x += ICON_HALF_SIZE + 30;
+                for (uint8_t i = 0; i < 3; ++i)
+                {
+                    DrawCircleV(center, DOT_SIZE, BLACK);
+                    center.x += DOT_SPACING;
+                }
+                center.x -= DOT_SPACING;
+
+                //center.x += BTN_HALF_SIZE;
+                //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
+                //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
+
+                center.x += ICON_HALF_SIZE + 10;
+                DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+
+                center.x = start_x;
+                center.y += 100;
+            }
+
+            // Full heal
+            Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+            center.x += ICON_HALF_SIZE + 10;
+            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+            center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
+
+            // Escape
+            tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
+            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+            center.x += ICON_HALF_SIZE + 10;
+            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+
+            center.x = start_x - 20;
+            center.y += 20 + ICON_HALF_SIZE;
+
+            DrawRectangleLinesEx(
+                (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
+                3, BLACK
+            );
+        }
+
+    EndTextureMode();
+
+}
+
 void init_level_scene(LevelScene_t* scene)
 {
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
@@ -398,6 +462,11 @@ void init_level_scene(LevelScene_t* scene)
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
     shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 150};
+
+    shop_scene->data.ui.icon_size = 75;
+    shop_scene->data.ui.dot_size = 10;
+    shop_scene->data.ui.pos = (Vector2){50, 50};
+    generate_shop_UI(&shop_scene->data);
 }
 
 void free_level_scene(LevelScene_t* scene)
