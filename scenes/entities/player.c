@@ -54,7 +54,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 30;
     p_life->max_life = 30;
-
+    
     add_component(p_ent, CPLAYERSTATE_T);
     return p_ent;
 }

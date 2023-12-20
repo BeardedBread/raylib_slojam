@@ -147,6 +147,12 @@ static void level_scene_render_func(Scene_t* scene)
                 scene->subscene_pos.y + shop_scene->data.shop_rec.height + 74,
                 32,BLACK
             );
+            sprintf(mem_stats, "Growth: %u", p_pstate->collected);
+            DrawText(
+                mem_stats, scene->subscene_pos.x,
+                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 106,
+                32,BLACK
+            );
             break;
         }
 
@@ -172,6 +178,10 @@ static void arena_render_func(Scene_t* scene)
             else if (p_ent->m_tag == PLAYER_ENT_TAG)
             {
                 c = PURPLE;
+            }
+            else if (p_ent->m_tag == COLLECT_ENT_TAG)
+            {
+                c = GOLD;
             }
             DrawCircleV(p_ent->position, p_ent->size, c);
 
@@ -390,7 +400,9 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
     sc_array_add(&scene->scene.systems, &global_external_forces_system);
     sc_array_add(&scene->scene.systems, &movement_update_system);
+
     sc_array_add(&scene->scene.systems, &invuln_update_system);
+    sc_array_add(&scene->scene.systems, &money_collection_system);
     sc_array_add(&scene->scene.systems, &hitbox_update_system);
     sc_array_add(&scene->scene.systems, &player_dir_reset_system);
 

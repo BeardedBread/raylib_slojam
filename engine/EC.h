@@ -17,6 +17,8 @@ typedef enum ComponentEnum {
     CCONTAINER_T,
     CHITBOXES_T,
     CHURTBOX_T,
+    CATTRACTOR_T,
+    CMONEY_T,
     CSPRITE_T,
     CLIFETIMER_T,
     CEMITTER_T,
@@ -27,14 +29,6 @@ typedef enum ComponentEnum {
     CSPAWNED_T,
     CHOMING_T,
 } ComponentEnum_t;
-
-typedef struct _CBBox_t {
-    Vector2 size;
-    Vector2 offset;
-    Vector2 half_size;
-    bool solid;
-    bool fragile;
-} CBBox_t;
 
 typedef enum EdgeBehaviour {
     EDGE_NORMAL = 0,
@@ -53,20 +47,13 @@ typedef struct _CTransform_t {
     float shape_factor;
 } CTransform_t;
 
-// This is to store the occupying tiles
-// Limits to store 4 tiles at a tile,
-// Thus the size of the entity cannot be larger than the tile
-typedef struct _CTileCoord_t {
-    unsigned int tiles[8];
-    unsigned int n_tiles;
-} CTileCoord_t;
-
 typedef struct _CPlayerState_t {
     Vector2 player_dir;
     Vector2 aim_dir;
     uint8_t boosting;
     uint8_t shoot;
     float boost_cooldown;
+    uint32_t collected;
 } CPlayerState_t;
 
 typedef enum ContainerItem {
@@ -80,6 +67,15 @@ typedef struct _CContainer_t {
     ContainerItem_t item;
     uint8_t num;
 } CContainer_t;
+
+typedef struct _CAttractor_t {
+    unsigned long target_idx;
+    float l2_range;
+} CAttractor_t;
+
+typedef struct _CMoney_t {
+    int32_t value;
+} CMoney_t;
 
 typedef enum DamageType
 {
@@ -204,14 +200,6 @@ typedef struct _CEmitter_t
     EmitterHandle handle;
     Vector2 offset;
 } CEmitter_t;
-
-static inline void set_bbox(CBBox_t* p_bbox, unsigned int x, unsigned int y)
-{
-    p_bbox->size.x = x;
-    p_bbox->size.y = y;
-    p_bbox->half_size.x = (unsigned int)(x / 2);
-    p_bbox->half_size.y = (unsigned int)(y / 2);
-}
 
 struct Entity {
     Vector2 spawn_pos;

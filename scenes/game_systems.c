@@ -123,14 +123,52 @@ void homing_update_system(Scene_t* scene)
     }
 }
 
+void money_collection_system(Scene_t* scene)
+{
+    CPlayerState_t* p_pstate;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        unsigned int money_idx;
+        CMoney_t* p_money;
+        sc_map_foreach(&scene->ent_manager.component_map[CMONEY_T], money_idx, p_money)
+        {
+            Entity_t* money_ent =  get_entity(&scene->ent_manager, money_idx);
+            if (!money_ent->m_alive) continue;
+
+            float dist = Vector2DistanceSqr(p_ent->position, money_ent->position);
+            float range = p_ent->size + money_ent->size;
+            if (dist < range * range)
+            {
+                p_pstate->collected += p_money->value;
+                CLifeTimer_t* money_life = get_component(money_ent, CLIFETIMER_T);
+                if (money_life != NULL)
+                {
+                    money_life->current_life = 0;
+                }
+            }
+        }
+    }
+}
+
 void life_update_system(Scene_t* scene)
 {
     CLifeTimer_t* p_life;
     unsigned int ent_idx;
     sc_map_foreach(&scene->ent_manager.component_map[CLIFETIMER_T], ent_idx, p_life)
     {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (p_life->current_life <= 0)
         {
+            if (p_ent->m_tag == ENEMY_ENT_TAG)
+            {
+                Entity_t* money_ent = create_collectible(&scene->ent_manager, 16, 1);
+                if (money_ent != NULL)
+                {
+                    money_ent->position = p_ent->position;
+                }
+            }
             remove_entity(&scene->ent_manager, ent_idx);
         }
         else

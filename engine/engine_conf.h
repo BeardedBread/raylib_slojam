@@ -7,7 +7,7 @@
 #define MAX_SOUNDS 32
 #define MAX_FONTS 4
 #define N_TAGS 10
-#define N_COMPONENTS 15
+#define N_COMPONENTS 20
 #define MAX_COMP_POOL_SIZE MAX_ENTITIES
 
 #define MAX_N_TILES 4096

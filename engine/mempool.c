@@ -65,13 +65,13 @@ typedef struct MemPool {
 
 // Static allocate buffers
 static Entity_t entity_buffer[MAX_COMP_POOL_SIZE];
-//static CBBox_t bbox_buffer[MAX_COMP_POOL_SIZE];
 static CTransform_t ctransform_buffer[MAX_COMP_POOL_SIZE];
-//static CTileCoord_t ctilecoord_buffer[MAX_COMP_POOL_SIZE];
 static CPlayerState_t cplayerstate_buffer[MAX_COMP_POOL_SIZE]; // Only player is expected to have this
 static CContainer_t ccontainer_buffer[MAX_COMP_POOL_SIZE];
 static CHitBoxes_t chitboxes_buffer[MAX_COMP_POOL_SIZE];
 static CHurtbox_t churtbox_buffer[MAX_COMP_POOL_SIZE];
+static CAttractor_t cattractor_buffer[MAX_COMP_POOL_SIZE];
+static CMoney_t cmoney_buffer[MAX_COMP_POOL_SIZE];
 static CSprite_t csprite_buffer[MAX_COMP_POOL_SIZE];
 static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
 static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
@@ -89,6 +89,8 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {ccontainer_buffer, MAX_COMP_POOL_SIZE, sizeof(CContainer_t), NULL, {0}},
     {chitboxes_buffer, MAX_COMP_POOL_SIZE, sizeof(CHitBoxes_t), NULL, {0}},
     {churtbox_buffer, MAX_COMP_POOL_SIZE, sizeof(CHurtbox_t), NULL, {0}},
+    {cattractor_buffer, MAX_COMP_POOL_SIZE, sizeof(CAttractor_t), NULL, {0}},
+    {cmoney_buffer, MAX_COMP_POOL_SIZE, sizeof(CMoney_t), NULL, {0}},
     {csprite_buffer, MAX_COMP_POOL_SIZE, sizeof(CSprite_t), NULL, {0}},
     {clifetimer_buffer, MAX_COMP_POOL_SIZE, sizeof(CLifeTimer_t), NULL, {0}},
     {cemitter_buffer, MAX_COMP_POOL_SIZE, sizeof(CEmitter_t), NULL, {0}},
