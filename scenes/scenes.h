@@ -9,19 +9,21 @@ typedef struct UIButton {
 
 typedef struct StoreItem
 {
-    float cost;
+    unsigned int cost;
     int8_t cap;
     int8_t remaining;
 } StoreItem;
 
 typedef struct UpgradeBox {
-    UIButton buttons;
+    UIButton button;
+    int dot_spacing;
+    bool show_dots;
     const StoreItem* item;
 } UpgradeBox;
 
 typedef struct ShopUI {
-    UpgradeBox upgrades[5];
-    Rectangle Desc_box;
+    UpgradeBox upgrades[6];
+    Rectangle desc_box;
     int icon_size;
     int dot_size;
     Vector2 pos;

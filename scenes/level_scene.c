@@ -244,65 +244,43 @@ static void arena_render_func(Scene_t* scene)
 void shop_render_func(Scene_t* scene)
 {
     ShopSceneData* data = &(((ShopScene_t*)scene)->data);
-    //Entity_t* p_ent;
-    const int ICON_SIZE = 75; 
-    const int ICON_HALF_SIZE = (ICON_SIZE >> 1); 
-    const int DOT_SIZE = 10;
-    const int DOT_SPACING = 60;
-    const int DESCRPTION_BOX_WIDTH = 330;
-    const int DESCRPTION_BOX_HEIGHT = 130;
-    const int start_x = 50;
-    const int start_y = 50;
+    char buffer[8];
     BeginTextureMode(data->shop_viewport);
         ClearBackground(RAYWHITE);
         if (scene->state_bits & RENDER_BIT)
         {
-            Vector2 center = {start_x, start_y};
             // Stats Upgrades: Hardcoded to 4 upgrades lol
-            for (uint8_t i = 0; i < 4; ++i)
+            for (uint8_t i = 0; i < 6; ++i)
             {
-                Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-                DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+                DrawRectangleRec(data->ui.upgrades[i].button.box, BLACK);
+                Vector2 center = {
+                    data->ui.upgrades[i].button.box.x + data->ui.upgrades[i].button.box.width,
+                    data->ui.upgrades[i].button.box.y + data->ui.upgrades[i].button.box.height / 2,
+                };
 
-                center.x += ICON_HALF_SIZE + 30;
-                for (uint8_t i = 0; i < 3; ++i)
+                center.x += 20;
+                if (data->ui.upgrades[i].show_dots)
                 {
-                    DrawCircleV(center, DOT_SIZE, BLACK);
-                    center.x += DOT_SPACING;
+                    const int8_t bought = data->ui.upgrades[i].item->cap - data->ui.upgrades[i].item->remaining;
+                    for (int8_t j = 0; j < bought; ++j)
+                    {
+                        DrawCircleV(center, data->ui.dot_size, BLACK);
+                        center.x += data->ui.upgrades[i].dot_spacing;
+                    }
+                    for (int8_t j = 0; j < data->ui.upgrades[i].item->remaining; ++j)
+                    {
+                        DrawCircleLinesV(center, data->ui.dot_size, BLACK);
+                        center.x += data->ui.upgrades[i].dot_spacing;
+                    }
+                    center.x -= data->ui.upgrades[i].dot_spacing;
+                    center.x += 20;
                 }
-                center.x -= DOT_SPACING;
 
-                //center.x += BTN_HALF_SIZE;
-                //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
-                //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
-
-                center.x += ICON_HALF_SIZE + 10;
-                DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-
-                center.x = start_x;
-                center.y += 100;
+                sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
+                DrawText(buffer, center.x, center.y - (36 >> 1), 36, BLACK);
             }
 
-            // Full heal
-            Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-            center.x += ICON_HALF_SIZE + 10;
-            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-            center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
-
-            // Escape
-            tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-            center.x += ICON_HALF_SIZE + 10;
-            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-
-            center.x = start_x - 20;
-            center.y += 20 + ICON_HALF_SIZE;
-
-            DrawRectangleLinesEx(
-                (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
-                3, BLACK
-            );
+            DrawRectangleLinesEx(data->ui.desc_box, 3, BLACK);
         }
 
     EndTextureMode();
@@ -336,63 +314,51 @@ static void generate_shop_UI(ShopSceneData* data)
 {
     const int padding = 5;
     const int DOT_SPACING = 60;
-    const int DESCRPTION_BOX_WIDTH = 330;
     const int DESCRPTION_BOX_HEIGHT = 130;
-    //Entity_t* p_ent;
-   // BeginTextureMode(data->shop_viewport);
-   //     ClearBackground(RAYWHITE);
-   //     if (scene->state_bits & RENDER_BIT)
-        {
-            Vector2 center = {start_x, start_y};
+    const int width = data->shop_rec.width - padding * 2;
+    const int height = data->shop_rec.height - padding * 2;
+    const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 5;
+
+    Vector2 pos = {padding,padding};
             // Stats Upgrades: Hardcoded to 4 upgrades lol
-            for (uint8_t i = 0; i < 4; ++i)
-            {
-                Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-                DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        data->ui.upgrades[i].button.box.x = pos.x;
+        data->ui.upgrades[i].button.box.y = pos.y;
+        data->ui.upgrades[i].button.box.width = data->ui.icon_size;
+        data->ui.upgrades[i].button.box.height = data->ui.icon_size;
+        data->ui.upgrades[i].dot_spacing = DOT_SPACING;
+        data->ui.upgrades[i].show_dots = true;
 
-                center.x += ICON_HALF_SIZE + 30;
-                for (uint8_t i = 0; i < 3; ++i)
-                {
-                    DrawCircleV(center, DOT_SIZE, BLACK);
-                    center.x += DOT_SPACING;
-                }
-                center.x -= DOT_SPACING;
+        pos.y += (upgrade_height > data->ui.icon_size) ? upgrade_height : data->ui.icon_size; 
+    }
 
-                //center.x += BTN_HALF_SIZE;
-                //tl = (Vector2){center.x - BTN_HALF_SIZE, center.y - BTN_HALF_SIZE};
-                //DrawRectangleV(tl, (Vector2){BTN_SIZE, BTN_SIZE}, BLACK);
+    data->ui.upgrades[4].button.box.x = padding;
+    data->ui.upgrades[4].button.box.y = pos.y;
+    data->ui.upgrades[4].button.box.width = data->ui.icon_size;
+    data->ui.upgrades[4].button.box.height = data->ui.icon_size;
+    data->ui.upgrades[4].dot_spacing = DOT_SPACING;
+    data->ui.upgrades[4].show_dots = false;
 
-                center.x += ICON_HALF_SIZE + 10;
-                DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
+    data->ui.upgrades[5].button.box.x = (width >> 1);
+    data->ui.upgrades[5].button.box.y = pos.y;
+    data->ui.upgrades[5].button.box.width = data->ui.icon_size;
+    data->ui.upgrades[5].button.box.height = data->ui.icon_size;
+    data->ui.upgrades[5].dot_spacing = DOT_SPACING;
+    data->ui.upgrades[5].show_dots = false;
 
-                center.x = start_x;
-                center.y += 100;
-            }
+    data->ui.upgrades[0].item = &data->store.firerate_upgrade;
+    data->ui.upgrades[1].item = &data->store.projspeed_upgrade;
+    data->ui.upgrades[2].item = &data->store.damage_upgrade;
+    data->ui.upgrades[3].item = &data->store.health_upgrade;
+    data->ui.upgrades[4].item = &data->store.full_heal;
+    data->ui.upgrades[5].item = &data->store.escape;
 
-            // Full heal
-            Vector2 tl = {center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-            center.x += ICON_HALF_SIZE + 10;
-            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-            center.x += MeasureText("0000", 36) + ICON_HALF_SIZE + 25;
-
-            // Escape
-            tl = (Vector2){center.x - ICON_HALF_SIZE, center.y - ICON_HALF_SIZE};
-            DrawRectangleV(tl, (Vector2){ICON_SIZE, ICON_SIZE}, BLACK);
-            center.x += ICON_HALF_SIZE + 10;
-            DrawText("0000", center.x, center.y - (36 >> 1), 36, BLACK);
-
-            center.x = start_x - 20;
-            center.y += 20 + ICON_HALF_SIZE;
-
-            DrawRectangleLinesEx(
-                (Rectangle){center.x, center.y, DESCRPTION_BOX_WIDTH, DESCRPTION_BOX_HEIGHT},
-                3, BLACK
-            );
-        }
-
-    EndTextureMode();
-
+    pos.y += data->ui.icon_size + padding; 
+    data->ui.desc_box.x = padding;
+    data->ui.desc_box.y = pos.y;
+    data->ui.desc_box.width = width;
+    data->ui.desc_box.height = height - pos.y;
 }
 
 void init_level_scene(LevelScene_t* scene)
@@ -466,6 +432,15 @@ void init_level_scene(LevelScene_t* scene)
     shop_scene->data.ui.icon_size = 75;
     shop_scene->data.ui.dot_size = 10;
     shop_scene->data.ui.pos = (Vector2){50, 50};
+
+    shop_scene->data.store = (UpgradeStoreInventory){
+        .firerate_upgrade = {50,3,3},
+        .projspeed_upgrade = {50,3,3},
+        .damage_upgrade = {50,3,2},
+        .health_upgrade = {50,3,3},
+        .full_heal = {50,-1,-1},
+        .escape = {100,1,1},
+    };
     generate_shop_UI(&shop_scene->data);
 }
 
