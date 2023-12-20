@@ -14,15 +14,15 @@ Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t v
     p_ct->velocity = Vector2Scale((Vector2){cosf(angle), sinf(angle)}, 300);
     p_ct->shape_factor = 9;
     p_ct->active = true;
+    p_ct->edge_b = EDGE_BOUNCE;
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;
     p_life->max_life = 1;
     p_life->poison_value = 6.0f; 
 
-    //CAttractor_t* p_attract = add_component(p_ent, CATTRACTOR_T);
-    //p_attract->l2_range = 64*64;
-    //p_attract->target_idx = PLAYER_ENT_TAG;
+    CAttract_t* p_attract = add_component(p_ent, CATTRACTOR_T);
+    p_attract->attract_idx = 1;
 
     CMoney_t* p_money = add_component(p_ent, CMONEY_T);
     p_money->value = value;

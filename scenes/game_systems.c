@@ -152,6 +152,37 @@ void money_collection_system(Scene_t* scene)
     }
 }
 
+void magnet_update_system(Scene_t* scene)
+{
+    CMagnet_t* p_magnet;
+    unsigned int ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CMAGNET_T], ent_idx, p_magnet)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        unsigned int target_idx;
+        CAttract_t* p_attract;
+        sc_map_foreach(&scene->ent_manager.component_map[CATTRACTOR_T], target_idx, p_attract)
+        {
+            Entity_t* target_ent =  get_entity(&scene->ent_manager, target_idx);
+            if (!p_ent->m_alive) continue;
+
+            CTransform_t* p_ct = get_component(target_ent, CTRANSFORM_T);
+            if (p_ct == NULL) continue;
+
+            Vector2 vec = Vector2Subtract(p_ent->position, target_ent->position);
+            if (
+                Vector2LengthSqr(vec) < p_magnet->l2_range
+                && (p_magnet->attract_idx & p_attract->attract_idx)
+            )
+            {
+                Vector2 dir = Vector2Normalize(vec);
+                p_ct->accel = Vector2Scale(dir, p_magnet->accel);
+            }
+
+        }
+    }
+}
+
 void life_update_system(Scene_t* scene)
 {
     CLifeTimer_t* p_life;
@@ -163,7 +194,7 @@ void life_update_system(Scene_t* scene)
         {
             if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
-                Entity_t* money_ent = create_collectible(&scene->ent_manager, 16, 1);
+                Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, 1);
                 if (money_ent != NULL)
                 {
                     money_ent->position = p_ent->position;

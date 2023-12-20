@@ -3,6 +3,7 @@
 #include "scenes.h"
 void weapon_cooldown_system(Scene_t* scene);
 void player_movement_input_system(Scene_t* scene);
+void magnet_update_system(Scene_t* scene);
 void global_external_forces_system(Scene_t* scene);
 void movement_update_system(Scene_t* scene);
 void invuln_update_system(Scene_t* scene);

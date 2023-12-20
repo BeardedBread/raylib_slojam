@@ -54,6 +54,11 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 30;
     p_life->max_life = 30;
+
+    CMagnet_t* p_magnet = add_component(p_ent, CMAGNET_T);
+    p_magnet->attract_idx = 1;
+    p_magnet->l2_range = 80*80;
+    p_magnet->accel = 1500.0f;
     
     add_component(p_ent, CPLAYERSTATE_T);
     return p_ent;

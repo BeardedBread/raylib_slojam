@@ -18,6 +18,7 @@ typedef enum ComponentEnum {
     CHITBOXES_T,
     CHURTBOX_T,
     CATTRACTOR_T,
+    CMAGNET_T,
     CMONEY_T,
     CSPRITE_T,
     CLIFETIMER_T,
@@ -68,10 +69,15 @@ typedef struct _CContainer_t {
     uint8_t num;
 } CContainer_t;
 
-typedef struct _CAttractor_t {
-    unsigned long target_idx;
+typedef struct _CAttract_t {
+    unsigned long attract_idx;
+} CAttract_t;
+
+typedef struct _CMagnet_t {
+    unsigned long attract_idx;
     float l2_range;
-} CAttractor_t;
+    float accel;
+} CMagnet_t;
 
 typedef struct _CMoney_t {
     int32_t value;
