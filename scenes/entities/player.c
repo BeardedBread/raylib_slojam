@@ -61,5 +61,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_magnet->accel = 1500.0f;
     
     add_component(p_ent, CPLAYERSTATE_T);
+    //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
+    //p_pstate->collected = 100000;
     return p_ent;
 }

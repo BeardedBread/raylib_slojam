@@ -5,6 +5,7 @@
 typedef struct UIButton {
     Rectangle box;
     bool pressed;
+    bool enabled;
 } UIButton;
 
 typedef struct StoreItem
@@ -22,7 +23,7 @@ typedef struct UpgradeBox {
 } UpgradeBox;
 
 typedef struct ShopUI {
-    UpgradeBox upgrades[6];
+    UpgradeBox upgrades[8];
     Rectangle desc_box;
     int icon_size;
     int dot_size;
@@ -37,6 +38,8 @@ typedef struct UpgradeStoreInventory
     StoreItem health_upgrade;
     StoreItem full_heal;
     StoreItem escape;
+    StoreItem thumper;
+    StoreItem maws;
 } UpgradeStoreInventory;
 
 typedef struct ShopSceneData {
