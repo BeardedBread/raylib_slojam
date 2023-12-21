@@ -15,8 +15,20 @@
 #define BG_COLOUR BLACK
 #define ARENA_COLOUR (Color){30,30,30,255}
 #define THEME_COLOUR RED
+#define SELECTION_COLOUR PINK
 
 void restart_level_scene(LevelScene_t* scene);
+
+static char* TEXT_DESCRIPTION[] = {
+    "Fire rate",
+    "Projectile speed",
+    "Damage",
+    "Max Health",
+    "Full Heal",
+    "Escape?",
+    "Thumper",
+    "Maws",
+};
 
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
@@ -274,9 +286,22 @@ void shop_render_func(Scene_t* scene)
         {
             for (uint8_t i = 0; i < 8; ++i)
             {
+                Rectangle box = data->ui.upgrades[i].button.box;
                 DrawRectangleRec(
-                    data->ui.upgrades[i].button.box,
-                    data->ui.upgrades[i].button.enabled ? THEME_COLOUR : GRAY);
+                    box,
+                    data->ui.upgrades[i].button.enabled ? THEME_COLOUR : GRAY
+                );
+                if (
+                    data->ui.upgrades[i].button.hover
+                    && data->ui.upgrades[i].button.enabled)
+                {
+                    box.x += 5;
+                    box.y += 5;
+                    box.width -= 10;
+                    box.height -= 10;
+                    DrawRectangleRec(box, SELECTION_COLOUR);
+                }
+
                 Vector2 center = {
                     data->ui.upgrades[i].button.box.x + data->ui.upgrades[i].button.box.width,
                     data->ui.upgrades[i].button.box.y + data->ui.upgrades[i].button.box.height / 2,
@@ -305,6 +330,12 @@ void shop_render_func(Scene_t* scene)
             }
 
             DrawRectangleLinesEx(data->ui.desc_box, 3, THEME_COLOUR);
+            DrawText(
+                data->ui.desc_text,
+                data->ui.desc_box.x + 10,
+                data->ui.desc_box.y +(data->ui.desc_box.height / 2) - (36 >> 1),
+                36, TEXT_COLOUR
+            );
         }
         else
         {
@@ -316,6 +347,27 @@ void shop_render_func(Scene_t* scene)
         }
 
     EndTextureMode();
+}
+static void shop_check_mouse(Scene_t* scene)
+{
+    ShopSceneData* data = &(((ShopScene_t*)scene)->data);
+
+    // Reset
+    data->ui.desc_text = "";
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+            data->ui.upgrades[i].button.hover = false;
+    }
+
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+        if (CheckCollisionPointRec(scene->mouse_pos, data->ui.upgrades[i].button.box))
+        {
+            data->ui.desc_text = TEXT_DESCRIPTION[i];
+            data->ui.upgrades[i].button.hover = true;
+            break;
+        }
+    }
 }
 
 static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pressed)
@@ -577,6 +629,7 @@ void init_level_scene(LevelScene_t* scene)
     scene->scene.subscene->subscene = NULL;
     scene->scene.time_scale = 1.0f;
     scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
+    sc_array_add(&scene->scene.subscene->systems, &shop_check_mouse);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;

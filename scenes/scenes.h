@@ -5,6 +5,7 @@
 typedef struct UIButton {
     Rectangle box;
     bool pressed;
+    bool hover;
     bool enabled;
 } UIButton;
 
@@ -30,6 +31,7 @@ typedef struct ShopUI {
     int icon_size;
     int dot_size;
     Vector2 pos;
+    const char* desc_text;
 } ShopUI;
 
 typedef struct UpgradeStoreInventory
