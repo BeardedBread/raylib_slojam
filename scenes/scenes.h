@@ -18,7 +18,7 @@ typedef struct UpgradeBox {
     UIButton button;
     int dot_spacing;
     bool show_dots;
-    const StoreItem* item;
+    StoreItem* item;
 } UpgradeBox;
 
 typedef struct ShopUI {

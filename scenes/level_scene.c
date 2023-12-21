@@ -1,9 +1,11 @@
+#include "EC.h"
 #include "actions.h"
 #include "assets_tag.h"
 #include "engine.h"
 #include "level_ent.h"
 #include "game_systems.h"
 #include "constants.h"
+#include "raylib.h"
 #include "raymath.h"
 #include "mempool.h"
 #include "scenes.h"
@@ -298,12 +300,34 @@ void shop_render_func(Scene_t* scene)
 
 static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
+    ShopSceneData* data = &(((ShopScene_t*)scene)->data);
+
     switch(action)
     {
         case ACTION_SHOOT:
             if (!pressed)
             {
-                printf("Clicked %.2f, %.2f\n", scene->mouse_pos.x, scene->mouse_pos.y);
+                Entity_t* p_player;
+                sc_map_foreach_value(&scene->parent_scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
+                {
+                    CPlayerState_t* p_pstate = get_component(p_player, CPLAYERSTATE_T);
+                    for (uint8_t i = 0; i < 6; ++i)
+                    {
+                        if (CheckCollisionPointRec(scene->mouse_pos, data->ui.upgrades[i].button.box))
+                        {
+                            if (
+                                p_pstate->collected > data->ui.upgrades[i].item->cost
+                                && data->ui.upgrades[i].item->remaining > 0
+                            )
+                            {
+                                data->ui.upgrades[i].item->remaining--;
+                                p_pstate->collected -= data->ui.upgrades[i].item->cost;
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
             }
         break;
         case ACTION_PAUSE:
