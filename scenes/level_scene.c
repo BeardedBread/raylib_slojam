@@ -13,9 +13,7 @@
 
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
-    //LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     Entity_t* p_player;
-    //sc_map_foreach_value(&scene->ent_manager.component_map[CPLAYERSTATE_T], p_playerstate)
     sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
     {
         CPlayerState_t* p_playerstate = get_component(p_player, CPLAYERSTATE_T);
@@ -312,16 +310,19 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                 sc_map_foreach_value(&scene->parent_scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
                 {
                     CPlayerState_t* p_pstate = get_component(p_player, CPLAYERSTATE_T);
+                    CWeaponStore_t* p_weapons = get_component(p_player, CWEAPONSTORE_T);
+                    CLifeTimer_t* p_life = get_component(p_player, CLIFETIMER_T);
                     for (uint8_t i = 0; i < 8; ++i)
                     {
                         if (CheckCollisionPointRec(scene->mouse_pos, data->ui.upgrades[i].button.box))
                         {
+                            bool purchased = false;
                             if (p_pstate->collected >= data->ui.upgrades[i].item->cost)
                             {
                                 if (data->ui.upgrades[i].item->remaining > 0)
                                 {
+                                    purchased = true;
                                     data->ui.upgrades[i].item->remaining--;
-                                    p_pstate->collected -= data->ui.upgrades[i].item->cost;
                                     if (data->ui.upgrades[i].item->remaining == 0)
                                     {
                                         data->ui.upgrades[i].button.enabled = false;
@@ -329,7 +330,44 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                 }
                                 else if (data->ui.upgrades[i].item->cap < 0)
                                 {
+                                    purchased = true;
+                                }
+
+                                if (purchased)
+                                {
                                     p_pstate->collected -= data->ui.upgrades[i].item->cost;
+                                    data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
+                                    if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)
+                                    {
+                                        data->ui.upgrades[i].item->cost =  data->ui.upgrades[i].item->cost_cap;
+                                    }
+
+                                    switch (i)
+                                    {
+                                        case 0:
+                                        case 1:
+                                        case 2:
+                                            p_weapons->modifier[i]++;
+                                        break;
+                                        case 3:
+                                            p_life->current_life += 20;
+                                            p_life->max_life += 20;
+                                        break;
+                                        case 4:
+                                            p_life->current_life = p_life->max_life;
+                                        break;
+                                        case 5:
+                                            // Game ending stuff
+                                        break;
+                                        case 6:
+                                            p_weapons->unlocked[1] = true;
+                                        break;
+                                        case 7:
+                                            p_weapons->unlocked[2] = true;
+                                        break;
+                                        default:
+                                        break;
+                                    }
                                 }
                                 break;
                             }
@@ -503,14 +541,14 @@ void init_level_scene(LevelScene_t* scene)
     shop_scene->data.ui.pos = (Vector2){50, 50};
 
     shop_scene->data.store = (UpgradeStoreInventory){
-        .firerate_upgrade = {50,3,3},
-        .projspeed_upgrade = {50,3,3},
-        .damage_upgrade = {50,3,2},
-        .health_upgrade = {50,3,3},
-        .full_heal = {50,-1,-1},
-        .escape = {500,1,1},
-        .thumper = {100,1,1},
-        .maws = {200,1,1},
+        .firerate_upgrade = {100, 3, 3, 125,1000},
+        .projspeed_upgrade = {75, 3, 3, 75, 1000},
+        .damage_upgrade = {50, 3, 3, 100, 1000},
+        .health_upgrade = {100, 3, 3, 150, 1000},
+        .full_heal = {50, -1, -1, 50, 500},
+        .escape = {2000, 1, 1, 0, 5000},
+        .thumper = {200, 1, 1, 0, 1000},
+        .maws = {200, 1, 1, 0, 1000},
     };
     generate_shop_UI(&shop_scene->data);
 }

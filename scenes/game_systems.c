@@ -276,6 +276,7 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->shoot > 0)
         {
             CWeapon_t* p_weapon = get_component(p_player, CWEAPON_T);
+            float speed = p_weapon->proj_speed * (1 + 0.1f * p_weapon->modifiers[1]);
             if (p_weapon != NULL && p_weapon->cooldown_timer <= 0)
             {
                 uint8_t bullets = p_weapon->n_bullets;
@@ -285,11 +286,11 @@ void player_movement_input_system(Scene_t* scene)
                 {
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
                     CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-                    bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, p_weapon->proj_speed);
-                    bullet_ct->velocity_cap = p_weapon->proj_speed;
+                    bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, speed);
+                    bullet_ct->velocity_cap = speed * 2;
                     p_bullet->position = p_player->position;
                     CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
-                    bullet_hitbox->atk = p_weapon->base_dmg;
+                    bullet_hitbox->atk = p_weapon->base_dmg * (1 + p_weapon->modifiers[2] * 0.2);
                     bullet_hitbox->src = DMGSRC_PLAYER;
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
@@ -301,7 +302,7 @@ void player_movement_input_system(Scene_t* scene)
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
                         p_homing->target_idx = target_idx;
                         bullet_life->poison_value = 0;
-                        bullet_ct->shape_factor = 7;
+                        bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
                     }
 
                     bullets--;
@@ -321,8 +322,8 @@ void player_movement_input_system(Scene_t* scene)
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
                     CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                     bullet_ct->velocity = (Vector2){
-                        p_weapon->proj_speed * cosf(angle),
-                        p_weapon->proj_speed * sinf(angle),
+                        speed * cosf(angle),
+                        speed * sinf(angle),
                     };
                     p_bullet->position = p_player->position;
                     CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
@@ -335,8 +336,8 @@ void player_movement_input_system(Scene_t* scene)
                     p_bullet = create_bullet(&scene->ent_manager);
                     bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                     bullet_ct->velocity = (Vector2){
-                        p_weapon->proj_speed * cosf(angle + 2 * angle_increment),
-                        p_weapon->proj_speed * sinf(angle + 2 * angle_increment),
+                        speed * cosf(angle + 2 * angle_increment),
+                        speed * sinf(angle + 2 * angle_increment),
                     };
                     p_bullet->position = p_player->position;
                     bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
@@ -350,7 +351,7 @@ void player_movement_input_system(Scene_t* scene)
                     angle_increment += p_weapon->spread_range;
                 }
 
-                p_weapon->cooldown_timer = 1.0f / p_weapon->fire_rate;
+                p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.1));
             }
             p_pstate->shoot = 0;
         }

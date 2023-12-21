@@ -13,6 +13,8 @@ typedef struct StoreItem
     unsigned int cost;
     int8_t cap;
     int8_t remaining;
+    unsigned int cost_increment;
+    unsigned int cost_cap;
 } StoreItem;
 
 typedef struct UpgradeBox {

@@ -11,8 +11,8 @@ CWeapon_t all_weapons[3] = {
     // Shotgun
     {
         .base_dmg = 5, .proj_speed = 1100, .fire_rate = 1.3f,
-        .cooldown_timer = 0, .spread_range = 5*PI/180, .n_bullets = 7,
-        .bullet_lifetime = 4.6f * 60.0f, .weapon_idx = 1, .homing = false,
+        .cooldown_timer = 0, .spread_range = 7*PI/180, .n_bullets = 7,
+        .bullet_lifetime = 7.6f * 60.0f, .weapon_idx = 1, .homing = false,
     },
     // Homing Rockets
     {
@@ -45,8 +45,12 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     memcpy(p_weaponstore->weapons, all_weapons, sizeof(all_weapons));
     p_weaponstore->n_weapons = 3;
     p_weaponstore->unlocked[0] = true;
-    p_weaponstore->unlocked[1] = true;
-    p_weaponstore->unlocked[2] = true;
+    p_weaponstore->unlocked[1] = false;
+    p_weaponstore->unlocked[2] = false;
+    for (uint8_t i = 0; i < 3; ++i)
+    {
+        p_weaponstore->weapons[i].modifiers = p_weaponstore->modifier;
+    }
 
     CWeapon_t* p_weapon = add_component(p_ent, CWEAPON_T);
     *p_weapon = p_weaponstore->weapons[0];
@@ -60,8 +64,8 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_magnet->l2_range = 80*80;
     p_magnet->accel = 1500.0f;
     
-    add_component(p_ent, CPLAYERSTATE_T);
-    //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
-    //p_pstate->collected = 100000;
+    //add_component(p_ent, CPLAYERSTATE_T);
+    CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
+    p_pstate->collected = 100000;
     return p_ent;
 }

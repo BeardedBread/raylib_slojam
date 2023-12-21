@@ -106,12 +106,14 @@ typedef struct _CWeapon {
     uint8_t n_bullets;
     uint8_t weapon_idx;
     bool homing;
+    const uint8_t* modifiers;
 } CWeapon_t;
 
 typedef struct _CWeaponStore {
     uint8_t n_weapons;
     CWeapon_t weapons[8];
     bool unlocked[8];
+    uint8_t modifier[8];
 } CWeaponStore_t;
 
 typedef struct _CHitBoxes_t {
