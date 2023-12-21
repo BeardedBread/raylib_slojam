@@ -11,8 +11,16 @@
 #include "scenes.h"
 #include <stdio.h>
 
+void restart_level_scene(LevelScene_t* scene);
+
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
+    if (action == ACTION_RESTART && !pressed)
+    {
+        restart_level_scene((LevelScene_t*)scene);
+        return ACTION_CONSUMED;
+    }
+            
     Entity_t* p_player;
     sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
     {
@@ -377,6 +385,9 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                 }
             }
         break;
+        case ACTION_RESTART:
+            restart_level_scene((LevelScene_t*)scene->parent_scene);
+        //fallthrough intended
         case ACTION_PAUSE:
             if (!pressed)
             {
@@ -465,6 +476,32 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.desc_box.height = height - pos.y;
 }
 
+void restart_level_scene(LevelScene_t* scene)
+{
+    Entity_t* p_ent;
+    sc_map_foreach_value(&scene->scene.ent_manager.entities, p_ent)
+    {
+        remove_entity(&scene->scene.ent_manager, p_ent->m_id);
+    }
+    update_entity_manager(&scene->scene.ent_manager);
+
+    create_player(&scene->scene.ent_manager);
+    create_spawner(&scene->scene.ent_manager);
+    update_entity_manager(&scene->scene.ent_manager);
+
+    ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
+    shop_scene->data.store = (UpgradeStoreInventory){
+        .firerate_upgrade = {100, 3, 3, 125,1000},
+        .projspeed_upgrade = {75, 3, 3, 75, 1000},
+        .damage_upgrade = {50, 3, 3, 100, 1000},
+        .health_upgrade = {100, 3, 3, 150, 1000},
+        .full_heal = {50, -1, -1, 50, 500},
+        .escape = {2000, 1, 1, 0, 5000},
+        .thumper = {200, 1, 1, 0, 1000},
+        .maws = {200, 1, 1, 0, 1000},
+    };
+}
+
 void init_level_scene(LevelScene_t* scene)
 {
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
@@ -485,10 +522,6 @@ void init_level_scene(LevelScene_t* scene)
         0,0
     };
     
-    create_player(&scene->scene.ent_manager);
-    create_spawner(&scene->scene.ent_manager);
-    update_entity_manager(&scene->scene.ent_manager);
-
     
     sc_array_add(&scene->scene.systems, &weapon_cooldown_system);
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
@@ -522,6 +555,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
     sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
+    sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_RESTART);
 
     scene->scene.subscene->type = SUB_SCENE;
     init_scene(scene->scene.subscene, NULL, &shop_do_action);
@@ -540,6 +574,12 @@ void init_level_scene(LevelScene_t* scene)
     shop_scene->data.ui.dot_size = 10;
     shop_scene->data.ui.pos = (Vector2){50, 50};
 
+    generate_shop_UI(&shop_scene->data);
+
+    create_player(&scene->scene.ent_manager);
+    create_spawner(&scene->scene.ent_manager);
+    update_entity_manager(&scene->scene.ent_manager);
+
     shop_scene->data.store = (UpgradeStoreInventory){
         .firerate_upgrade = {100, 3, 3, 125,1000},
         .projspeed_upgrade = {75, 3, 3, 75, 1000},
@@ -550,7 +590,6 @@ void init_level_scene(LevelScene_t* scene)
         .thumper = {200, 1, 1, 0, 1000},
         .maws = {200, 1, 1, 0, 1000},
     };
-    generate_shop_UI(&shop_scene->data);
 }
 
 void free_level_scene(LevelScene_t* scene)
