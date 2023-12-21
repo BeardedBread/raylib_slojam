@@ -11,6 +11,11 @@
 #include "scenes.h"
 #include <stdio.h>
 
+#define TEXT_COLOUR WHITE
+#define BG_COLOUR BLACK
+#define ARENA_COLOUR (Color){30,30,30,255}
+#define THEME_COLOUR RED
+
 void restart_level_scene(LevelScene_t* scene);
 
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
@@ -97,7 +102,7 @@ static void level_scene_render_func(Scene_t* scene)
 
     Entity_t* p_ent;
     BeginDrawing();
-        ClearBackground(LIGHTGRAY);
+        ClearBackground(BG_COLOUR);
         DrawTextureRec(
             data->game_viewport.texture,
             draw_rec,
@@ -121,7 +126,7 @@ static void level_scene_render_func(Scene_t* scene)
 
         static char mem_stats[512];
         print_mempool_stats(mem_stats);
-        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, BLACK);
+        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
         sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
         {
             CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
@@ -129,7 +134,7 @@ static void level_scene_render_func(Scene_t* scene)
             DrawText(
                 mem_stats, scene->subscene_pos.x,
                 scene->subscene_pos.y + shop_scene->data.shop_rec.height + 10,
-                32,BLACK
+                32, TEXT_COLOUR
             );
 
             CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
@@ -137,7 +142,7 @@ static void level_scene_render_func(Scene_t* scene)
             DrawText(
                 mem_stats, scene->subscene_pos.x,
                 scene->subscene_pos.y + shop_scene->data.shop_rec.height + 42,
-                32,BLACK
+                32, TEXT_COLOUR
             );
 
             CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
@@ -153,13 +158,13 @@ static void level_scene_render_func(Scene_t* scene)
             DrawText(
                 mem_stats, scene->subscene_pos.x,
                 scene->subscene_pos.y + shop_scene->data.shop_rec.height + 74,
-                32,BLACK
+                32, TEXT_COLOUR
             );
             sprintf(mem_stats, "Growth: %u", p_pstate->collected);
             DrawText(
                 mem_stats, scene->subscene_pos.x,
                 scene->subscene_pos.y + shop_scene->data.shop_rec.height + 106,
-                32,BLACK
+                32, TEXT_COLOUR
             );
             break;
         }
@@ -173,7 +178,7 @@ static void arena_render_func(Scene_t* scene)
     Entity_t* p_ent;
     
     BeginTextureMode(data->game_viewport);
-        ClearBackground(RAYWHITE);
+        ClearBackground(ARENA_COLOUR);
         BeginMode2D(data->cam);
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
@@ -247,12 +252,12 @@ static void arena_render_func(Scene_t* scene)
                     p_ent->position,
                     Vector2Scale(p_pstate->aim_dir, 64)
                 );
-                DrawLineEx(p_ent->position, look_dir, 2, BLACK);
+                DrawLineEx(p_ent->position, look_dir, 2, TEXT_COLOUR);
             }
         }
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
-        DrawCircleV(raw_mouse_pos, 2, BLACK);
+        DrawCircleV(raw_mouse_pos, 2, TEXT_COLOUR);
 
         EndMode2D();
 
@@ -264,14 +269,14 @@ void shop_render_func(Scene_t* scene)
     ShopSceneData* data = &(((ShopScene_t*)scene)->data);
     char buffer[8];
     BeginTextureMode(data->shop_viewport);
-        ClearBackground(RAYWHITE);
+        ClearBackground(BG_COLOUR);
         if (scene->state_bits & RENDER_BIT)
         {
             for (uint8_t i = 0; i < 8; ++i)
             {
                 DrawRectangleRec(
                     data->ui.upgrades[i].button.box,
-                    data->ui.upgrades[i].button.enabled ? BLACK: GRAY);
+                    data->ui.upgrades[i].button.enabled ? THEME_COLOUR : GRAY);
                 Vector2 center = {
                     data->ui.upgrades[i].button.box.x + data->ui.upgrades[i].button.box.width,
                     data->ui.upgrades[i].button.box.y + data->ui.upgrades[i].button.box.height / 2,
@@ -283,23 +288,31 @@ void shop_render_func(Scene_t* scene)
                     const int8_t bought = data->ui.upgrades[i].item->cap - data->ui.upgrades[i].item->remaining;
                     for (int8_t j = 0; j < bought; ++j)
                     {
-                        DrawCircleV(center, data->ui.dot_size, BLACK);
+                        DrawCircleV(center, data->ui.dot_size, TEXT_COLOUR);
                         center.x += data->ui.upgrades[i].dot_spacing;
                     }
                     for (int8_t j = 0; j < data->ui.upgrades[i].item->remaining; ++j)
                     {
-                        DrawCircleLinesV(center, data->ui.dot_size, BLACK);
+                        DrawCircleLinesV(center, data->ui.dot_size, TEXT_COLOUR);
                         center.x += data->ui.upgrades[i].dot_spacing;
                     }
                     center.x -= data->ui.upgrades[i].dot_spacing;
                     center.x += 20;
-                }
-
-                sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
-                DrawText(buffer, center.x, center.y - (36 >> 1), 36, BLACK);
             }
 
-            DrawRectangleLinesEx(data->ui.desc_box, 3, BLACK);
+                sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
+                DrawText(buffer, center.x, center.y - (36 >> 1), 36, TEXT_COLOUR);
+            }
+
+            DrawRectangleLinesEx(data->ui.desc_box, 3, THEME_COLOUR);
+        }
+        else
+        {
+            Vector2 text_pos = {
+                .x = 5,
+                .y = data->shop_rec.height / 2
+            };
+            DrawText("Press P to Pause", text_pos.x, text_pos.y - (36 >> 1), 36, TEXT_COLOUR);
         }
 
     EndTextureMode();
