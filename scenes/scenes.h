@@ -59,11 +59,18 @@ typedef struct ShopScene {
     ShopSceneData data;
 } ShopScene_t;
 
+typedef enum GameState {
+    GAME_STARTING = 0,
+    GAME_PLAYING,
+    GAME_ENDED
+} GameState;
+
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
     Camera2D cam;
     Rectangle game_rec;
     Vector2 game_field_size;
+    GameState game_state;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

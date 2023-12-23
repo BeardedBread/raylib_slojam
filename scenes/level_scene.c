@@ -37,6 +37,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
         restart_level_scene((LevelScene_t*)scene);
         return ACTION_CONSUMED;
     }
+    LevelSceneData_t* data = &((LevelScene_t*)scene)->data;
             
     Entity_t* p_player;
     sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
@@ -63,6 +64,11 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 p_playerstate->boosting |= (pressed) ? 1 : 0;
             break;
             case ACTION_SHOOT:
+                if (data->game_state == GAME_STARTING)
+                {
+                    create_spawner(&scene->ent_manager);
+                    data->game_state = GAME_PLAYING;
+                }
                 p_playerstate->shoot |= (pressed) ? 1 : 0;
             break;
             case ACTION_SELECT1:
@@ -192,6 +198,15 @@ static void arena_render_func(Scene_t* scene)
     BeginTextureMode(data->game_viewport);
         ClearBackground(ARENA_COLOUR);
         BeginMode2D(data->cam);
+
+        if (data->game_state == GAME_STARTING)
+        {
+            DrawText("Press Shoot to Begin", data->game_field_size.x / 4, data->game_field_size.y / 2 - (36 >> 1), 36, TEXT_COLOUR);
+        }
+        else if (data->game_state == GAME_ENDED)
+        {
+            DrawText("You have perished.", data->game_field_size.x / 4 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
+        }
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
@@ -348,6 +363,24 @@ void shop_render_func(Scene_t* scene)
 
     EndTextureMode();
 }
+
+static void game_over_check(Scene_t* scene)
+{
+    if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+    {
+        LevelSceneData_t* data = &((LevelScene_t*)scene)->data;
+        data->game_state = GAME_ENDED;
+        Entity_t* p_ent;
+        sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
+        {
+            if (get_component(p_ent, CSPAWNER_T))
+            {
+                remove_component(p_ent, CSPAWNER_T);
+            }
+        }
+    }
+}
+
 static void shop_check_mouse(Scene_t* scene)
 {
     ShopSceneData* data = &(((ShopScene_t*)scene)->data);
@@ -550,8 +583,9 @@ void restart_level_scene(LevelScene_t* scene)
     }
     update_entity_manager(&scene->scene.ent_manager);
 
-    create_player(&scene->scene.ent_manager);
-    create_spawner(&scene->scene.ent_manager);
+    Entity_t* player = create_player(&scene->scene.ent_manager);
+    player->position = Vector2Scale(scene->data.game_field_size, 0.5f);
+    //create_spawner(&scene->scene.ent_manager);
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
@@ -565,6 +599,7 @@ void restart_level_scene(LevelScene_t* scene)
         .thumper = {200, 1, 1, 0, 1000},
         .maws = {200, 1, 1, 0, 1000},
     };
+    scene->data.game_state = GAME_STARTING;
 }
 
 void init_level_scene(LevelScene_t* scene)
@@ -607,6 +642,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &homing_update_system);
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
+    sc_array_add(&scene->scene.systems, &game_over_check);
     sc_array_add(&scene->scene.systems, &arena_render_func);
 
     sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);
@@ -642,20 +678,7 @@ void init_level_scene(LevelScene_t* scene)
 
     generate_shop_UI(&shop_scene->data);
 
-    create_player(&scene->scene.ent_manager);
-    create_spawner(&scene->scene.ent_manager);
-    update_entity_manager(&scene->scene.ent_manager);
-
-    shop_scene->data.store = (UpgradeStoreInventory){
-        .firerate_upgrade = {100, 3, 3, 125,1000},
-        .projspeed_upgrade = {75, 3, 3, 75, 1000},
-        .damage_upgrade = {50, 3, 3, 100, 1000},
-        .health_upgrade = {100, 3, 3, 150, 1000},
-        .full_heal = {50, -1, -1, 50, 500},
-        .escape = {2000, 1, 1, 0, 5000},
-        .thumper = {200, 1, 1, 0, 1000},
-        .maws = {200, 1, 1, 0, 1000},
-    };
+    restart_level_scene(scene);
 }
 
 void free_level_scene(LevelScene_t* scene)
