@@ -55,6 +55,35 @@ int main(void)
     init_engine(&engine);
     InitWindow(screenWidth, screenHeight, "raylib");
 
+    Texture2D* game_tex = add_texture(&engine.assets, "ast_tex", "res/asteroid_sprites.png");
+    if (game_tex == NULL)
+    {
+        puts("Cannot add game texture! Aborting!");
+        return 1;
+    }
+    Sprite_t* spr = add_sprite(&engine.assets, "plr_wep1", game_tex);
+    spr->origin = (Vector2){0,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(&engine.assets, "plr_wep2", game_tex);
+    spr->origin = (Vector2){32,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(&engine.assets, "plr_wep2", game_tex);
+    spr->origin = (Vector2){64,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    init_player_creation(&engine.assets);
+
     LevelScene_t lvl_scene;
     ShopScene_t shop_scene;
     scenes[0] = (Scene_t*)&lvl_scene;

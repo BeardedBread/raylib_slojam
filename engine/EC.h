@@ -180,26 +180,22 @@ typedef struct Sprite {
     Vector2 origin;
     Vector2 anchor;
     int frame_count;
-    int elapsed;
     int speed;
     char* name;
 } Sprite_t;
 
 typedef unsigned int (*sprite_transition_func_t)(Entity_t *ent); // Transition requires knowledge of the entity
-typedef struct _SpriteRenderInfo
-{
-    Sprite_t* sprite;
-    Vector2 offset;
-} SpriteRenderInfo_t;
-
 typedef struct _CSprite_t {
-    SpriteRenderInfo_t* sprites;
+    Sprite_t** sprites;
     sprite_transition_func_t transition_func;
     unsigned int current_idx;
     bool flip_x;
     bool flip_y;
     bool pause;
     int current_frame;
+    float rotation; // Degree
+    int elapsed;
+    Vector2 offset;
 } CSprite_t;
 
 typedef uint16_t EmitterHandle;

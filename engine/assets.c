@@ -207,8 +207,8 @@ void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool
     };
     //DrawTextureRec(*spr->texture, rec, pos, WHITE);
     Rectangle dest = {
-        .x = pos.x - spr->anchor.x,
-        .y = pos.y - spr->anchor.y,
+        .x = pos.x,
+        .y = pos.y,
         .width = spr->frame_size.x,
         .height = spr->frame_size.y
     };

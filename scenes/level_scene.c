@@ -210,6 +210,16 @@ static void arena_render_func(Scene_t* scene)
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
+            CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
+            if (p_cspr != NULL)
+            {
+                Sprite_t* spr = p_cspr->sprites[p_cspr->current_idx];
+                if (spr!= NULL)
+                {
+                    Vector2 pos = Vector2Add(p_ent->position, p_cspr->offset);
+                    draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                }
+            }
             Color c = BLUE;
             if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
@@ -279,7 +289,7 @@ static void arena_render_func(Scene_t* scene)
                     p_ent->position,
                     Vector2Scale(p_pstate->aim_dir, 64)
                 );
-                DrawLineEx(p_ent->position, look_dir, 2, TEXT_COLOUR);
+                DrawLineEx(p_ent->position, look_dir, 2, (Color){255,255,255,64});
             }
         }
         Vector2 raw_mouse_pos = GetMousePosition();
@@ -643,6 +653,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
     sc_array_add(&scene->scene.systems, &game_over_check);
+    sc_array_add(&scene->scene.systems, &sprite_animation_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
 
     sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);

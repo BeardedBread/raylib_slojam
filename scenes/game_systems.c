@@ -245,7 +245,13 @@ void player_movement_input_system(Scene_t* scene)
         // Mouse aim direction
         if (p_player->m_tag == PLAYER_ENT_TAG)
         {
-            p_pstate->aim_dir = Vector2Normalize(Vector2Subtract(raw_mouse_pos, p_player->position));
+            Vector2 dir_vec = Vector2Subtract(raw_mouse_pos, p_player->position);
+            p_pstate->aim_dir = Vector2Normalize(dir_vec);
+            CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
+            if (p_cspr != NULL)
+            {
+                p_cspr->rotation = atan2f(dir_vec.y, dir_vec.x) * 180 / PI;
+            }
         }
 
         if (p_pstate->boost_cooldown > 0)
@@ -616,3 +622,36 @@ void player_dir_reset_system(Scene_t* scene)
     }
 }
 
+void sprite_animation_system(Scene_t* scene)
+{
+    unsigned int ent_idx;
+    CSprite_t* p_cspr;
+    sc_map_foreach(&scene->ent_manager.component_map[CSPRITE_T], ent_idx, p_cspr)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        // Update animation state
+        unsigned int next_idx = p_cspr->current_idx;
+        if (p_cspr->transition_func != NULL)
+        {
+            next_idx = p_cspr->transition_func(p_ent);
+        }
+        if (p_cspr->pause) return;
+
+        bool reset = p_cspr->current_idx != next_idx;
+        p_cspr->current_idx = next_idx;
+
+        Sprite_t* spr = p_cspr->sprites[p_cspr->current_idx];
+        if (spr == NULL) continue;
+
+        if (reset) p_cspr->current_frame = 0;
+
+        // Animate it (handle frame count)
+        p_cspr->elapsed++;
+        if (p_cspr->elapsed == spr->speed)
+        {
+            p_cspr->current_frame++;
+            p_cspr->current_frame %= spr->frame_count;
+            p_cspr->elapsed = 0;
+        }
+    }
+}

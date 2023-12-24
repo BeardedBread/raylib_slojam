@@ -1,6 +1,8 @@
 #include "EC.h"
 #include "ent_impl.h"
 
+static Sprite_t* player_sprite_map[3] = {0};
+
 CWeapon_t all_weapons[3] = {
     // Pistol
     {
@@ -66,5 +68,22 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     add_component(p_ent, CPLAYERSTATE_T);
     //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
     //p_pstate->collected = 100000;
+
+    CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
+    p_cspr->sprites = player_sprite_map;
+    p_cspr->current_idx = 0;
     return p_ent;
+}
+
+bool init_player_creation(Assets_t* assets)
+{
+    Sprite_t* spr = get_sprite(assets, "plr_wep1");
+    player_sprite_map[0] = spr;
+
+    spr = get_sprite(assets, "plr_wep2");
+    player_sprite_map[1]= spr;
+
+    spr = get_sprite(assets, "plr_wep3");
+    player_sprite_map[2]= spr;
+    return true;
 }

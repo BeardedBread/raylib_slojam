@@ -1,6 +1,7 @@
 #ifndef SCENES_H
 #define SCENES_H
 #include "engine.h"
+#include "ent_impl.h"
 
 typedef struct UIButton {
     Rectangle box;

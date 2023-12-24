@@ -1,4 +1,5 @@
 .cache/
+res/
 build/
 release/
 web/
