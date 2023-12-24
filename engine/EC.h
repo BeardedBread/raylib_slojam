@@ -51,6 +51,7 @@ typedef struct _CTransform_t {
 typedef struct _CPlayerState_t {
     Vector2 player_dir;
     Vector2 aim_dir;
+    uint8_t moving;
     uint8_t boosting;
     uint8_t shoot;
     float boost_cooldown;

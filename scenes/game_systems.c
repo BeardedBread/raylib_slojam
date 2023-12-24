@@ -42,7 +42,7 @@ void spawned_update_system(Scene_t* scene)
     sc_map_foreach(&scene->ent_manager.component_map[CSPAWNED_T], ent_idx, p_spwn)
     {
         Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
-        if (!p_ent->m_alive)
+        if (p_ent != NULL && !p_ent->m_alive)
         {
             CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
             p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
@@ -240,7 +240,7 @@ void player_movement_input_system(Scene_t* scene)
         Entity_t* p_player = get_entity(&scene->ent_manager, ent_idx);
         CTransform_t* p_ctransform = get_component(p_player, CTRANSFORM_T);
         
-        p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->player_dir), MOVE_ACCEL);
+        //p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->player_dir), MOVE_ACCEL);
 
         // Mouse aim direction
         if (p_player->m_tag == PLAYER_ENT_TAG)
@@ -277,6 +277,14 @@ void player_movement_input_system(Scene_t* scene)
         }
         p_pstate->boosting <<= 1;
         p_pstate->boosting &= 0b11;
+
+
+        if (p_pstate->moving & 1)
+        {
+            p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->aim_dir), MOVE_ACCEL);
+        }
+        p_pstate->moving <<= 1;
+        p_pstate->moving &= 0b11;
 
         // Shoot
         if (p_pstate->shoot > 0)

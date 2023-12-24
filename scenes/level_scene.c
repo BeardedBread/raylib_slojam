@@ -60,6 +60,9 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
             case ACTION_RIGHT:
                 p_playerstate->player_dir.x = (pressed)? 1 : 0;
             break;
+            case ACTION_MOVE:
+                p_playerstate->moving |= (pressed) ? 1 : 0;
+            break;
             case ACTION_BOOST:
                 p_playerstate->boosting |= (pressed) ? 1 : 0;
             break;
@@ -664,7 +667,8 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_TWO, ACTION_SELECT2);
     sc_map_put_64(&scene->scene.action_map, KEY_THREE, ACTION_SELECT3);
     sc_map_put_64(&scene->scene.action_map, KEY_FOUR, ACTION_SELECT4);
-    sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_BOOST);
+    sc_map_put_64(&scene->scene.action_map, KEY_SPACE, ACTION_BOOST);
+    sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_MOVE);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
     sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
     sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_RESTART);

@@ -6,6 +6,7 @@ typedef enum ActionType
     ACTION_DOWN,
     ACTION_LEFT,
     ACTION_RIGHT,
+    ACTION_MOVE,
     ACTION_BOOST,
     ACTION_SHOOT,
     ACTION_PAUSE,
