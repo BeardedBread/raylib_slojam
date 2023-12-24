@@ -131,6 +131,7 @@ typedef struct _CHurtbox_t {
     float invuln_timer;
     DamageSource src;
     unsigned int damage_src;
+    Vector2 attack_dir;
     uint8_t def;
 } CHurtbox_t;
 

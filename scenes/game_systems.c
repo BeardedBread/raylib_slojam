@@ -538,11 +538,16 @@ void hitbox_update_system(Scene_t* scene)
 
             if (dist < p_ent->size + p_other_ent->size)
             {
+                p_hurtbox->attack_dir = (Vector2){0,0};
                 p_hurtbox->invuln_timer = 0.4f;
                 CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
                 if (p_other_life != NULL)
                 {
                     p_other_life->current_life -= p_hitbox->atk;
+                    if (p_other_life->current_life <= 0)
+                    {
+                        p_hurtbox->attack_dir = Vector2Subtract(p_other_ent->position, p_ent->position);
+                    }
                 }
                 if (p_life != NULL)
                 {
@@ -566,6 +571,7 @@ void container_destroy_system(Scene_t* scene)
         Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (p_ent->m_alive) continue;
         CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+        CHurtbox_t* p_hurtbox = get_component(p_ent, CHURTBOX_T);
         CSpawn_t* p_spwn = get_component(p_ent, CSPAWNED_T);
         float angle = 0.0f;
         float speed = 100.0f;
@@ -573,6 +579,14 @@ void container_destroy_system(Scene_t* scene)
         {
             angle = atan2f(p_ct->velocity.y, p_ct->velocity.x);
             speed = Vector2Length(p_ct->velocity);
+        }
+
+        if (p_hurtbox != NULL)
+        {
+            if (p_hurtbox->attack_dir.y != 0 && p_hurtbox->attack_dir.x != 0)
+            {
+                angle = atan2f(p_hurtbox->attack_dir.y, p_hurtbox->attack_dir.x);
+            }
         }
 
         switch (p_container->item)
