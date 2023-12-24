@@ -29,7 +29,7 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
     spwn_data->countdown_timer -= lvl_scene->scene.delta_time;
     if (spwn_data->countdown_timer <= 0.0f)
     {
-        float enemy_sz = 32;
+        float enemy_sz = GetRandomValue(32, 56);
         Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager, enemy_sz);
         CSpawn_t* p_spwn = add_component(p_ent, CSPAWNED_T);
         p_spwn->spawner = self;
