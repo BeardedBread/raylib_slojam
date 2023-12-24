@@ -75,7 +75,7 @@ int main(void)
     spr->frame_count = 1;
     spr->speed = 0;
 
-    spr = add_sprite(&engine.assets, "plr_wep2", game_tex);
+    spr = add_sprite(&engine.assets, "plr_wep3", game_tex);
     spr->origin = (Vector2){64,0};
     spr->frame_size = (Vector2){32,32};
     spr->anchor = (Vector2){16,16};

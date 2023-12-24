@@ -29,10 +29,10 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     Entity_t* p_ent = add_entity(ent_manager, PLAYER_ENT_TAG);
     if (p_ent == NULL) return NULL;
 
-    p_ent->size = 8;
+    p_ent->size = 6;
 
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
-    p_hurtbox->size = 8;
+    p_hurtbox->size = 6;
     p_hurtbox->src = DMGSRC_PLAYER;
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
@@ -65,9 +65,9 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_magnet->l2_range = 80*80;
     p_magnet->accel = 1500.0f;
     
-    add_component(p_ent, CPLAYERSTATE_T);
-    //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
-    //p_pstate->collected = 100000;
+    //add_component(p_ent, CPLAYERSTATE_T);
+    CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
+    p_pstate->collected = 100000;
 
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = player_sprite_map;

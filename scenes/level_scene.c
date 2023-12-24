@@ -104,6 +104,11 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
             {
                 p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
                 *p_weapon = p_weaponstore->weapons[new_weapon];
+                CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
+                if (p_cspr != NULL)
+                {
+                    p_cspr->current_idx = new_weapon;
+                }
             }
         }
     }
