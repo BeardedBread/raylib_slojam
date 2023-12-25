@@ -20,6 +20,7 @@ typedef struct StoreItem
 } StoreItem;
 
 typedef struct UpgradeBox {
+    Sprite_t* spr;
     UIButton button;
     int dot_spacing;
     bool show_dots;

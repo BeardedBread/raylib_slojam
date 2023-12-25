@@ -48,6 +48,52 @@ void update_loop(void)
     //update_sfx_list(&engine);
 }
 
+static int load_all_assets(Assets_t* assets)
+{
+    Texture2D* game_tex = add_texture(assets, "ast_tex", "res/asteroid_sprites.png");
+    if (game_tex == NULL)
+    {
+        puts("Cannot add game texture! Aborting!");
+        return 1;
+    }
+    Sprite_t* spr;
+    char buffer[32];
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        sprintf(buffer, "plr_wep%u", i+1);
+        spr = add_sprite(assets, buffer, game_tex);
+        spr->origin = (Vector2){32 * i,0};
+        spr->frame_size = (Vector2){32,32};
+        spr->anchor = (Vector2){16,16};
+        spr->frame_count = 1;
+        spr->speed = 0;
+    }
+
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        sprintf(buffer, "blt%u", i+1);
+        spr = add_sprite(assets, buffer, game_tex);
+        spr->origin = (Vector2){96 + 32 * i,0};
+        spr->frame_size = (Vector2){32,32};
+        spr->anchor = (Vector2){16,16};
+        spr->frame_count = 1;
+        spr->speed = 0;
+    }
+
+    for (unsigned int i = 0; i < 8; i++)
+    {
+        sprintf(buffer, "upg%u_icon", i+1);
+        spr = add_sprite(assets, buffer, game_tex);
+        spr->origin = (Vector2){192 + 64 * i,0};
+        spr->frame_size = (Vector2){64,64};
+        spr->anchor = (Vector2){32,32};
+        spr->frame_count = 1;
+        spr->speed = 0;
+    }
+
+    return 0;
+}
+
 int main(void) 
 {
     // Initialization
@@ -55,53 +101,7 @@ int main(void)
     init_engine(&engine);
     InitWindow(screenWidth, screenHeight, "raylib");
 
-    Texture2D* game_tex = add_texture(&engine.assets, "ast_tex", "res/asteroid_sprites.png");
-    if (game_tex == NULL)
-    {
-        puts("Cannot add game texture! Aborting!");
-        return 1;
-    }
-    Sprite_t* spr = add_sprite(&engine.assets, "plr_wep1", game_tex);
-    spr->origin = (Vector2){0,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
-
-    spr = add_sprite(&engine.assets, "plr_wep2", game_tex);
-    spr->origin = (Vector2){32,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
-
-    spr = add_sprite(&engine.assets, "plr_wep3", game_tex);
-    spr->origin = (Vector2){64,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
-
-    spr = add_sprite(&engine.assets, "blt1", game_tex);
-    spr->origin = (Vector2){96,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
-
-    spr = add_sprite(&engine.assets, "blt2", game_tex);
-    spr->origin = (Vector2){128,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
-
-    spr = add_sprite(&engine.assets, "blt3", game_tex);
-    spr->origin = (Vector2){160,0};
-    spr->frame_size = (Vector2){32,32};
-    spr->anchor = (Vector2){16,16};
-    spr->frame_count = 1;
-    spr->speed = 0;
+    if (load_all_assets(&engine.assets) != 0) return 1;
 
     init_player_creation(&engine.assets);
     init_bullet_creation(&engine.assets);

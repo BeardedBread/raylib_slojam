@@ -339,11 +339,19 @@ void shop_render_func(Scene_t* scene)
                 }
 
                 Vector2 center = {
-                    data->ui.upgrades[i].button.box.x + data->ui.upgrades[i].button.box.width,
+                    data->ui.upgrades[i].button.box.x + data->ui.upgrades[i].button.box.width / 2,
                     data->ui.upgrades[i].button.box.y + data->ui.upgrades[i].button.box.height / 2,
                 };
 
-                center.x += 20;
+                if (data->ui.upgrades[i].spr != NULL)
+                {
+                    draw_sprite(
+                        data->ui.upgrades[i].spr,
+                        0, center, 0.0f, 0
+                    );
+                }
+
+                center.x += data->ui.upgrades[i].button.box.width / 2 + 20;
                 if (data->ui.upgrades[i].show_dots)
                 {
                     const int8_t bought = data->ui.upgrades[i].item->cap - data->ui.upgrades[i].item->remaining;
@@ -363,6 +371,7 @@ void shop_render_func(Scene_t* scene)
 
                 sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
                 DrawText(buffer, center.x, center.y - (36 >> 1), 36, TEXT_COLOUR);
+
             }
 
             DrawRectangleLinesEx(data->ui.desc_box, 3, THEME_COLOUR);
@@ -521,8 +530,13 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
     return ACTION_CONSUMED;
 }
 
+#define CONTAINER_OF(ptr, type, member) ({         \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr); \
+    (type *)( (char *)__mptr - offsetof(type,member) );})
+
 static void generate_shop_UI(ShopSceneData* data)
 {
+    Scene_t* scene = (Scene_t*)CONTAINER_OF(data, ShopScene_t, data);
     const int padding = 5;
     const int DOT_SPACING = 60;
     const int DESCRPTION_BOX_HEIGHT = 130;
@@ -580,13 +594,21 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[7].button.enabled = true;
 
     data->ui.upgrades[0].item = &data->store.firerate_upgrade;
+    data->ui.upgrades[0].spr = get_sprite(&scene->engine->assets, "upg1_icon");
     data->ui.upgrades[1].item = &data->store.projspeed_upgrade;
+    data->ui.upgrades[1].spr = get_sprite(&scene->engine->assets, "upg2_icon");
     data->ui.upgrades[2].item = &data->store.damage_upgrade;
+    data->ui.upgrades[2].spr = get_sprite(&scene->engine->assets, "upg3_icon");
     data->ui.upgrades[3].item = &data->store.health_upgrade;
+    data->ui.upgrades[3].spr = get_sprite(&scene->engine->assets, "upg4_icon");
     data->ui.upgrades[4].item = &data->store.full_heal;
+    data->ui.upgrades[4].spr = get_sprite(&scene->engine->assets, "upg5_icon");
     data->ui.upgrades[5].item = &data->store.escape;
+    data->ui.upgrades[5].spr = get_sprite(&scene->engine->assets, "upg6_icon");
     data->ui.upgrades[6].item = &data->store.thumper;
+    data->ui.upgrades[6].spr = get_sprite(&scene->engine->assets, "upg7_icon");
     data->ui.upgrades[7].item = &data->store.maws;
+    data->ui.upgrades[7].spr = get_sprite(&scene->engine->assets, "upg8_icon");
 
     pos.y += data->ui.icon_size + padding; 
     data->ui.desc_box.x = padding;
