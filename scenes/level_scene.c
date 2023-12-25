@@ -147,13 +147,13 @@ static void level_scene_render_func(Scene_t* scene)
         {
             ImageDraw(
                 &stat_view, data->weapon_icons,
-                (Rectangle){32 * i,0,32,64},
-                (Rectangle){40 * i,0,32,64},
+                (Rectangle){0, 32*i, 64, 32},
+                (Rectangle){70 * i,0,64,32},
                 (i == p_weapon->weapon_idx) ? WHITE : GRAY
             );
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){40 * i,0,32,64},
+                (Rectangle){70 * i,0,64,32},
                 (Color){64,64,64,128}
             );
 
@@ -172,7 +172,7 @@ static void level_scene_render_func(Scene_t* scene)
             int show_height = 64 * (cooldown_timer - current_cooldown) / cooldown_timer;
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){40 * i,64 - show_height, 32, show_height},
+                (Rectangle){70 * i,0, show_height, 32},
                 (Color){255,255,255,255}
             );
         }
