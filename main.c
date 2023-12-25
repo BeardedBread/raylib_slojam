@@ -115,6 +115,10 @@ int main(void)
     lvl_scene.scene.subscene = &shop_scene.scene;
     shop_scene.scene.engine = &engine;
     init_level_scene(&lvl_scene);
+
+    Image weapon_img = LoadImage("res/weapon_icons.png");
+    lvl_scene.data.weapon_icons = weapon_img;
+
     change_scene(&engine, 0);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
@@ -130,6 +134,7 @@ int main(void)
         update_loop();
     }
     #endif
+    UnloadImage(weapon_img);
     free_level_scene(&lvl_scene);
     deinit_engine(&engine);
     CloseWindow(); 

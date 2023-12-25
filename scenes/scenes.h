@@ -73,6 +73,8 @@ typedef struct LevelSceneData {
     Rectangle game_rec;
     Vector2 game_field_size;
     GameState game_state;
+    Image weapon_icons;
+    RenderTexture2D stat_view;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

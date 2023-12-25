@@ -125,8 +125,61 @@ static void level_scene_render_func(Scene_t* scene)
     draw_rec.y = 0;
     draw_rec.height *= -1;
 
+    Entity_t* player_ent = NULL;
+    sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], player_ent)
+    {
+        break;
+    }
 
-    Entity_t* p_ent;
+    Image stat_view = GenImageColor(
+        shop_scene->data.shop_rec.width, 180,
+        BG_COLOUR
+    );
+    Image mask = GenImageColor(
+        shop_scene->data.shop_rec.width, 180,
+        (Color){0,0,0,255}
+    );
+    if (player_ent != NULL)
+    {
+        CWeaponStore_t* p_weaponstore = get_component(player_ent, CWEAPONSTORE_T);
+        CWeapon_t* p_weapon = get_component(player_ent, CWEAPON_T);
+        for (uint8_t i = 0; i < N_WEAPONS; ++i)
+        {
+            ImageDraw(
+                &stat_view, data->weapon_icons,
+                (Rectangle){32 * i,0,32,64},
+                (Rectangle){40 * i,0,32,64},
+                (i == p_weapon->weapon_idx) ? WHITE : GRAY
+            );
+            ImageDrawRectangleRec(
+                &mask,
+                (Rectangle){40 * i,0,32,64},
+                (Color){64,64,64,128}
+            );
+
+            float cooldown_timer = 1;
+            float current_cooldown = 0;
+            if (i == p_weapon->weapon_idx)
+            {
+                cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.1));
+                current_cooldown = p_weapon->cooldown_timer;
+            }
+            else
+            {
+                cooldown_timer = 1.0f / (p_weaponstore->weapons[i].fire_rate  * (1 + p_weaponstore->weapons[i].modifiers[0] * 0.1));
+                current_cooldown = p_weaponstore->weapons[i].cooldown_timer;
+            }
+            int show_height = 64 * (cooldown_timer - current_cooldown) / cooldown_timer;
+            ImageDrawRectangleRec(
+                &mask,
+                (Rectangle){40 * i,64 - show_height, 32, show_height},
+                (Color){255,255,255,255}
+            );
+        }
+    }
+    ImageAlphaMask(&stat_view, mask);
+    UpdateTexture(data->stat_view.texture, stat_view.data);
+
     BeginDrawing();
         ClearBackground(BG_COLOUR);
         DrawTextureRec(
@@ -135,6 +188,13 @@ static void level_scene_render_func(Scene_t* scene)
             (Vector2){data->game_rec.x, data->game_rec.y},
             WHITE
         );
+
+        draw_rec = shop_scene->data.shop_rec;
+        draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
+        draw_rec.y = shop_scene->data.shop_rec.y = scene->subscene_pos.y - 2;
+        draw_rec.width += 4;
+        draw_rec.height += 4;
+        DrawRectangleRec(draw_rec, RED);
 
         draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = 0;
@@ -153,49 +213,50 @@ static void level_scene_render_func(Scene_t* scene)
         static char mem_stats[512];
         print_mempool_stats(mem_stats);
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
-        sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_ent)
+
+        const int PLAYER_STAT_FONT = 24;
+        int stat_height =scene->subscene_pos.y + shop_scene->data.shop_rec.height;
+
+        if (player_ent != NULL)
         {
-            CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
-            sprintf(mem_stats, "HP: %u/%u ( %.2f )", p_life->current_life, p_life->max_life, p_life->corruption);
+            CPlayerState_t* p_pstate = get_component(player_ent, CPLAYERSTATE_T);
+            sprintf(mem_stats, "Essence: %u", p_pstate->collected);
             DrawText(
                 mem_stats, scene->subscene_pos.x,
-                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 10,
-                32, TEXT_COLOUR
+                stat_height + (PLAYER_STAT_FONT >> 1),
+                PLAYER_STAT_FONT, TEXT_COLOUR
             );
+            stat_height += PLAYER_STAT_FONT + 15;
 
-            CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
-            sprintf(mem_stats, "Redirection: %.2f", p_pstate->boost_cooldown);
-            DrawText(
-                mem_stats, scene->subscene_pos.x,
-                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 42,
-                32, TEXT_COLOUR
+            CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
+            const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
+            DrawRectangle(
+                scene->subscene_pos.x, stat_height,
+                HEALTH_LENGTH * p_pstate->boost_cooldown / 3.0f, 36, BLUE
             );
+            DrawRectangle(
+                scene->subscene_pos.x + 5, stat_height + 4,
+                HEALTH_LENGTH - 10, 28, GRAY
+            );
+            DrawRectangle(
+                scene->subscene_pos.x + 5, stat_height + 4,
+                (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28, RED
+            );
+            stat_height += 40 + 5;
 
-            CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
-            const char* weapon_name = "?";
-            switch (p_weapon->weapon_idx)
-            {
-                case 0: weapon_name = "Nails";break;
-                case 1: weapon_name = "Thumper";break;
-                case 2: weapon_name = "Maws";break;
-                default: break;
-            }
-            sprintf(mem_stats, "%s: %.2f", weapon_name, p_weapon->cooldown_timer);
-            DrawText(
-                mem_stats, scene->subscene_pos.x,
-                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 74,
-                32, TEXT_COLOUR
+            DrawTextureRec(
+                data->stat_view.texture,
+                (Rectangle){0,0,stat_view.width,stat_view.height},
+                (Vector2){
+                    shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                    stat_height
+                },
+                WHITE
             );
-            sprintf(mem_stats, "Growth: %u", p_pstate->collected);
-            DrawText(
-                mem_stats, scene->subscene_pos.x,
-                scene->subscene_pos.y + shop_scene->data.shop_rec.height + 106,
-                32, TEXT_COLOUR
-            );
-            break;
         }
-
     EndDrawing();
+    UnloadImage(stat_view);
+    UnloadImage(mask);
 }
 
 static void arena_render_func(Scene_t* scene)
@@ -314,6 +375,8 @@ static void arena_render_func(Scene_t* scene)
 
 void shop_render_func(Scene_t* scene)
 {
+    const int UPGRADE_FONT_SIZE = 30;
+    const int SPACING = 15;
     ShopSceneData* data = &(((ShopScene_t*)scene)->data);
     char buffer[8];
     BeginTextureMode(data->shop_viewport);
@@ -351,7 +414,7 @@ void shop_render_func(Scene_t* scene)
                     );
                 }
 
-                center.x += data->ui.upgrades[i].button.box.width / 2 + 20;
+                center.x += data->ui.upgrades[i].button.box.width / 2 + SPACING;
                 if (data->ui.upgrades[i].show_dots)
                 {
                     const int8_t bought = data->ui.upgrades[i].item->cap - data->ui.upgrades[i].item->remaining;
@@ -366,11 +429,11 @@ void shop_render_func(Scene_t* scene)
                         center.x += data->ui.upgrades[i].dot_spacing;
                     }
                     center.x -= data->ui.upgrades[i].dot_spacing;
-                    center.x += 20;
+                    center.x += SPACING;
             }
 
                 sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
-                DrawText(buffer, center.x, center.y - (36 >> 1), 36, TEXT_COLOUR);
+                DrawText(buffer, center.x, center.y - (UPGRADE_FONT_SIZE >> 1), UPGRADE_FONT_SIZE, TEXT_COLOUR);
 
             }
 
@@ -378,8 +441,8 @@ void shop_render_func(Scene_t* scene)
             DrawText(
                 data->ui.desc_text,
                 data->ui.desc_box.x + 10,
-                data->ui.desc_box.y +(data->ui.desc_box.height / 2) - (36 >> 1),
-                36, TEXT_COLOUR
+                data->ui.desc_box.y +(data->ui.desc_box.height / 2) - (UPGRADE_FONT_SIZE >> 1),
+                UPGRADE_FONT_SIZE, TEXT_COLOUR
             );
         }
         else
@@ -486,8 +549,8 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             p_weapons->modifier[i]++;
                                         break;
                                         case 3:
-                                            p_life->current_life += 20;
-                                            p_life->max_life += 20;
+                                            p_life->current_life += HEALTH_INCREMENT;
+                                            p_life->max_life += HEALTH_INCREMENT;
                                         break;
                                         case 4:
                                             p_life->current_life = p_life->max_life;
@@ -538,7 +601,7 @@ static void generate_shop_UI(ShopSceneData* data)
 {
     Scene_t* scene = (Scene_t*)CONTAINER_OF(data, ShopScene_t, data);
     const int padding = 5;
-    const int DOT_SPACING = 60;
+    const int DOT_SPACING = 40;
     const int DESCRPTION_BOX_HEIGHT = 130;
     const int width = data->shop_rec.width - padding * 2;
     const int height = data->shop_rec.height - padding * 2;
@@ -655,7 +718,6 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_rec = (Rectangle){10, 10, ARENA_WIDTH, ARENA_HEIGHT};
     scene->scene.time_scale = 1.0f;
 
-    
     memset(&scene->data.cam, 0, sizeof(Camera2D));
     scene->data.cam.zoom = 1.0;
     scene->data.cam.target = (Vector2){
@@ -664,7 +726,6 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.cam.offset = (Vector2){
         0,0
     };
-    
     
     sc_array_add(&scene->scene.systems, &weapon_cooldown_system);
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
@@ -714,22 +775,26 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
-    shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 150);
-    shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 150};
+    shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 180);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 180};
 
-    shop_scene->data.ui.icon_size = 75;
+    shop_scene->data.ui.icon_size = 70;
     shop_scene->data.ui.dot_size = 10;
     shop_scene->data.ui.pos = (Vector2){50, 50};
 
     generate_shop_UI(&shop_scene->data);
 
+    scene->data.stat_view = LoadRenderTexture(
+        shop_scene->data.shop_rec.width, 180
+    );
     restart_level_scene(scene);
 }
 
 void free_level_scene(LevelScene_t* scene)
 {
     UnloadRenderTexture(scene->data.game_viewport); // Unload render texture
-                                                    //
+    UnloadRenderTexture(scene->data.stat_view);
+
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     UnloadRenderTexture(shop_scene->data.shop_viewport); // Unload render texture
     free_scene(&scene->scene);

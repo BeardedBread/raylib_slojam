@@ -276,7 +276,7 @@ void player_movement_input_system(Scene_t* scene)
                 float boost_speed = Vector2Length(p_ctransform->velocity);
                 p_ctransform->velocity = Vector2Scale(
                     p_pstate->aim_dir,
-                    boost_speed > 400 ? boost_speed : 400
+                    boost_speed > MIN_BOOST_SPEED ? boost_speed : MIN_BOOST_SPEED
                 );
                 p_pstate->boost_cooldown = 3.0f;
             }
@@ -432,12 +432,6 @@ void movement_update_system(Scene_t* scene)
             p_ctransform->velocity,
             Vector2Scale(p_ctransform->accel, delta_time)
         );
-
-        //float mag = Vector2Length(p_ctransform->velocity);
-        //p_ctransform->velocity = Vector2Scale(
-        //    Vector2Normalize(p_ctransform->velocity),
-        //    (mag > PLAYER_MAX_SPEED)? PLAYER_MAX_SPEED:mag
-        //);
 
         // 3 dp precision
         if (fabs(p_ctransform->velocity.x) < 1e-3) p_ctransform->velocity.x = 0;
