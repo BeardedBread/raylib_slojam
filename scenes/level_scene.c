@@ -189,33 +189,13 @@ static void level_scene_render_func(Scene_t* scene)
             WHITE
         );
 
-        draw_rec = shop_scene->data.shop_rec;
-        draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
-        draw_rec.y = shop_scene->data.shop_rec.y = scene->subscene_pos.y - 2;
-        draw_rec.width += 4;
-        draw_rec.height += 4;
-        DrawRectangleRec(draw_rec, RED);
-
-        draw_rec = shop_scene->data.shop_rec;
-        draw_rec.x = 0;
-        draw_rec.y = 0;
-        draw_rec.height *= -1;
-        DrawTextureRec(
-            shop_scene->data.shop_viewport.texture,
-            draw_rec,
-            (Vector2){
-                shop_scene->data.shop_rec.x + scene->subscene_pos.x,
-                shop_scene->data.shop_rec.y = scene->subscene_pos.y
-            },
-            WHITE
-        );
 
         static char mem_stats[512];
         print_mempool_stats(mem_stats);
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
 
         const int PLAYER_STAT_FONT = 24;
-        int stat_height =scene->subscene_pos.y + shop_scene->data.shop_rec.height;
+        int stat_height = data->game_rec.y;
 
         if (player_ent != NULL)
         {
@@ -248,12 +228,33 @@ static void level_scene_render_func(Scene_t* scene)
                 data->stat_view.texture,
                 (Rectangle){0,0,stat_view.width,stat_view.height},
                 (Vector2){
-                    shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                    scene->subscene_pos.x,
                     stat_height
                 },
                 WHITE
             );
         }
+
+        draw_rec = shop_scene->data.shop_rec;
+        draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
+        draw_rec.y = shop_scene->data.shop_rec.y = scene->subscene_pos.y - 2;
+        draw_rec.width += 4;
+        draw_rec.height += 4;
+        DrawRectangleRec(draw_rec, RED);
+
+        draw_rec = shop_scene->data.shop_rec;
+        draw_rec.x = 0;
+        draw_rec.y = 0;
+        draw_rec.height *= -1;
+        DrawTextureRec(
+            shop_scene->data.shop_viewport.texture,
+            draw_rec,
+            (Vector2){
+                shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                shop_scene->data.shop_rec.y = scene->subscene_pos.y
+            },
+            WHITE
+        );
     EndDrawing();
     UnloadImage(stat_view);
     UnloadImage(mask);
@@ -429,8 +430,8 @@ void shop_render_func(Scene_t* scene)
                         center.x += data->ui.upgrades[i].dot_spacing;
                     }
                     center.x -= data->ui.upgrades[i].dot_spacing;
-                    center.x += SPACING;
-            }
+                    center.x += SPACING * 2;
+                }
 
                 sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
                 DrawText(buffer, center.x, center.y - (UPGRADE_FONT_SIZE >> 1), UPGRADE_FONT_SIZE, TEXT_COLOUR);
@@ -770,7 +771,7 @@ void init_level_scene(LevelScene_t* scene)
     scene->scene.subscene->parent_scene = &scene->scene;
     scene->scene.subscene->subscene = NULL;
     scene->scene.time_scale = 1.0f;
-    scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 10};
+    scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 180};
     sc_array_add(&scene->scene.subscene->systems, &shop_check_mouse);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
