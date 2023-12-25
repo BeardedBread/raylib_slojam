@@ -241,7 +241,10 @@ static void arena_render_func(Scene_t* scene)
             {
                 c = GOLD;
             }
-            DrawCircleV(p_ent->position, p_ent->size, c);
+            if (p_ent->m_tag == PLAYER_ENT_TAG || p_cspr == NULL)
+            {
+                DrawCircleV(p_ent->position, p_ent->size, c);
+            }
 
             CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
             if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)

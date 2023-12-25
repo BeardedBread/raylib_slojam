@@ -82,7 +82,29 @@ int main(void)
     spr->frame_count = 1;
     spr->speed = 0;
 
+    spr = add_sprite(&engine.assets, "blt1", game_tex);
+    spr->origin = (Vector2){96,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(&engine.assets, "blt2", game_tex);
+    spr->origin = (Vector2){128,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(&engine.assets, "blt3", game_tex);
+    spr->origin = (Vector2){160,0};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
     init_player_creation(&engine.assets);
+    init_bullet_creation(&engine.assets);
 
     LevelScene_t lvl_scene;
     ShopScene_t shop_scene;

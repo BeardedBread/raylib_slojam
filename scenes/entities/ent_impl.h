@@ -11,6 +11,7 @@ typedef enum EntityTag {
 } EntityTag_t;
 
 bool init_player_creation(Assets_t* assets);
+bool init_bullet_creation(Assets_t* assets);
 
 Entity_t* create_player(EntityManager_t* ent_manager);
 Entity_t* create_bullet(EntityManager_t* ent_manager);

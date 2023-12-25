@@ -120,6 +120,13 @@ void homing_update_system(Scene_t* scene)
             Vector2Normalize(to_predict),
             rocket_accel
         );
+
+        CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
+        if (p_cspr != NULL)
+        {
+            float angle = atan2f(to_target.y, to_target.x);
+            p_cspr->rotation = angle * 180 / PI;
+    }
     }
 }
 
@@ -322,6 +329,10 @@ void player_movement_input_system(Scene_t* scene)
                         bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
                     }
 
+                    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
+                    p_cspr->current_idx = p_weapon->weapon_idx;
+                    p_cspr->rotation = angle * 180 / PI;
+
                     bullets--;
                     angle -= p_weapon->spread_range;
                     angle_increment = p_weapon->spread_range;
@@ -350,6 +361,10 @@ void player_movement_input_system(Scene_t* scene)
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
 
+                    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
+                    p_cspr->current_idx = p_weapon->weapon_idx;
+                    p_cspr->rotation = angle * 180 / PI;
+
                     p_bullet = create_bullet(&scene->ent_manager);
                     bullet_ct = get_component(p_bullet, CTRANSFORM_T);
                     bullet_ct->velocity = (Vector2){
@@ -363,6 +378,10 @@ void player_movement_input_system(Scene_t* scene)
 
                     bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
+
+                    p_cspr = get_component(p_bullet, CSPRITE_T);
+                    p_cspr->current_idx = p_weapon->weapon_idx;
+                    p_cspr->rotation = (angle + 2 * angle_increment) * 180 / PI;
 
                     angle -= p_weapon->spread_range;
                     angle_increment += p_weapon->spread_range;
