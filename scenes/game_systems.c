@@ -560,8 +560,10 @@ void hitbox_update_system(Scene_t* scene)
 
             float dist = Vector2Distance(p_ent->position, p_other_ent->position);
 
+            // On hit
             if (dist < p_ent->size + p_other_ent->size)
             {
+                Vector2 attack_dir = Vector2Subtract(p_other_ent->position, p_ent->position);
                 p_hurtbox->attack_dir = (Vector2){0,0};
                 p_hurtbox->invuln_timer = 0.4f;
                 CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
@@ -570,9 +572,25 @@ void hitbox_update_system(Scene_t* scene)
                     p_other_life->current_life -= p_hitbox->atk;
                     if (p_other_life->current_life <= 0)
                     {
-                        p_hurtbox->attack_dir = Vector2Subtract(p_other_ent->position, p_ent->position);
+                        p_hurtbox->attack_dir = attack_dir;
                     }
                 }
+                CTransform_t* p_ct = get_component(p_other_ent, CTRANSFORM_T);
+
+                if (p_ct != NULL)
+                {
+                    float kb = 10 *p_hitbox->knockback;
+                    if (kb < 200) kb = 200;
+
+                    p_ct->velocity = Vector2Add(
+                        p_ct->velocity,
+                        Vector2Scale(
+                            Vector2Normalize(attack_dir),
+                            kb
+                        )
+                    );
+                }
+
                 if (p_life != NULL)
                 {
                     p_life->current_life--;

@@ -14,6 +14,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = size;
     p_hitbox->atk = size / 4;
+    p_hitbox->knockback = size;
     p_hitbox->dmg_type = DMG_MELEE;
     p_hitbox->src = DMGSRC_ENEMY;
 

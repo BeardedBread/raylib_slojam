@@ -120,6 +120,7 @@ typedef struct _CWeaponStore {
 typedef struct _CHitBoxes_t {
     Vector2 offset;
     float size;
+    float knockback;
     uint8_t atk;
     bool one_hit;
     DamageType dmg_type;
