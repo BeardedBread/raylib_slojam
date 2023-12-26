@@ -706,6 +706,11 @@ void restart_level_scene(LevelScene_t* scene)
         .thumper = {200, 1, 1, 0, 1000},
         .maws = {200, 1, 1, 0, 1000},
     };
+
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+        shop_scene->data.ui.upgrades[i].button.enabled = true;
+    }
     scene->data.game_state = GAME_STARTING;
 }
 
