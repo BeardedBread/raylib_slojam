@@ -364,6 +364,15 @@ static void arena_render_func(Scene_t* scene)
                 );
                 DrawLineEx(p_ent->position, look_dir, 2, (Color){255,255,255,64});
             }
+
+            // Not going into the final game
+            CSpawner_t* p_spawner = get_component(p_ent, CSPAWNER_T);
+            if (p_spawner != NULL)
+            {
+                static char buffer[64];
+                sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
+                DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
+            }
         }
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});

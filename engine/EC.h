@@ -154,7 +154,10 @@ typedef struct _CAIFunction_t {
 
 typedef struct SpawnerData
 {
-    float countdown_timer;
+    uint8_t rank;
+    uint32_t rank_counter;
+    float spawn_timer;
+    float rank_timer;
     uint16_t spawned;
 } SpawnerData;
 

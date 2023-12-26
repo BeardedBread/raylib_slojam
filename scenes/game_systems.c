@@ -635,13 +635,13 @@ void container_destroy_system(Scene_t* scene)
         {
             case CONTAINER_ENEMY:
             {
-                if (p_ent->size / 1.75 <= 10 || p_container->num == 0) break;
+                if (p_ent->size / SIZE_SPLIT_FACTOR <= ENEMY_MIN_SIZE || p_container->num == 0) break;
 
                 float increment = 2 * PI / p_container->num;
                 angle += increment / 2;
                 for (uint8_t i = 0; i < p_container->num; ++i)
                 {
-                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / 1.75);
+                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / SIZE_SPLIT_FACTOR);
                     p_enemy->position = p_ent->position;
 
                     CTransform_t* enemy_ct = get_component(p_enemy, CTRANSFORM_T);
