@@ -143,17 +143,20 @@ static void level_scene_render_func(Scene_t* scene)
     {
         CWeaponStore_t* p_weaponstore = get_component(player_ent, CWEAPONSTORE_T);
         CWeapon_t* p_weapon = get_component(player_ent, CWEAPON_T);
+
+        const int icon_width = data->weapon_icons.width;
+        const int icon_height = data->weapon_icons.height / 3;
         for (uint8_t i = 0; i < N_WEAPONS; ++i)
         {
             ImageDraw(
                 &stat_view, data->weapon_icons,
-                (Rectangle){0, 32*i, 64, 32},
-                (Rectangle){70 * i,0,64,32},
+                (Rectangle){0, icon_height*i, icon_width, icon_height},
+                (Rectangle){(icon_width + 25) * i,0,icon_width, icon_height},
                 (i == p_weapon->weapon_idx) ? WHITE : GRAY
             );
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){70 * i,0,64,32},
+                (Rectangle){(icon_width + 25) * i,0,icon_width, icon_height},
                 (Color){64,64,64,128}
             );
 
@@ -169,10 +172,10 @@ static void level_scene_render_func(Scene_t* scene)
                 cooldown_timer = 1.0f / (p_weaponstore->weapons[i].fire_rate  * (1 + p_weaponstore->weapons[i].modifiers[0] * 0.1));
                 current_cooldown = p_weaponstore->weapons[i].cooldown_timer;
             }
-            int show_height = 64 * (cooldown_timer - current_cooldown) / cooldown_timer;
+            int show_height = icon_width * (cooldown_timer - current_cooldown) / cooldown_timer;
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){70 * i,0, show_height, 32},
+                (Rectangle){(icon_width + 25) * i, 0, show_height, icon_height},
                 (Color){255,255,255,255}
             );
         }
