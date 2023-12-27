@@ -114,7 +114,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
     }
     return ACTION_PROPAGATE;
 }
-
+#define STATS_Y_OFFSET -40
 static void level_scene_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
@@ -198,7 +198,7 @@ static void level_scene_render_func(Scene_t* scene)
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
 
         const int PLAYER_STAT_FONT = 24;
-        int stat_height = data->game_rec.y;
+        int stat_height = data->game_rec.y + STATS_Y_OFFSET;
 
         if (player_ent != NULL)
         {
@@ -764,12 +764,14 @@ void restart_level_scene(LevelScene_t* scene)
 
 void init_level_scene(LevelScene_t* scene)
 {
+#define ARENA_START_X 100
+#define ARENA_START_Y 80
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
 
     scene->data.game_field_size = (Vector2){ARENA_WIDTH, ARENA_HEIGHT};
     scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
-    scene->data.game_rec = (Rectangle){10, 10, ARENA_WIDTH, ARENA_HEIGHT};
+    scene->data.game_rec = (Rectangle){ARENA_START_X, ARENA_START_Y, ARENA_WIDTH, ARENA_HEIGHT};
     scene->scene.time_scale = 1.0f;
 
     memset(&scene->data.cam, 0, sizeof(Camera2D));
@@ -820,17 +822,17 @@ void init_level_scene(LevelScene_t* scene)
 
     scene->scene.subscene->type = SUB_SCENE;
     init_scene(scene->scene.subscene, NULL, &shop_do_action);
-
+#define STATS_HEIGHT 160
     scene->scene.subscene->parent_scene = &scene->scene;
     scene->scene.subscene->subscene = NULL;
     scene->scene.time_scale = 1.0f;
-    scene->scene.subscene_pos = (Vector2){10 + ARENA_WIDTH + 20, 180};
+    scene->scene.subscene_pos = (Vector2){ARENA_START_X + ARENA_WIDTH + 20, ARENA_START_Y + STATS_HEIGHT + STATS_Y_OFFSET};
     sc_array_add(&scene->scene.subscene->systems, &shop_check_mouse);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
-    shop_scene->data.shop_viewport = LoadRenderTexture(400, ARENA_HEIGHT - 180);
-    shop_scene->data.shop_rec = (Rectangle){0, 0, 400, ARENA_HEIGHT - 180};
+    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - STATS_HEIGHT + 50);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - STATS_HEIGHT + 50};
 
     shop_scene->data.ui.icon_size = 70;
     shop_scene->data.ui.dot_size = 10;
