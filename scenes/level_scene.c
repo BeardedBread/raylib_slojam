@@ -278,7 +278,17 @@ static void arena_render_func(Scene_t* scene)
         }
         else if (data->game_state == GAME_ENDED)
         {
-            DrawText("You have perished.", data->game_field_size.x / 4 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
+            const char* game_over_str;
+            if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+            {
+                game_over_str = "You have perished.";
+            }
+            else
+            {
+                game_over_str = "You survived! Wonderful!";
+            }
+
+            DrawText(game_over_str, data->game_field_size.x / 4 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
         }
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
@@ -472,16 +482,21 @@ void shop_render_func(Scene_t* scene)
 
 static void game_over_check(Scene_t* scene)
 {
-    if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+    if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0 || data->game_state == GAME_ENDED)
     {
         LevelSceneData_t* data = &((LevelScene_t*)scene)->data;
         data->game_state = GAME_ENDED;
         Entity_t* p_ent;
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
-            if (get_component(p_ent, CSPAWNER_T))
+            if (get_component(p_ent, CSPAWNER_T) != NULL)
             {
                 remove_component(p_ent, CSPAWNER_T);
+            }
+            if (p_ent->m_tag == ENEMY_ENT_TAG)
+            {
+                remove_entity(&scene->ent_manager, p_ent->m_id);
             }
         }
     }
@@ -495,7 +510,7 @@ static void shop_check_mouse(Scene_t* scene)
     data->ui.desc_text = "";
     for (uint8_t i = 0; i < 8; ++i)
     {
-            data->ui.upgrades[i].button.hover = false;
+        data->ui.upgrades[i].button.hover = false;
     }
 
     for (uint8_t i = 0; i < 8; ++i)
@@ -569,7 +584,28 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             p_life->current_life = p_life->max_life;
                                         break;
                                         case 5:
+                                        {
                                             // Game ending stuff
+                                            Entity_t* p_finalenemy = create_enemy(&scene->parent_scene->ent_manager, 32);
+                                            CContainer_t* p_container = get_component(p_finalenemy, CCONTAINER_T);
+                                            p_container->item = CONTAINER_GOAL;
+                                            p_container->num = 1;
+                                            remove_component(p_finalenemy, CHITBOXES_T);
+                                            LevelSceneData_t* lvl_data = &((LevelScene_t*)(scene->parent_scene))->data;
+                                            p_finalenemy->position = (Vector2){
+                                                lvl_data->game_field_size.x/2, lvl_data->game_field_size.y/2
+                                            };
+                                            float angle = 2 * PI * (float)rand() / (float)RAND_MAX;
+                                            CTransform_t* p_ct = get_component(p_finalenemy, CTRANSFORM_T);
+                                            p_ct->velocity = (Vector2){
+                                                1000 * cos(angle), 1000 * sin(angle)
+                                            };
+                                            CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
+                                            p_life->current_life = 300;
+                                            p_life->max_life = 300;
+                                            CHurtbox_t* p_hurtbox = get_component(p_finalenemy, CHURTBOX_T);
+                                            p_hurtbox->kb_mult = 3.0f;
+                                        }
                                         break;
                                         case 6:
                                             p_weapons->unlocked[1] = true;

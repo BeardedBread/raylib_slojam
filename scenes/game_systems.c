@@ -533,7 +533,6 @@ void invuln_update_system(Scene_t* scene)
 void hitbox_update_system(Scene_t* scene)
 {
     static bool checked_entities[MAX_COMP_POOL_SIZE] = {0};
-    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
 
     unsigned int ent_idx;
     CHitBoxes_t* p_hitbox;
@@ -579,7 +578,7 @@ void hitbox_update_system(Scene_t* scene)
 
                 if (p_ct != NULL)
                 {
-                    float kb = 10 *p_hitbox->knockback;
+                    float kb = 10 *p_hitbox->knockback * p_hurtbox->kb_mult;
                     if (kb < 200) kb = 200;
 
                     p_ct->velocity = Vector2Add(
@@ -659,6 +658,12 @@ void container_destroy_system(Scene_t* scene)
                         new_spwn->spawner = p_spwn->spawner;
                     }
                 }
+            }
+            break;
+            case CONTAINER_GOAL:
+            {
+                LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+                data->game_state = GAME_ENDED;
             }
             break;
             default:

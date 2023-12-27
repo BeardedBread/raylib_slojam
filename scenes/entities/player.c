@@ -34,6 +34,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
     p_hurtbox->size = 6;
     p_hurtbox->src = DMGSRC_PLAYER;
+    p_hurtbox->kb_mult = 1.0f;
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;

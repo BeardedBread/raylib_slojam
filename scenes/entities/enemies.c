@@ -21,6 +21,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
     p_hurtbox->size = size;
     p_hurtbox->src = DMGSRC_ENEMY;
+    p_hurtbox->kb_mult = 0.5f;
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 4;

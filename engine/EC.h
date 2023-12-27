@@ -63,6 +63,7 @@ typedef enum ContainerItem {
     CONTAINER_BULLETS,
     CONTAINER_ENEMY,
     CONTAINER_BOMB,
+    CONTAINER_GOAL,
 } ContainerItem_t;
 
 typedef struct _CContainer_t {
@@ -135,6 +136,7 @@ typedef struct _CHurtbox_t {
     unsigned int damage_src;
     Vector2 attack_dir;
     uint8_t def;
+    float kb_mult;
 } CHurtbox_t;
 
 typedef struct _CLifeTimer_t {
