@@ -65,6 +65,7 @@ Font* get_font(Assets_t* assets, const char* name);
 LevelPack_t* get_level_pack(Assets_t* assets, const char* name);
 
 void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool flip_x);
+void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, float scale);
 
 typedef struct SFX
 {

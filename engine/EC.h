@@ -202,6 +202,7 @@ typedef struct _CSprite_t {
     bool pause;
     int current_frame;
     float rotation; // Degree
+    float rotation_speed; // Degree / s
     int elapsed;
     Vector2 offset;
 } CSprite_t;

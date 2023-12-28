@@ -91,6 +91,12 @@ static int load_all_assets(Assets_t* assets)
         spr->speed = 0;
     }
 
+    spr = add_sprite(assets, "enm_normal", game_tex);
+    spr->origin = (Vector2){0,32};
+    spr->frame_size = (Vector2){128,128};
+    spr->anchor = (Vector2){64,64};
+    spr->frame_count = 1;
+    spr->speed = 0;
     return 0;
 }
 
@@ -105,6 +111,7 @@ int main(void)
 
     init_player_creation(&engine.assets);
     init_bullet_creation(&engine.assets);
+    init_enemies_creation(&engine.assets);
 
     LevelScene_t lvl_scene;
     ShopScene_t shop_scene;

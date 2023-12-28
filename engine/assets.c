@@ -220,3 +220,29 @@ void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool
         rotation, WHITE
     );
 }
+
+void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, float scale)
+{
+    Rectangle rec = {
+        spr->origin.x + spr->frame_size.x * frame_num,
+        spr->origin.y,
+        spr->frame_size.x,
+        spr->frame_size.y
+    };
+    Rectangle dest = {
+        .x = pos.x,
+        .y = pos.y,
+        .width = spr->frame_size.x * scale,
+        .height = spr->frame_size.y * scale
+    };
+    Vector2 anchor = spr->anchor;
+    anchor.x *= scale;
+    anchor.y *= scale;
+    DrawTexturePro(
+        *spr->texture,
+        rec,
+        dest,
+        anchor,
+        rotation, WHITE
+    );
+}

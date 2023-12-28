@@ -300,7 +300,15 @@ static void arena_render_func(Scene_t* scene)
                 if (spr!= NULL)
                 {
                     Vector2 pos = Vector2Add(p_ent->position, p_cspr->offset);
+                    if (p_ent->m_tag == ENEMY_ENT_TAG)
+                    {
+                        p_cspr->rotation += p_cspr->rotation_speed * scene->time_scale * scene->delta_time;
+                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / 128);
+                    }
+                    else
+                    {
                     draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                    }
                 }
             }
             Color c = BLUE;
