@@ -219,7 +219,7 @@ void life_update_system(Scene_t* scene)
                         .y = p_ent->position.y,
                     },
                     .angle_offset = 0.0f,
-                    .part_type = PARTICLE_SQUARE,
+                    .part_type = PARTICLE_LINE,
                     .n_particles = 10,
                     .user_data = scene,
                     .update_func = &simple_particle_system_update,

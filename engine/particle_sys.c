@@ -2,7 +2,7 @@
 #include "assets.h"
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
+#include "raymath.h"
 
 void init_particle_system(ParticleSystem_t* system)
 {
@@ -280,6 +280,12 @@ void draw_particle_system(ParticleSystem_t* system)
                     break;
                     case PARTICLE_LINE:
                     {
+
+                        Vector2 end_point = Vector2Add(
+                            part->position,
+                            Vector2Scale(part->velocity, 0.05)
+                        );
+                        DrawLineV(part->position, end_point, WHITE);
 
                     }
                     case PARTICLE_NONE:
