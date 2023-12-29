@@ -97,6 +97,21 @@ static int load_all_assets(Assets_t* assets)
     spr->anchor = (Vector2){64,64};
     spr->frame_count = 1;
     spr->speed = 0;
+    EmitterConfig_t emitter_conf = {
+        .launch_range = {-10, 10},
+        .speed_range = {200,340},
+        .angle_range = {0,360},
+        .rotation_range = {-20,20},
+        .size_range = {3, 6},
+        .particle_lifetime = {0.2,0.3},
+        .initial_spawn_delay = 0,
+        .type = EMITTER_BURST,
+        .one_shot = true,
+    };
+    
+    EmitterConfig_t* conf = add_emitter_conf(assets, "part_hit");
+    *conf = emitter_conf;
+
     return 0;
 }
 
@@ -113,8 +128,8 @@ int main(void)
     init_bullet_creation(&engine.assets);
     init_enemies_creation(&engine.assets);
 
-    LevelScene_t lvl_scene;
-    ShopScene_t shop_scene;
+    static LevelScene_t lvl_scene;
+    static ShopScene_t shop_scene;
     scenes[0] = (Scene_t*)&lvl_scene;
     scenes[1] = (Scene_t*)&shop_scene;
 

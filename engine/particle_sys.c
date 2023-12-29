@@ -30,12 +30,13 @@ static inline float generate_randrange(float lo, float hi)
 
 static inline void spawn_particle(ParticleEmitter_t* emitter, uint32_t idx)
 {
-    uint32_t lifetime = (emitter->config->particle_lifetime[1] - emitter->config->particle_lifetime[0]);
+    float lifetime = (emitter->config->particle_lifetime[1] - emitter->config->particle_lifetime[0]);
     emitter->particles[idx].timer = emitter->config->particle_lifetime[0];
-    emitter->particles[idx].timer += rand() % lifetime;
+    emitter->particles[idx].timer += lifetime * rand()/ (float)RAND_MAX;
     emitter->particles[idx].alive = true;
 
     float angle = generate_randrange(emitter->config->launch_range[0], emitter->config->launch_range[1]);
+    angle += emitter->angle_offset;
     if(angle > 360) angle -= 360;
     if(angle < -360) angle += 360;
 
@@ -51,7 +52,8 @@ static inline void spawn_particle(ParticleEmitter_t* emitter, uint32_t idx)
     emitter->particles[idx].angular_vel = generate_randrange(
         emitter->config->rotation_range[0], emitter->config->rotation_range[1]
     );
-    emitter->particles[idx].size = 10 + 20 * (float)rand() / (float)RAND_MAX;
+    emitter->particles[idx].size = emitter->config->size_range[0];
+    emitter->particles[idx].size += (emitter->config->size_range[1] - emitter->config->size_range[0]) * (float)rand() / (float)RAND_MAX;
     emitter->particles[idx].spawned = true;
 ;
 }
@@ -179,9 +181,7 @@ void update_particle_system(ParticleSystem_t* system)
                 }
 
             }
-            // Lifetime update
-            if (emitter->particles[i].timer > 0) emitter->particles[i].timer--;
-            if (emitter->particles[i].timer == 0)
+            if (emitter->particles[i].timer < 0.0f)
             {
                 if (emitter->particles[i].spawned)
                 {
@@ -267,7 +267,7 @@ void draw_particle_system(ParticleSystem_t* system)
                         part->size / 2, 
                         part->size / 2
                     };
-                    DrawRectanglePro(rect, origin, part->rotation, BLACK);
+                    DrawRectanglePro(rect, origin, part->rotation, WHITE);
                 }
                 else
                 {

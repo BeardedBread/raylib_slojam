@@ -5,6 +5,8 @@
 #include "ent_impl.h"
 #include "raymath.h"
 
+static void simple_particle_system_update(Particle_t* part, void* user_data);
+
 static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos)
 {
     Entity_t* p_target;
@@ -590,6 +592,21 @@ void hitbox_update_system(Scene_t* scene)
                     );
                 }
 
+                ParticleEmitter_t emitter = {
+                    .spr = NULL,
+                    .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
+                    .position = {
+                        .x = p_ent->position.x,
+                        .y = p_ent->position.y,
+                    },
+                    .angle_offset = atan2f(attack_dir.y, attack_dir.x) * 180 / PI - 180,
+                    .n_particles = 5,
+                    .user_data = scene,
+                    .update_func = &simple_particle_system_update,
+                    .emitter_update_func = NULL,
+                };
+                play_particle_emitter(&scene->part_sys, &emitter);
+
                 if (p_life != NULL)
                 {
                     p_life->current_life--;
@@ -715,4 +732,16 @@ void sprite_animation_system(Scene_t* scene)
             p_cspr->elapsed = 0;
         }
     }
+}
+
+void simple_particle_system_update(Particle_t* part, void* user_data)
+{
+    Scene_t* scene = (Scene_t*)user_data;
+
+    part->position = Vector2Add(
+        part->position,
+        Vector2Scale(part->velocity, scene->delta_time)
+    );
+
+    part->timer -= scene->delta_time;
 }

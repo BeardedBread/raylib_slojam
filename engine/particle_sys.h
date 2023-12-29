@@ -22,7 +22,7 @@ typedef struct Particle
     float rotation;
     float angular_vel;
     float size;
-    uint32_t timer;
+    float timer;
     bool alive;
     bool spawned;
 }Particle_t;
@@ -38,7 +38,8 @@ typedef struct EmitterConfig
     float speed_range[2];
     float angle_range[2];
     float rotation_range[2];
-    uint32_t particle_lifetime[2];
+    float particle_lifetime[2];
+    uint16_t size_range[2];
     uint32_t initial_spawn_delay;
     PartEmitterType_t type;
     bool one_shot;
@@ -47,11 +48,13 @@ typedef struct EmitterConfig
 struct ParticleEmitter
 {
     const EmitterConfig_t* config;
+
     Sprite_t* spr;
     Vector2 position;
+    float angle_offset;
     Particle_t particles[MAX_PARTICLES];
     uint32_t n_particles;
-    uint32_t timer;
+    float timer;
     bool finished;
     bool active;
     void* user_data;

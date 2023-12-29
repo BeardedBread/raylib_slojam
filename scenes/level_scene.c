@@ -395,6 +395,8 @@ static void arena_render_func(Scene_t* scene)
                 DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
             }
         }
+
+        draw_particle_system(&scene->part_sys);
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
         DrawCircleV(raw_mouse_pos, 2, TEXT_COLOUR);
