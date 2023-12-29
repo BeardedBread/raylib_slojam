@@ -94,7 +94,7 @@ void play_emitter_handle(ParticleSystem_t* system, uint16_t handle)
         {
             // TODO: deal with stream type
             //spawn_particle(emitter, 0);
-            uint32_t incr = 0;
+            float incr = 0;
             for (uint32_t i = 0; i < emitter->n_particles; ++i)
             {
                 emitter->particles[i].timer = incr;
@@ -129,6 +129,13 @@ void update_emitter_handle_position(ParticleSystem_t* system, EmitterHandle hand
     system->emitters[handle].position = pos;
 }
 
+void update_emitter_handle_rotation(ParticleSystem_t* system, EmitterHandle handle, float rotation)
+{
+    if (handle == 0) return;
+    
+    system->emitters[handle].angle_offset = rotation;
+}
+
 void unload_emitter_handle(ParticleSystem_t* system, EmitterHandle handle)
 {
     if (handle == 0) return;
@@ -153,7 +160,7 @@ EmitterHandle play_particle_emitter(ParticleSystem_t* system, const ParticleEmit
     return idx;
 }
 
-void update_particle_system(ParticleSystem_t* system)
+void update_particle_system(ParticleSystem_t* system, float delta_time)
 {
     uint32_t emitter_idx = system->emitter_list[0].next;
     uint32_t prev_idx = 0;
@@ -181,7 +188,9 @@ void update_particle_system(ParticleSystem_t* system)
                 }
 
             }
-            if (emitter->particles[i].timer < 0.0f)
+
+            emitter->particles[i].timer -= delta_time;
+            if (emitter->particles[i].timer <= 0.0f)
             {
                 if (emitter->particles[i].spawned)
                 {

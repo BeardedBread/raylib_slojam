@@ -170,7 +170,7 @@ inline void update_scene(Scene_t* scene, float delta_time)
         }
     }
 
-    update_particle_system(&scene->part_sys);
+    update_particle_system(&scene->part_sys, scene->delta_time * scene->time_scale);
 }
 
 inline void render_scene(Scene_t* scene)

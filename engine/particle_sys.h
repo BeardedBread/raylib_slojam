@@ -46,7 +46,7 @@ typedef struct EmitterConfig
     float rotation_range[2];
     float particle_lifetime[2];
     uint16_t size_range[2];
-    uint32_t initial_spawn_delay;
+    float initial_spawn_delay;
     PartEmitterType_t type;
     bool one_shot;
 }EmitterConfig_t;
@@ -94,10 +94,11 @@ EmitterHandle load_in_particle_emitter(ParticleSystem_t* system, const ParticleE
 void play_emitter_handle(ParticleSystem_t* system, EmitterHandle handle);
 void stop_emitter_handle(ParticleSystem_t* system, EmitterHandle handle);
 void update_emitter_handle_position(ParticleSystem_t* system, EmitterHandle handle, Vector2 pos);
+void update_emitter_handle_rotation(ParticleSystem_t* system, EmitterHandle handle, float rotation);
 void unload_emitter_handle(ParticleSystem_t* system, EmitterHandle handle);
 bool is_emitter_handle_alive(ParticleSystem_t* system, EmitterHandle handle);
 
-void update_particle_system(ParticleSystem_t* system);
+void update_particle_system(ParticleSystem_t* system, float delta_time);
 void draw_particle_system(ParticleSystem_t* system);
 void deinit_particle_system(ParticleSystem_t* system);
 #endif // _PARTICLE_SYSTEM_H
