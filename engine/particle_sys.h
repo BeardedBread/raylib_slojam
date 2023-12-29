@@ -7,12 +7,18 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef enum PartEmitterType
-{
+typedef enum PartEmitterType {
     EMITTER_UNKNOWN = 0,
     EMITTER_BURST,
     EMITTER_STREAM,
 } PartEmitterType_t;
+
+typedef enum ParticleType {
+    PARTICLE_NONE = 0,
+    PARTICLE_SQUARE,
+    PARTICLE_LINE,
+    PARTICLE_SPRITE,
+} ParticleType_t;
 
 typedef struct Particle
 {
@@ -48,7 +54,7 @@ typedef struct EmitterConfig
 struct ParticleEmitter
 {
     const EmitterConfig_t* config;
-
+    ParticleType_t part_type;
     Sprite_t* spr;
     Vector2 position;
     float angle_offset;

@@ -211,6 +211,21 @@ void life_update_system(Scene_t* scene)
                 {
                     money_ent->position = p_ent->position;
                 }
+                ParticleEmitter_t emitter = {
+                    .spr = NULL,
+                    .config = get_emitter_conf(&scene->engine->assets, "part_ded"),
+                    .position = {
+                        .x = p_ent->position.x,
+                        .y = p_ent->position.y,
+                    },
+                    .angle_offset = 0.0f,
+                    .part_type = PARTICLE_SQUARE,
+                    .n_particles = 10,
+                    .user_data = scene,
+                    .update_func = &simple_particle_system_update,
+                    .emitter_update_func = NULL,
+                };
+                play_particle_emitter(&scene->part_sys, &emitter);
             }
             remove_entity(&scene->ent_manager, ent_idx);
         }
@@ -600,6 +615,7 @@ void hitbox_update_system(Scene_t* scene)
                         .y = p_ent->position.y,
                     },
                     .angle_offset = atan2f(attack_dir.y, attack_dir.x) * 180 / PI - 180,
+                    .part_type = PARTICLE_SQUARE,
                     .n_particles = 5,
                     .user_data = scene,
                     .update_func = &simple_particle_system_update,

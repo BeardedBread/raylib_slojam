@@ -255,23 +255,35 @@ void draw_particle_system(ParticleSystem_t* system)
         {
             if (part->alive)
             {
-                if (emitter->spr == NULL)
+                switch (emitter->part_type)
                 {
-                    Rectangle rect = {
-                        .x = part->position.x,
-                        .y = part->position.y,
-                        .width = part->size,
-                        .height = part->size
-                    };
-                    Vector2 origin = (Vector2){
-                        part->size / 2, 
-                        part->size / 2
-                    };
-                    DrawRectanglePro(rect, origin, part->rotation, WHITE);
-                }
-                else
-                {
-                    draw_sprite(emitter->spr, 0, part->position, part->rotation, false);
+                    case PARTICLE_SQUARE:
+                    {
+                        Rectangle rect = {
+                            .x = part->position.x,
+                            .y = part->position.y,
+                            .width = part->size,
+                            .height = part->size
+                        };
+                        Vector2 origin = (Vector2){
+                            part->size / 2, 
+                            part->size / 2
+                        };
+                        DrawRectanglePro(rect, origin, part->rotation, WHITE);
+                    }
+                    break;
+                    case PARTICLE_SPRITE:
+                        if (emitter->spr != NULL)
+                        {
+                            draw_sprite(emitter->spr, 0, part->position, part->rotation, false);
+                        }
+                    break;
+                    case PARTICLE_LINE:
+                    {
+
+                    }
+                    case PARTICLE_NONE:
+                    break;
                 }
             }
         }
