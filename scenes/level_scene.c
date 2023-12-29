@@ -196,6 +196,9 @@ static void level_scene_render_func(Scene_t* scene)
         static char mem_stats[512];
         print_mempool_stats(mem_stats);
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
+        
+        sprintf(mem_stats, "part sys free: %u", get_number_of_free_emitter(&scene->part_sys));
+        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + 400, 12, TEXT_COLOUR);
 
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y + STATS_Y_OFFSET;
@@ -793,6 +796,7 @@ void init_level_scene(LevelScene_t* scene)
         0,0
     };
     
+    sc_array_add(&scene->scene.systems, &update_player_emitter_system);
     sc_array_add(&scene->scene.systems, &weapon_cooldown_system);
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
     sc_array_add(&scene->scene.systems, &magnet_update_system);

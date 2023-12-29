@@ -750,6 +750,45 @@ void sprite_animation_system(Scene_t* scene)
     }
 }
 
+void update_player_emitter_system(Scene_t* scene)
+{
+    CPlayerState_t* p_pstate;
+    unsigned long ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        CEmitter_t* p_emitter = get_component(p_ent, CEMITTER_T);
+        Vector2 new_pos = Vector2Add(p_ent->position, p_emitter->offset);
+
+        if (p_pstate->moving & 1)
+        {
+            if (!is_emitter_handle_alive(&scene->part_sys, p_emitter->handle))
+            {
+                ParticleEmitter_t emitter = {
+                    .spr = NULL,
+                    .part_type = PARTICLE_SQUARE,
+                    .config = get_emitter_conf(&scene->engine->assets, "part_fire"),
+                    //.position = new_pos,
+                    .position = p_ent->position,
+                    .n_particles = 50,
+                    .user_data = scene,
+                    .update_func = &simple_particle_system_update,
+                    .emitter_update_func = NULL,
+                };
+                p_emitter->handle = play_particle_emitter(&scene->part_sys, &emitter);
+            }
+            
+            play_emitter_handle(&scene->part_sys, p_emitter->handle);
+        }
+        else
+        {
+            stop_emitter_handle(&scene->part_sys, p_emitter->handle);
+        }
+        update_emitter_handle_position(&scene->part_sys, p_emitter->handle, new_pos);
+        update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x) *180/PI - 180);
+    }
+}
+
 void simple_particle_system_update(Particle_t* part, void* user_data)
 {
     Scene_t* scene = (Scene_t*)user_data;
@@ -758,6 +797,4 @@ void simple_particle_system_update(Particle_t* part, void* user_data)
         part->position,
         Vector2Scale(part->velocity, scene->delta_time)
     );
-
-    part->timer -= scene->delta_time;
 }

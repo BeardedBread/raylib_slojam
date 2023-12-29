@@ -126,6 +126,22 @@ static int load_all_assets(Assets_t* assets)
     
     conf = add_emitter_conf(assets, "part_ded");
     *conf = emitter_conf;
+
+    emitter_conf = (EmitterConfig_t){
+        .launch_range = {-30, 30},
+        .speed_range = {550,750},
+        .angle_range = {0,1},
+        .rotation_range = {0,1},
+        .size_range = {3, 5},
+        .particle_lifetime = {0.1f,0.2f},
+        .initial_spawn_delay = 0.05f,
+        .type = EMITTER_STREAM,
+        .one_shot = true,
+    };
+    
+    conf = add_emitter_conf(assets, "part_fire");
+    *conf = emitter_conf;
+
     return 0;
 }
 
