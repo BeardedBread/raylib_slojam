@@ -297,6 +297,23 @@ void player_movement_input_system(Scene_t* scene)
                     boost_speed > MIN_BOOST_SPEED ? boost_speed : MIN_BOOST_SPEED
                 );
                 p_pstate->boost_cooldown = 3.0f;
+
+                ParticleEmitter_t emitter = {
+                    .spr = NULL,
+                    .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
+                    .position = {
+                        .x = p_player->position.x,
+                        .y = p_player->position.y,
+                    },
+                    .angle_offset = atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x) * 180 / PI - 180,
+                    .part_type = PARTICLE_LINE,
+                    .n_particles = 10,
+                    .user_data = scene,
+                    .update_func = &simple_particle_system_update,
+                    .emitter_update_func = NULL,
+                };
+                play_particle_emitter(&scene->part_sys, &emitter);
+                play_sfx(scene->engine, PLAYER_BOOST_SFX);
             }
             else
             {

@@ -145,6 +145,8 @@ static int load_all_assets(Assets_t* assets)
 
     add_sound(assets, "snd_fly", "res/fly.ogg");
     load_sfx(&engine, "snd_fly", PLAYER_MOVE_SFX);
+    add_sound(assets, "snd_boost", "res/boost.ogg");
+    load_sfx(&engine, "snd_boost", PLAYER_BOOST_SFX);
     
     return 0;
 }
