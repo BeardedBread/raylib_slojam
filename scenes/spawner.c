@@ -24,7 +24,7 @@ static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
     {400, {3,1}, {0,15,100,100}, {5,85,100}, 18},
     {550, {2,2}, {0,5,90,100}, {0,80,100}, 22},
     {750, {2,1}, {0,0,75,100}, {0,60,100}, 30},
-    {1000, {1,2}, {0,0,40,100}, {0,30,100}, 35},
+    {1000, {2,2}, {0,0,40,100}, {0,30,100}, 30},
 };
 
 void split_spawn_logic_func(Entity_t* self, SpawnerData* data, void* scene)
@@ -50,7 +50,7 @@ void despawn_logic_func(Entity_t* self, SpawnerData* data, void* scene)
 void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
 {
     LevelScene_t* lvl_scene = (LevelScene_t*)scene;
-    if (spwn_data->rank < MAX_RANK)
+    if (spwn_data->rank < MAX_RANK - 1)
     {
         spwn_data->rank_timer += lvl_scene->scene.delta_time;
         if (spwn_data->rank_timer > 1.0f)

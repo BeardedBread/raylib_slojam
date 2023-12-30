@@ -206,7 +206,7 @@ void life_update_system(Scene_t* scene)
             {
                 CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
                 float value = 1.0; // always have 1
-                value += 32.0f / p_ent->size + Vector2LengthSqr(p_ct->velocity) / 250000.0;
+                value += (100.0f - p_ent->size) / 8 + Vector2LengthSqr(p_ct->velocity) / 250000.0;
                 Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, (int32_t)value);
                 if (money_ent != NULL)
                 {
