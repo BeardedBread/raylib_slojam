@@ -231,6 +231,10 @@ void update_particle_system(ParticleSystem_t* system, float delta_time)
             {
                 emitter->finished = true;
             }
+        }
+
+        if (emitter->finished)
+        {
             system->emitter_list[prev_idx].next = system->emitter_list[emitter_idx].next;
             system->emitter_list[emitter_idx].next = 0;
             system->emitter_list[emitter_idx].playing = false;
