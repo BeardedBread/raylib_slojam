@@ -227,6 +227,10 @@ void life_update_system(Scene_t* scene)
                     .emitter_update_func = NULL,
                 };
                 play_particle_emitter(&scene->part_sys, &emitter);
+                play_sfx(scene->engine, ENEMY_DEAD_SFX, false);
+            }
+            else
+            {
             }
             remove_entity(&scene->ent_manager, ent_idx);
         }
@@ -648,6 +652,7 @@ void hitbox_update_system(Scene_t* scene)
                     .emitter_update_func = NULL,
                 };
                 play_particle_emitter(&scene->part_sys, &emitter);
+                play_sfx(scene->engine, WEAPON2_HIT_SFX, true);
 
                 if (p_life != NULL)
                 {

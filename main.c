@@ -154,6 +154,15 @@ static int load_all_assets(Assets_t* assets)
     add_sound(assets, "snd_maws", "res/maws.ogg");
     load_sfx(&engine, "snd_maws", WEAPON3_FIRE_SFX);
     
+    add_sound(assets, "snd_nailsh", "res/nail_hit.ogg");
+    load_sfx(&engine, "snd_nailsh", WEAPON1_HIT_SFX);
+    add_sound(assets, "snd_thumph", "res/thumper_hit.ogg");
+    load_sfx(&engine, "snd_thumph", WEAPON2_HIT_SFX);
+    add_sound(assets, "snd_mawsh", "res/nail_hit.ogg");
+    load_sfx(&engine, "snd_mawsh", WEAPON3_HIT_SFX);
+
+    add_sound(assets, "snd_enmded", "res/nail_hit.ogg");
+    load_sfx(&engine, "snd_enmded", ENEMY_DEAD_SFX);
     return 0;
 }
 
