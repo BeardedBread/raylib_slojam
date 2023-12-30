@@ -19,6 +19,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     p_hitbox->knockback = size;
     p_hitbox->dmg_type = DMG_MELEE;
     p_hitbox->src = DMGSRC_ENEMY;
+    p_hitbox->hit_sound = N_SFX;
 
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
     p_hurtbox->size = size;

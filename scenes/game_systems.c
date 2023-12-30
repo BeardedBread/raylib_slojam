@@ -361,6 +361,7 @@ void player_movement_input_system(Scene_t* scene)
                     CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                     bullet_hitbox->atk = p_weapon->base_dmg * (1 + p_weapon->modifiers[2] * 0.2);
                     bullet_hitbox->src = DMGSRC_PLAYER;
+                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
@@ -402,6 +403,7 @@ void player_movement_input_system(Scene_t* scene)
                     CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
+                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
@@ -652,7 +654,10 @@ void hitbox_update_system(Scene_t* scene)
                     .emitter_update_func = NULL,
                 };
                 play_particle_emitter(&scene->part_sys, &emitter);
-                play_sfx(scene->engine, WEAPON2_HIT_SFX, true);
+                if (p_hitbox->hit_sound < N_SFX)
+                {
+                    play_sfx(scene->engine, p_hitbox->hit_sound, true);
+                }
 
                 if (p_life != NULL)
                 {

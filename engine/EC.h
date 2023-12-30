@@ -126,6 +126,7 @@ typedef struct _CHitBoxes_t {
     bool one_hit;
     DamageType dmg_type;
     DamageSource src;
+    unsigned int hit_sound;
 } CHitBoxes_t;
 
 typedef struct _CHurtbox_t {
