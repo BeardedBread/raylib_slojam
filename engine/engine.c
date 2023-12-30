@@ -108,14 +108,19 @@ bool load_sfx(GameEngine_t* engine, const char* snd_name, uint32_t tag_idx)
     return true;
 }
 
-void play_sfx(GameEngine_t* engine, unsigned int tag_idx)
+void play_sfx(GameEngine_t* engine, unsigned int tag_idx, bool allow_overlay)
 {
     if (tag_idx >= engine->sfx_list.n_sfx) return;
     SFX_t* sfx = engine->sfx_list.sfx + tag_idx;
-    if (sfx->plays == 0 && sfx->snd != NULL && !IsSoundPlaying(*sfx->snd))
+
+    if (sfx->snd != NULL)
     {
-        PlaySound(*sfx->snd);
-        sfx->plays++;
+        if (allow_overlay || (sfx->plays == 0 && !IsSoundPlaying(*sfx->snd)))
+        //if (sfx->snd != NULL)
+        {
+            PlaySound(*sfx->snd);
+            sfx->plays++;
+        }
     }
 }
 
@@ -126,7 +131,7 @@ void stop_sfx(GameEngine_t* engine, unsigned int tag_idx)
     if (sfx->snd != NULL && IsSoundPlaying(*sfx->snd))
     {
         StopSound(*sfx->snd);
-        sfx->plays--;
+        //sfx->plays--;
     }
 }
 

@@ -147,6 +147,12 @@ static int load_all_assets(Assets_t* assets)
     load_sfx(&engine, "snd_fly", PLAYER_MOVE_SFX);
     add_sound(assets, "snd_boost", "res/boost.ogg");
     load_sfx(&engine, "snd_boost", PLAYER_BOOST_SFX);
+    add_sound(assets, "snd_nails", "res/nails.ogg");
+    load_sfx(&engine, "snd_nails", WEAPON1_FIRE_SFX);
+    add_sound(assets, "snd_thump", "res/thumper.ogg");
+    load_sfx(&engine, "snd_thump", WEAPON2_FIRE_SFX);
+    add_sound(assets, "snd_maws", "res/maws.ogg");
+    load_sfx(&engine, "snd_maws", WEAPON3_FIRE_SFX);
     
     return 0;
 }

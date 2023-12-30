@@ -313,7 +313,7 @@ void player_movement_input_system(Scene_t* scene)
                     .emitter_update_func = NULL,
                 };
                 play_particle_emitter(&scene->part_sys, &emitter);
-                play_sfx(scene->engine, PLAYER_BOOST_SFX);
+                play_sfx(scene->engine, PLAYER_BOOST_SFX, false);
             }
             else
             {
@@ -328,7 +328,7 @@ void player_movement_input_system(Scene_t* scene)
         {
             p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->aim_dir), MOVE_ACCEL);
             
-            play_sfx(scene->engine, PLAYER_MOVE_SFX);
+            play_sfx(scene->engine, PLAYER_MOVE_SFX, false);
         }
         else
         {
@@ -429,7 +429,9 @@ void player_movement_input_system(Scene_t* scene)
                 }
 
                 p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.1));
+                play_sfx(scene->engine, WEAPON1_FIRE_SFX + p_weapon->weapon_idx, true);
             }
+
             p_pstate->shoot = 0;
         }
     }
