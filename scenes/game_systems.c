@@ -1,6 +1,7 @@
 #include "game_systems.h"
 #include "EC.h"
 #include "constants.h"
+#include "assets_tag.h"
 
 #include "ent_impl.h"
 #include "raymath.h"
@@ -309,6 +310,12 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->moving & 1)
         {
             p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->aim_dir), MOVE_ACCEL);
+            
+            play_sfx(scene->engine, PLAYER_MOVE_SFX);
+        }
+        else
+        {
+            stop_sfx(scene->engine, PLAYER_MOVE_SFX);
         }
         p_pstate->moving <<= 1;
         p_pstate->moving &= 0b11;
@@ -783,6 +790,7 @@ void update_player_emitter_system(Scene_t* scene)
         else
         {
             stop_emitter_handle(&scene->part_sys, p_emitter->handle);
+            unload_emitter_handle(&scene->part_sys, p_emitter->handle);
         }
         update_emitter_handle_position(&scene->part_sys, p_emitter->handle, new_pos);
         update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x) *180/PI - 180);

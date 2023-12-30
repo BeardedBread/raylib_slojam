@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "scenes.h"
+#include "assets_tag.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -45,7 +46,7 @@ void update_loop(void)
 
     update_entity_manager(&scene->ent_manager);
     render_scene(scene);
-    //update_sfx_list(&engine);
+    update_sfx_list(&engine);
 }
 
 static int load_all_assets(Assets_t* assets)
@@ -142,6 +143,9 @@ static int load_all_assets(Assets_t* assets)
     conf = add_emitter_conf(assets, "part_fire");
     *conf = emitter_conf;
 
+    add_sound(assets, "snd_fly", "res/fly.ogg");
+    load_sfx(&engine, "snd_fly", PLAYER_MOVE_SFX);
+    
     return 0;
 }
 
