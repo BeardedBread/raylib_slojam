@@ -1,5 +1,5 @@
 #include "ent_impl.h"
-
+#include <math.h>
 static Sprite_t* enemies_sprite_map[1] = {0};
 
 Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
@@ -54,12 +54,12 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
     remove_component(p_finalenemy, CHITBOXES_T);
 
     p_finalenemy->position = pos;
-    //float angle = 2 * PI * (float)rand() / (float)RAND_MAX;
+    float angle = 2 * PI * (float)rand() / (float)RAND_MAX;
     CTransform_t* p_ct = get_component(p_finalenemy, CTRANSFORM_T);
     p_ct->edge_b = EDGE_WRAPAROUND;
-    //p_ct->velocity = (Vector2){
-    //    1000 * cos(angle), 1000 * sin(angle)
-    //};
+    p_ct->velocity = (Vector2){
+        50 * cos(angle), 50 * sin(angle)
+    };
     CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
     p_life->current_life = 300;
     p_life->max_life = 300;

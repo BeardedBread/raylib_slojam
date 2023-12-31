@@ -616,7 +616,7 @@ void screen_edge_check_system(Scene_t* scene)
 
 void hitbox_update_system(Scene_t* scene)
 {
-    static bool checked_entities[MAX_COMP_POOL_SIZE] = {0};
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
 
     unsigned int ent_idx;
     CHitBoxes_t* p_hitbox;
@@ -625,7 +625,6 @@ void hitbox_update_system(Scene_t* scene)
         Entity_t *p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (!p_ent->m_alive) continue;
 
-        memset(checked_entities, 0, sizeof(checked_entities));
 
         unsigned int other_ent_idx;
         CHurtbox_t* p_hurtbox;
@@ -633,7 +632,6 @@ void hitbox_update_system(Scene_t* scene)
         sc_map_foreach(&scene->ent_manager.component_map[CHURTBOX_T], other_ent_idx, p_hurtbox)
         {
             if (other_ent_idx == ent_idx) continue;
-            if (checked_entities[other_ent_idx]) continue;
             if (p_hurtbox->invuln_timer > 0) continue;
 
             Entity_t* p_other_ent = get_entity(&scene->ent_manager, other_ent_idx);
@@ -641,67 +639,109 @@ void hitbox_update_system(Scene_t* scene)
             if (p_hitbox->src == p_hurtbox->src) continue;
             if (!p_other_ent->m_alive) continue;
 
-            float dist = Vector2Distance(p_ent->position, p_other_ent->position);
+            Vector2 target_positions[4];
+            uint8_t n_pos = 1;
+            target_positions[0] = p_other_ent->position;
 
-            // On hit
-            if (dist < p_ent->size + p_other_ent->size)
+            CTransform_t* p_ct = get_component(p_other_ent, CTRANSFORM_T);
+            if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)
             {
-                Vector2 attack_dir = Vector2Subtract(p_other_ent->position, p_ent->position);
-                p_hurtbox->attack_dir = (Vector2){0,0};
-                p_hurtbox->invuln_timer = p_hurtbox->invuln_time;
-                CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
-                if (p_other_life != NULL)
+                
+                int8_t flip_x = (int8_t)(p_ct->boundary_checks & 0b11) - 1;
+                int8_t flip_y = (int8_t)((p_ct->boundary_checks >> 2) & 0b11) - 1;
+
+
+                Vector2 clone_pos = p_other_ent->position;
+                if (flip_x != 0 && flip_y != 0)
                 {
-                    p_other_life->current_life -= p_hitbox->atk;
-                    if (p_other_life->current_life <= 0)
+                    clone_pos.x += flip_x * data->game_field_size.x;
+                    target_positions[1] = clone_pos;
+                    clone_pos.y += flip_y * data->game_field_size.y;
+                    target_positions[2] = clone_pos;
+                    clone_pos.x -= flip_x * data->game_field_size.x;
+                    target_positions[3] = clone_pos;
+                    n_pos = 4;
+                }
+                else if (flip_x != 0)
+                {
+                    clone_pos.x += flip_x * data->game_field_size.x;
+                    target_positions[1] = clone_pos;
+                    n_pos = 2;
+                }
+                else
+                {
+                    clone_pos.y += flip_y * data->game_field_size.y;
+                    target_positions[1] = clone_pos;
+                    n_pos = 2;
+                }
+            }
+
+            for (uint8_t i = 0; i < n_pos; i++)
+            {
+                float dist = Vector2Distance(p_ent->position, target_positions[i]);
+
+                // On hit
+                if (dist < p_ent->size + p_other_ent->size)
+                {
+                    Vector2 attack_dir = Vector2Subtract(p_other_ent->position, target_positions[i]);
+                    p_hurtbox->attack_dir = (Vector2){0,0};
+                    p_hurtbox->invuln_timer = p_hurtbox->invuln_time;
+                    CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
+                    if (p_other_life != NULL)
                     {
-                        p_hurtbox->attack_dir = attack_dir;
+                        p_other_life->current_life -= p_hitbox->atk;
+                        if (p_other_life->current_life <= 0)
+                        {
+                            p_hurtbox->attack_dir = attack_dir;
+                        }
                     }
-                }
-                CTransform_t* p_ct = get_component(p_other_ent, CTRANSFORM_T);
+                    CTransform_t* p_ct = get_component(p_other_ent, CTRANSFORM_T);
 
-                if (p_ct != NULL)
-                {
-                    float kb = 10 *p_hitbox->knockback * p_hurtbox->kb_mult;
-                    if (kb < 200) kb = 200;
-
-                    p_ct->velocity = Vector2Add(
-                        p_ct->velocity,
-                        Vector2Scale(
-                            Vector2Normalize(attack_dir),
-                            kb
-                        )
-                    );
-                }
-
-                ParticleEmitter_t emitter = {
-                    .spr = NULL,
-                    .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
-                    .position = {
-                        .x = p_ent->position.x,
-                        .y = p_ent->position.y,
-                    },
-                    .angle_offset = atan2f(attack_dir.y, attack_dir.x) * 180 / PI - 180,
-                    .part_type = PARTICLE_SQUARE,
-                    .n_particles = 5,
-                    .user_data = scene,
-                    .update_func = &simple_particle_system_update,
-                    .emitter_update_func = NULL,
-                };
-                play_particle_emitter(&scene->part_sys, &emitter);
-                if (p_hitbox->hit_sound < N_SFX)
-                {
-                    play_sfx(scene->engine, p_hitbox->hit_sound, true);
-                }
-
-                if (p_life != NULL)
-                {
-                    p_life->current_life--;
-                    if (p_life->current_life <= 0)
+                    if (p_ct != NULL)
                     {
-                        break;
+                        float kb = 10 *p_hitbox->knockback * p_hurtbox->kb_mult;
+                        if (kb < 200) kb = 200;
+
+                        p_ct->velocity = Vector2Add(
+                            p_ct->velocity,
+                            Vector2Scale(
+                                Vector2Normalize(attack_dir),
+                                kb
+                            )
+                        );
                     }
+
+                    ParticleEmitter_t emitter = {
+                        .spr = NULL,
+                        .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
+                        .position = {
+                            .x = p_ent->position.x,
+                            .y = p_ent->position.y,
+                        },
+                        .angle_offset = atan2f(attack_dir.y, attack_dir.x) * 180 / PI - 180,
+                        .part_type = PARTICLE_SQUARE,
+                        .n_particles = 5,
+                        .user_data = scene,
+                        .update_func = &simple_particle_system_update,
+                        .emitter_update_func = NULL,
+                    };
+                    play_particle_emitter(&scene->part_sys, &emitter);
+                    if (p_hitbox->hit_sound < N_SFX)
+                    {
+                        play_sfx(scene->engine, p_hitbox->hit_sound, true);
+                    }
+
+                    if (p_life != NULL)
+                    {
+                        p_life->current_life--;
+                    }
+                    break;
                 }
+            }
+
+            if (p_life->current_life <= 0)
+            {
+                break;
             }
         }
     }
