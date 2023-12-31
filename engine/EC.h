@@ -73,6 +73,8 @@ typedef struct _CContainer_t {
 
 typedef struct _CAttract_t {
     unsigned long attract_idx;
+    float attract_factor;
+    float range_factor;
 } CAttract_t;
 
 typedef struct _CMagnet_t {
@@ -133,6 +135,7 @@ typedef struct _CHurtbox_t {
     Vector2 offset;
     float size;
     float invuln_timer;
+    float invuln_time;
     DamageSource src;
     unsigned int damage_src;
     Vector2 attack_dir;

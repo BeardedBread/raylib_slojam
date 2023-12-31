@@ -181,12 +181,12 @@ void magnet_update_system(Scene_t* scene)
 
             Vector2 vec = Vector2Subtract(p_ent->position, target_ent->position);
             if (
-                Vector2LengthSqr(vec) < p_magnet->l2_range
+                Vector2LengthSqr(vec) < p_magnet->l2_range * p_attract->range_factor
                 && (p_magnet->attract_idx & p_attract->attract_idx)
             )
             {
                 Vector2 dir = Vector2Normalize(vec);
-                p_ct->accel = Vector2Scale(dir, p_magnet->accel);
+                p_ct->accel = Vector2Scale(dir, p_magnet->accel*p_attract->attract_factor);
             }
 
         }
@@ -613,7 +613,7 @@ void hitbox_update_system(Scene_t* scene)
             {
                 Vector2 attack_dir = Vector2Subtract(p_other_ent->position, p_ent->position);
                 p_hurtbox->attack_dir = (Vector2){0,0};
-                p_hurtbox->invuln_timer = 0.4f;
+                p_hurtbox->invuln_timer = p_hurtbox->invuln_time;
                 CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
                 if (p_other_life != NULL)
                 {

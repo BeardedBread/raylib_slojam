@@ -25,6 +25,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     p_hurtbox->size = size;
     p_hurtbox->src = DMGSRC_ENEMY;
     p_hurtbox->kb_mult = 0.5f;
+    p_hurtbox->invuln_time = 0.0f;
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 4;
@@ -40,6 +41,36 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     p_cspr->rotation_speed = -30 + 60 * (float)rand() / (float)RAND_MAX; 
 
     return p_ent;
+}
+
+Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 pos)
+{
+    Entity_t* p_finalenemy = create_enemy(ent_manager, size);
+    if (p_finalenemy == NULL) return NULL;
+
+    CContainer_t* p_container = get_component(p_finalenemy, CCONTAINER_T);
+    p_container->item = CONTAINER_GOAL;
+    p_container->num = 1;
+    remove_component(p_finalenemy, CHITBOXES_T);
+
+    p_finalenemy->position = pos;
+    //float angle = 2 * PI * (float)rand() / (float)RAND_MAX;
+    CTransform_t* p_ct = get_component(p_finalenemy, CTRANSFORM_T);
+    p_ct->edge_b = EDGE_WRAPAROUND;
+    //p_ct->velocity = (Vector2){
+    //    1000 * cos(angle), 1000 * sin(angle)
+    //};
+    CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
+    p_life->current_life = 300;
+    p_life->max_life = 300;
+    CHurtbox_t* p_hurtbox = get_component(p_finalenemy, CHURTBOX_T);
+    p_hurtbox->kb_mult = 3.0f;
+    CAttract_t* p_attract = add_component(p_finalenemy, CATTRACTOR_T);
+    p_attract->attract_idx = 1;
+    p_attract->attract_factor = -1;
+    p_attract->range_factor = 5.0;
+
+    return p_finalenemy;
 }
 
 bool init_enemies_creation(Assets_t* assets)

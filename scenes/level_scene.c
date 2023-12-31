@@ -599,25 +599,14 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                         case 5:
                                         {
                                             // Game ending stuff
-                                            Entity_t* p_finalenemy = create_enemy(&scene->parent_scene->ent_manager, 32);
-                                            CContainer_t* p_container = get_component(p_finalenemy, CCONTAINER_T);
-                                            p_container->item = CONTAINER_GOAL;
-                                            p_container->num = 1;
-                                            remove_component(p_finalenemy, CHITBOXES_T);
                                             LevelSceneData_t* lvl_data = &((LevelScene_t*)(scene->parent_scene))->data;
-                                            p_finalenemy->position = (Vector2){
-                                                lvl_data->game_field_size.x/2, lvl_data->game_field_size.y/2
-                                            };
-                                            float angle = 2 * PI * (float)rand() / (float)RAND_MAX;
-                                            CTransform_t* p_ct = get_component(p_finalenemy, CTRANSFORM_T);
-                                            p_ct->velocity = (Vector2){
-                                                1000 * cos(angle), 1000 * sin(angle)
-                                            };
-                                            CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
-                                            p_life->current_life = 300;
-                                            p_life->max_life = 300;
-                                            CHurtbox_t* p_hurtbox = get_component(p_finalenemy, CHURTBOX_T);
-                                            p_hurtbox->kb_mult = 3.0f;
+                                            create_final_enemy(
+                                                &scene->parent_scene->ent_manager, 32,
+                                                (Vector2){
+                                                    lvl_data->game_field_size.x/2,
+                                                    lvl_data->game_field_size.y/2
+                                                }
+                                            );
                                         }
                                         break;
                                         case 6:

@@ -35,6 +35,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_hurtbox->size = 6;
     p_hurtbox->src = DMGSRC_PLAYER;
     p_hurtbox->kb_mult = 1.0f;
+    p_hurtbox->invuln_time = 1.0f;
 
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
