@@ -231,12 +231,13 @@ void life_update_system(Scene_t* scene)
                 play_particle_emitter(&scene->part_sys, &emitter);
                 play_sfx(scene->engine, ENEMY_DEAD_SFX, true);
             }
-            else
+            else if (p_ent->m_tag == PLAYER_ENT_TAG)
             {
+                play_sfx(scene->engine, PLAYER_DEATH_SFX, false);
             }
             remove_entity(&scene->ent_manager, ent_idx);
         }
-        else
+        else 
         {
             p_life->poison += p_life->poison_value * scene->delta_time;
             if (p_life->poison > 100.0f)

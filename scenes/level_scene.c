@@ -89,6 +89,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
             case ACTION_PAUSE:
                 if (!pressed)
                 {
+                    play_sfx(scene->engine, PAUSE_SFX, true);
                     scene->time_scale = 0.0f;
                     scene->state_bits = 0b110;
                     scene->subscene->state_bits = 0b111;
@@ -640,6 +641,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
         case ACTION_PAUSE:
             if (!pressed)
             {
+                play_sfx(scene->engine, PAUSE_SFX, true);
                 scene->parent_scene->time_scale = 1.0f;
                 scene->parent_scene->state_bits = 0b111;
                 scene->state_bits = 0b000;

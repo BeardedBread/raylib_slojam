@@ -4,6 +4,7 @@
 typedef enum SFXTag {
     PLAYER_MOVE_SFX = 0,
     PLAYER_BOOST_SFX,
+    PLAYER_DEATH_SFX,
     WEAPON1_FIRE_SFX,
     WEAPON2_FIRE_SFX,
     WEAPON3_FIRE_SFX,
@@ -13,5 +14,6 @@ typedef enum SFXTag {
     ENEMY_DEAD_SFX,
     COLLECT_SFX,
     BUYING_SFX,
+    PAUSE_SFX,
 } SFXTag_t;
 #endif
