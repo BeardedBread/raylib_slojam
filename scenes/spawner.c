@@ -1,5 +1,6 @@
 #include "engine.h"
 #include "level_ent.h"
+#include "assets_tag.h"
 
 #include "scenes.h"
 #include "raymath.h"
@@ -62,6 +63,7 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
         {
             spwn_data->rank_counter -= RANK_DATA[spwn_data->rank].rank_up_value;
             spwn_data->rank++;
+            play_sfx(lvl_scene->scene.engine, RANKUP_SFX, false);
             // Reset spawning mechanics
             //spwn_data->spawned = 0;
             //spwn_data->spawn_timer = RANK_DATA[spwn_data->rank].spawn_time_range[0]

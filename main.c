@@ -175,6 +175,9 @@ static int load_all_assets(Assets_t* assets)
 
     add_sound(assets, "snd_pause", "res/pause.ogg");
     load_sfx(&engine, "snd_pause", PAUSE_SFX);
+
+    add_sound(assets, "snd_rnkup", "res/rank2.ogg");
+    load_sfx(&engine, "snd_rnkup", RANKUP_SFX);
     return 0;
 }
 

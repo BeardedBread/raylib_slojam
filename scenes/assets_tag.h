@@ -15,5 +15,6 @@ typedef enum SFXTag {
     COLLECT_SFX,
     BUYING_SFX,
     PAUSE_SFX,
+    RANKUP_SFX,
 } SFXTag_t;
 #endif
