@@ -581,6 +581,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
 
                                 if (purchased)
                                 {
+                                    play_sfx(scene->engine, BUYING_SFX, false);
                                     p_pstate->collected -= data->ui.upgrades[i].item->cost;
                                     data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
                                     if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)

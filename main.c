@@ -166,6 +166,9 @@ static int load_all_assets(Assets_t* assets)
 
     add_sound(assets, "snd_coin", "res/coin.ogg");
     load_sfx(&engine, "snd_coin", COLLECT_SFX);
+
+    add_sound(assets, "snd_buy", "res/buy.ogg");
+    load_sfx(&engine, "snd_buy", BUYING_SFX);
     return 0;
 }
 
