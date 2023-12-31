@@ -227,7 +227,7 @@ void life_update_system(Scene_t* scene)
                     .emitter_update_func = NULL,
                 };
                 play_particle_emitter(&scene->part_sys, &emitter);
-                play_sfx(scene->engine, ENEMY_DEAD_SFX, false);
+                play_sfx(scene->engine, ENEMY_DEAD_SFX, true);
             }
             else
             {
@@ -575,6 +575,41 @@ void invuln_update_system(Scene_t* scene)
         if (p_hurtbox->invuln_timer > 0)
         {
             p_hurtbox->invuln_timer -= scene->delta_time;
+        }
+    }
+}
+
+void screen_edge_check_system(Scene_t* scene)
+{
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+
+    unsigned int ent_idx;
+    CTransform_t* p_ct;
+    sc_map_foreach(&scene->ent_manager.component_map[CTRANSFORM_T], ent_idx, p_ct)
+    {
+        Entity_t *p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        if (p_ct->edge_b == EDGE_WRAPAROUND)
+        {
+            uint8_t flip_x = 1;
+            uint8_t flip_y = 1;
+            if (p_ent->position.x < p_ent->size)
+            {
+                flip_x = 2;
+            }
+            if (p_ent->position.x > data->game_field_size.x - p_ent->size)
+            {
+                flip_x = 0;
+            }
+
+            if (p_ent->position.y < p_ent->size)
+            {
+                flip_y = 2;
+            }
+            if (p_ent->position.y > data->game_field_size.y - p_ent->size)
+            {
+                flip_y = 0;
+            }
+            p_ct->boundary_checks = (flip_y << 2) | flip_x;
         }
     }
 }

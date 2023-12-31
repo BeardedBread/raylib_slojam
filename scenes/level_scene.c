@@ -297,23 +297,19 @@ static void arena_render_func(Scene_t* scene)
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
             CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
+            Sprite_t* spr = NULL;
             if (p_cspr != NULL)
             {
-                Sprite_t* spr = p_cspr->sprites[p_cspr->current_idx];
+                spr = p_cspr->sprites[p_cspr->current_idx];
                 if (spr!= NULL)
                 {
-                    Vector2 pos = Vector2Add(p_ent->position, p_cspr->offset);
                     if (p_ent->m_tag == ENEMY_ENT_TAG)
                     {
                         p_cspr->rotation += p_cspr->rotation_speed * scene->time_scale * scene->delta_time;
-                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / 128);
-                    }
-                    else
-                    {
-                    draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
                     }
                 }
             }
+
             Color c = BLUE;
             if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
@@ -327,67 +323,77 @@ static void arena_render_func(Scene_t* scene)
             {
                 c = GOLD;
             }
-            if (p_ent->m_tag == PLAYER_ENT_TAG || p_cspr == NULL)
-            {
-                DrawCircleV(p_ent->position, p_ent->size, c);
-            }
+            
+            Vector2 spr_positions[4];
+            uint8_t n_pos = 1;
+            spr_positions[0] = p_ent->position;
 
             CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
             if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)
             {
                 
-                int8_t flip_x = 0;
-                int8_t flip_y = 0;
-                if (p_ent->position.x < p_ent->size)
-                {
-                    flip_x = 1;
-                }
-                if (p_ent->position.x > data->game_field_size.x - p_ent->size)
-                {
-                    flip_x = -1;
-                }
+                int8_t flip_x = (int8_t)(p_ct->boundary_checks & 0b11) - 1;
+                int8_t flip_y = (int8_t)((p_ct->boundary_checks >> 2) & 0b11) - 1;
 
-                if (p_ent->position.y < p_ent->size)
-                {
-                    flip_y = 1;
-                }
-                if (p_ent->position.y > data->game_field_size.y - p_ent->size)
-                {
-                    flip_y = -1;
-                }
 
                 Vector2 clone_pos = p_ent->position;
                 if (flip_x != 0 && flip_y != 0)
                 {
                     clone_pos.x += flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, c);
+                    spr_positions[1] = clone_pos;
                     clone_pos.y += flip_y * data->game_field_size.y;
-                    DrawCircleV(clone_pos, p_ent->size, c);
+                    spr_positions[2] = clone_pos;
                     clone_pos.x -= flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, c);
+                    spr_positions[3] = clone_pos;
+                    n_pos = 4;
                 }
                 else if (flip_x != 0)
                 {
                     clone_pos.x += flip_x * data->game_field_size.x;
-                    DrawCircleV(clone_pos, p_ent->size, c);
+                    spr_positions[1] = clone_pos;
+                    n_pos = 2;
                 }
                 else
                 {
                     clone_pos.y += flip_y * data->game_field_size.y;
-                    DrawCircleV(clone_pos, p_ent->size, c);
+                    spr_positions[1] = clone_pos;
+                    n_pos = 2;
                 }
-
             }
-            
+
             CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+            Vector2 look_dir = {0};
             if (p_pstate != NULL)
             {
-                Vector2 look_dir = Vector2Add(
-                    p_ent->position,
-                    Vector2Scale(p_pstate->aim_dir, 64)
-                );
-                DrawLineEx(p_ent->position, look_dir, 2, (Color){255,255,255,64});
+                look_dir = Vector2Scale(p_pstate->aim_dir, 64);
             }
+
+            for (uint8_t i = 0; i < n_pos; i++)
+            {
+                if (p_ent->m_tag == PLAYER_ENT_TAG || p_cspr == NULL)
+                {
+                    DrawCircleV(spr_positions[i], p_ent->size, c);
+                }
+
+                if (spr!= NULL)
+                {
+                    Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
+                    if (p_ent->m_tag == ENEMY_ENT_TAG)
+                    {
+                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / 128);
+                    }
+                    else
+                    {
+                        draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                    }
+                }
+                DrawLineEx(
+                    spr_positions[i],
+                    Vector2Add(spr_positions[i], look_dir),
+                    2, (Color){255,255,255,64});
+            }
+
+            
 
             // Not going into the final game
             CSpawner_t* p_spawner = get_component(p_ent, CSPAWNER_T);
@@ -792,6 +798,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &global_external_forces_system);
     sc_array_add(&scene->scene.systems, &movement_update_system);
 
+    sc_array_add(&scene->scene.systems, &screen_edge_check_system);
     sc_array_add(&scene->scene.systems, &invuln_update_system);
     sc_array_add(&scene->scene.systems, &money_collection_system);
     sc_array_add(&scene->scene.systems, &hitbox_update_system);

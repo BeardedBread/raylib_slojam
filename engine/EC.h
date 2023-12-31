@@ -46,6 +46,7 @@ typedef struct _CTransform_t {
     bool active;
     EdgeBehaviour_t edge_b;
     float shape_factor;
+    uint8_t boundary_checks;
 } CTransform_t;
 
 typedef struct _CPlayerState_t {
