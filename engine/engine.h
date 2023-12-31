@@ -77,6 +77,7 @@ void process_inputs(GameEngine_t* engine, Scene_t* scene);
 
 void change_scene(GameEngine_t* engine, unsigned int idx);
 bool load_sfx(GameEngine_t* engine, const char* snd_name, uint32_t tag_idx);
+void set_sfx_pitch(GameEngine_t* engine, uint32_t tag_idx, float pitch);
 void play_sfx(GameEngine_t* engine, unsigned int tag_idx, bool allow_overlay);
 void stop_sfx(GameEngine_t* engine, unsigned int tag_idx);
 void update_sfx_list(GameEngine_t* engine);

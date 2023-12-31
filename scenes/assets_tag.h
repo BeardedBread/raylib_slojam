@@ -11,5 +11,6 @@ typedef enum SFXTag {
     WEAPON2_HIT_SFX,
     WEAPON3_HIT_SFX,
     ENEMY_DEAD_SFX,
+    COLLECT_SFX,
 } SFXTag_t;
 #endif

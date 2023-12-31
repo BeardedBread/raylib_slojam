@@ -157,6 +157,8 @@ void money_collection_system(Scene_t* scene)
                 {
                     money_life->current_life = 0;
                 }
+                set_sfx_pitch(scene->engine, COLLECT_SFX, 0.8f + 0.4f * rand() / (float)RAND_MAX);
+                play_sfx(scene->engine, COLLECT_SFX, true);
             }
         }
     }
@@ -683,7 +685,7 @@ void hitbox_update_system(Scene_t* scene)
                 // On hit
                 if (dist < p_ent->size + p_other_ent->size)
                 {
-                    Vector2 attack_dir = Vector2Subtract(p_other_ent->position, target_positions[i]);
+                    Vector2 attack_dir = Vector2Subtract(target_positions[i], p_ent->position);
                     p_hurtbox->attack_dir = (Vector2){0,0};
                     p_hurtbox->invuln_timer = p_hurtbox->invuln_time;
                     CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
@@ -699,15 +701,16 @@ void hitbox_update_system(Scene_t* scene)
 
                     if (p_ct != NULL)
                     {
-                        float kb = 10 *p_hitbox->knockback * p_hurtbox->kb_mult;
+                        float kb = 10 * p_hitbox->knockback * p_hurtbox->kb_mult;
                         if (kb < 200) kb = 200;
 
-                        p_ct->velocity = Vector2Add(
-                            p_ct->velocity,
+                        p_ct->velocity = 
+                        //Vector2Add(
+                            //p_ct->velocity,
                             Vector2Scale(
                                 Vector2Normalize(attack_dir),
                                 kb
-                            )
+                            //)
                         );
                     }
 

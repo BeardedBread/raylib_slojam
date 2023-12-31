@@ -108,6 +108,13 @@ bool load_sfx(GameEngine_t* engine, const char* snd_name, uint32_t tag_idx)
     return true;
 }
 
+void set_sfx_pitch(GameEngine_t* engine, uint32_t tag_idx, float pitch)
+{
+    if (tag_idx >= engine->sfx_list.n_sfx) return;
+    SFX_t* sfx = engine->sfx_list.sfx + tag_idx;
+    SetSoundPitch(*sfx->snd, pitch);
+}
+
 void play_sfx(GameEngine_t* engine, unsigned int tag_idx, bool allow_overlay)
 {
     if (tag_idx >= engine->sfx_list.n_sfx) return;
