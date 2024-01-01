@@ -425,7 +425,7 @@ void shop_render_func(Scene_t* scene)
         ClearBackground(BG_COLOUR);
         if (scene->state_bits & RENDER_BIT)
         {
-            for (uint8_t i = 0; i < 8; ++i)
+            for (uint8_t i = 0; i < 7; ++i)
             {
                 Rectangle box = data->ui.upgrades[i].button.box;
                 DrawRectangleRec(
@@ -595,17 +595,17 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                     {
                                         case 0:
                                         case 1:
-                                        case 2:
+                                        //case 2:
                                             p_weapons->modifier[i]++;
                                         break;
-                                        case 3:
+                                        case 2:
                                             p_life->current_life += HEALTH_INCREMENT;
                                             p_life->max_life += HEALTH_INCREMENT;
                                         break;
-                                        case 4:
+                                        case 3:
                                             p_life->current_life = p_life->max_life;
                                         break;
-                                        case 5:
+                                        case 4:
                                         {
                                             // Game ending stuff
                                             LevelSceneData_t* lvl_data = &((LevelScene_t*)(scene->parent_scene))->data;
@@ -618,10 +618,10 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             );
                                         }
                                         break;
-                                        case 6:
+                                        case 5:
                                             p_weapons->unlocked[1] = true;
                                         break;
-                                        case 7:
+                                        case 6:
                                             p_weapons->unlocked[2] = true;
                                         break;
                                         default:
@@ -642,7 +642,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
         case ACTION_PAUSE:
             if (!pressed)
             {
-                play_sfx(scene->engine, PAUSE_SFX, true);
+                //play_sfx(scene->engine, PAUSE_SFX, true);
                 scene->parent_scene->time_scale = 1.0f;
                 scene->parent_scene->state_bits = 0b111;
                 scene->state_bits = 0b000;
@@ -669,8 +669,8 @@ static void generate_shop_UI(ShopSceneData* data)
     const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 6;
 
     Vector2 pos = {padding,padding};
-            // Stats Upgrades: Hardcoded to 4 upgrades lol
-    for (uint8_t i = 0; i < 4; ++i)
+            // Stats Upgrades: Hardcoded to 3 upgrades lol
+    for (uint8_t i = 0; i < 3; ++i)
     {
         data->ui.upgrades[i].button.box.x = pos.x;
         data->ui.upgrades[i].button.box.y = pos.y;
@@ -683,7 +683,15 @@ static void generate_shop_UI(ShopSceneData* data)
         pos.y += (upgrade_height > data->ui.icon_size) ? upgrade_height : data->ui.icon_size; 
     }
 
-    data->ui.upgrades[4].button.box.x = padding;
+    data->ui.upgrades[3].button.box.x = padding;
+    data->ui.upgrades[3].button.box.y = pos.y;
+    data->ui.upgrades[3].button.box.width = data->ui.icon_size;
+    data->ui.upgrades[3].button.box.height = data->ui.icon_size;
+    data->ui.upgrades[3].dot_spacing = DOT_SPACING;
+    data->ui.upgrades[3].show_dots = false;
+    data->ui.upgrades[3].button.enabled = true;
+
+    data->ui.upgrades[4].button.box.x = (width >> 1);
     data->ui.upgrades[4].button.box.y = pos.y;
     data->ui.upgrades[4].button.box.width = data->ui.icon_size;
     data->ui.upgrades[4].button.box.height = data->ui.icon_size;
@@ -691,7 +699,9 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[4].show_dots = false;
     data->ui.upgrades[4].button.enabled = true;
 
-    data->ui.upgrades[5].button.box.x = (width >> 1);
+    pos.y += (upgrade_height > data->ui.icon_size) ? upgrade_height : data->ui.icon_size; 
+
+    data->ui.upgrades[5].button.box.x = padding;
     data->ui.upgrades[5].button.box.y = pos.y;
     data->ui.upgrades[5].button.box.width = data->ui.icon_size;
     data->ui.upgrades[5].button.box.height = data->ui.icon_size;
@@ -699,9 +709,7 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[5].show_dots = false;
     data->ui.upgrades[5].button.enabled = true;
 
-    pos.y += (upgrade_height > data->ui.icon_size) ? upgrade_height : data->ui.icon_size; 
-
-    data->ui.upgrades[6].button.box.x = padding;
+    data->ui.upgrades[6].button.box.x = (width >> 1);
     data->ui.upgrades[6].button.box.y = pos.y;
     data->ui.upgrades[6].button.box.width = data->ui.icon_size;
     data->ui.upgrades[6].button.box.height = data->ui.icon_size;
@@ -709,30 +717,22 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[6].show_dots = false;
     data->ui.upgrades[6].button.enabled = true;
 
-    data->ui.upgrades[7].button.box.x = (width >> 1);
-    data->ui.upgrades[7].button.box.y = pos.y;
-    data->ui.upgrades[7].button.box.width = data->ui.icon_size;
-    data->ui.upgrades[7].button.box.height = data->ui.icon_size;
-    data->ui.upgrades[7].dot_spacing = DOT_SPACING;
-    data->ui.upgrades[7].show_dots = false;
-    data->ui.upgrades[7].button.enabled = true;
-
     data->ui.upgrades[0].item = &data->store.firerate_upgrade;
     data->ui.upgrades[0].spr = get_sprite(&scene->engine->assets, "upg1_icon");
     data->ui.upgrades[1].item = &data->store.projspeed_upgrade;
     data->ui.upgrades[1].spr = get_sprite(&scene->engine->assets, "upg2_icon");
-    data->ui.upgrades[2].item = &data->store.damage_upgrade;
-    data->ui.upgrades[2].spr = get_sprite(&scene->engine->assets, "upg3_icon");
-    data->ui.upgrades[3].item = &data->store.health_upgrade;
-    data->ui.upgrades[3].spr = get_sprite(&scene->engine->assets, "upg4_icon");
-    data->ui.upgrades[4].item = &data->store.full_heal;
-    data->ui.upgrades[4].spr = get_sprite(&scene->engine->assets, "upg5_icon");
-    data->ui.upgrades[5].item = &data->store.escape;
-    data->ui.upgrades[5].spr = get_sprite(&scene->engine->assets, "upg6_icon");
-    data->ui.upgrades[6].item = &data->store.thumper;
-    data->ui.upgrades[6].spr = get_sprite(&scene->engine->assets, "upg7_icon");
-    data->ui.upgrades[7].item = &data->store.maws;
-    data->ui.upgrades[7].spr = get_sprite(&scene->engine->assets, "upg8_icon");
+    //data->ui.upgrades[2].item = &data->store.damage_upgrade;
+    //data->ui.upgrades[2].spr = get_sprite(&scene->engine->assets, "upg3_icon");
+    data->ui.upgrades[2].item = &data->store.health_upgrade;
+    data->ui.upgrades[2].spr = get_sprite(&scene->engine->assets, "upg4_icon");
+    data->ui.upgrades[3].item = &data->store.full_heal;
+    data->ui.upgrades[3].spr = get_sprite(&scene->engine->assets, "upg5_icon");
+    data->ui.upgrades[4].item = &data->store.escape;
+    data->ui.upgrades[4].spr = get_sprite(&scene->engine->assets, "upg6_icon");
+    data->ui.upgrades[5].item = &data->store.thumper;
+    data->ui.upgrades[5].spr = get_sprite(&scene->engine->assets, "upg7_icon");
+    data->ui.upgrades[6].item = &data->store.maws;
+    data->ui.upgrades[6].spr = get_sprite(&scene->engine->assets, "upg8_icon");
 
     pos.y += data->ui.icon_size + padding; 
     data->ui.desc_box.x = padding;
@@ -759,7 +759,7 @@ void restart_level_scene(LevelScene_t* scene)
     shop_scene->data.store = (UpgradeStoreInventory){
         .firerate_upgrade = {200, 3, 3, 125, 1000},
         .projspeed_upgrade = {150, 3, 3, 150, 1000},
-        .damage_upgrade = {150, 3, 3, 150, 1000},
+        //.damage_upgrade = {150, 3, 3, 150, 1000},
         .health_upgrade = {200, 3, 3, 150, 1000},
         .full_heal = {100, -1, -1, 75, 600},
         .escape = {1750, 1, 1, 0, 5000},
@@ -767,7 +767,7 @@ void restart_level_scene(LevelScene_t* scene)
         .maws = {400, 1, 1, 0, 1000},
     };
 
-    for (uint8_t i = 0; i < 8; ++i)
+    for (uint8_t i = 0; i < 7; ++i)
     {
         shop_scene->data.ui.upgrades[i].button.enabled = true;
     }

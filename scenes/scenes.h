@@ -28,7 +28,7 @@ typedef struct UpgradeBox {
 } UpgradeBox;
 
 typedef struct ShopUI {
-    UpgradeBox upgrades[8];
+    UpgradeBox upgrades[7];
     Rectangle desc_box;
     int icon_size;
     int dot_size;
