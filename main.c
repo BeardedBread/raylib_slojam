@@ -200,6 +200,9 @@ static int load_all_assets(Assets_t* assets)
 
     add_sound(assets, "snd_rnkup", "res/rank2.ogg");
     load_sfx(&engine, "snd_rnkup", RANKUP_SFX);
+
+    add_sound(assets, "snd_end", "res/end.ogg");
+    load_sfx(&engine, "snd_end", ENDING_SFX);
     return 0;
 }
 
@@ -215,6 +218,7 @@ int main(void)
     init_player_creation(&engine.assets);
     init_bullet_creation(&engine.assets);
     init_enemies_creation(&engine.assets);
+    init_collectible_creation(&engine.assets);
 
     static LevelScene_t lvl_scene;
     static ShopScene_t shop_scene;

@@ -382,7 +382,7 @@ static void arena_render_func(Scene_t* scene)
                     Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
                     if (p_ent->m_tag == ENEMY_ENT_TAG)
                     {
-                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / p_cspr->sprites[p_cspr->current_idx]->frame_size.x);
+                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / spr->frame_size.x);
                     }
                     else
                     {
@@ -394,8 +394,6 @@ static void arena_render_func(Scene_t* scene)
                     Vector2Add(spr_positions[i], look_dir),
                     2, (Color){255,255,255,64});
             }
-
-            
 
             // Not going into the final game
             CSpawner_t* p_spawner = get_component(p_ent, CSPAWNER_T);
@@ -517,7 +515,9 @@ static void game_over_check(Scene_t* scene)
             }
             if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
-                remove_entity(&scene->ent_manager, p_ent->m_id);
+                CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
+                p_life->current_life = 0;
+                //remove_entity(&scene->ent_manager, p_ent->m_id);
             }
         }
     }
@@ -583,7 +583,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
 
                                 if (purchased)
                                 {
-                                    play_sfx(scene->engine, BUYING_SFX, false);
+                                    play_sfx(scene->engine, BUYING_SFX, true);
                                     p_pstate->collected -= data->ui.upgrades[i].item->cost;
                                     data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
                                     if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)

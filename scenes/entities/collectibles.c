@@ -1,7 +1,10 @@
 #include "EC.h"
 #include "ent_impl.h"
+#include "../assets_tag.h"
 
 #include "raymath.h"
+
+static Sprite_t* collectible_sprites[1] = {0};
 
 Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t value)
 {
@@ -28,5 +31,33 @@ Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t v
 
     CMoney_t* p_money = add_component(p_ent, CMONEY_T);
     p_money->value = value;
+    p_money->collect_sound = COLLECT_SFX;
+    
     return p_ent;
+}
+
+Entity_t* create_end_item(EntityManager_t* ent_manager, float size)
+{
+    Entity_t* p_ent = create_collectible(ent_manager, size, 0);
+    if (p_ent == NULL) return NULL;
+    CContainer_t* p_container = add_component(p_ent, CCONTAINER_T);
+
+    p_container->item = CONTAINER_ENDING;
+
+    CMoney_t* p_money = get_component(p_ent, CMONEY_T);
+    p_money->collect_sound = ENDING_SFX;
+
+    CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
+    p_cspr->sprites = collectible_sprites;
+    p_cspr->current_idx = 0;
+
+    return p_ent;
+}
+
+bool init_collectible_creation(Assets_t* assets)
+{
+    Sprite_t* spr = get_sprite(assets, "upg6_icon");
+    collectible_sprites[0] = spr;
+
+    return true;
 }

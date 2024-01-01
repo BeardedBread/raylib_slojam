@@ -48,7 +48,10 @@ void spawned_update_system(Scene_t* scene)
         if (p_ent != NULL && !p_ent->m_alive)
         {
             CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
-            p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
+            if (p_spawner != NULL)
+            {
+                p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
+            }
         }
     }
 }
@@ -157,8 +160,8 @@ void money_collection_system(Scene_t* scene)
                 {
                     money_life->current_life = 0;
                 }
-                set_sfx_pitch(scene->engine, COLLECT_SFX, 0.8f + 0.4f * rand() / (float)RAND_MAX);
-                play_sfx(scene->engine, COLLECT_SFX, true);
+                set_sfx_pitch(scene->engine, p_money->collect_sound, 0.8f + 0.4f * rand() / (float)RAND_MAX);
+                play_sfx(scene->engine, p_money->collect_sound, true);
             }
         }
     }
@@ -706,12 +709,12 @@ void hitbox_update_system(Scene_t* scene)
                         if (kb < 200) kb = 200;
 
                         p_ct->velocity = 
-                        //Vector2Add(
-                            //p_ct->velocity,
+                        Vector2Add(
+                            p_ct->velocity,
                             Vector2Scale(
                                 Vector2Normalize(attack_dir),
                                 kb
-                            //)
+                            )
                         );
                     }
 
@@ -801,14 +804,24 @@ void container_destroy_system(Scene_t* scene)
                     {
 
                         CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
-                        p_spawner->child_spawn_logic(p_ent, &p_spawner->data, scene);
-                        CSpawn_t* new_spwn = add_component(p_enemy, CSPAWNED_T);
-                        new_spwn->spawner = p_spwn->spawner;
+                        if (p_spawner != NULL)
+                        {
+                            p_spawner->child_spawn_logic(p_ent, &p_spawner->data, scene);
+                            CSpawn_t* new_spwn = add_component(p_enemy, CSPAWNED_T);
+                            new_spwn->spawner = p_spwn->spawner;
+                        }
                     }
                 }
             }
             break;
             case CONTAINER_GOAL:
+            {
+                //LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+                Entity_t* p_goal = create_end_item(&scene->ent_manager, 32);
+                p_goal->position = p_ent->position;
+            }
+            break;
+            case CONTAINER_ENDING:
             {
                 LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
                 data->game_state = GAME_ENDED;

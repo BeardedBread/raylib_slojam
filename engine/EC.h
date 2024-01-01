@@ -65,6 +65,7 @@ typedef enum ContainerItem {
     CONTAINER_ENEMY,
     CONTAINER_BOMB,
     CONTAINER_GOAL,
+    CONTAINER_ENDING,
 } ContainerItem_t;
 
 typedef struct _CContainer_t {
@@ -86,6 +87,7 @@ typedef struct _CMagnet_t {
 
 typedef struct _CMoney_t {
     int32_t value;
+    unsigned int collect_sound;
 } CMoney_t;
 
 typedef enum DamageType
