@@ -23,4 +23,5 @@
 
 #define SIZE_SPLIT_FACTOR 1.75f
 #define ENEMY_MIN_SIZE 10
+#define BOOST_COOLDOWN 3.0f
 #endif // __CONSTANTS_H

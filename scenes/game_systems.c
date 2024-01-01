@@ -309,7 +309,7 @@ void player_movement_input_system(Scene_t* scene)
                     p_pstate->aim_dir,
                     boost_speed > MIN_BOOST_SPEED ? boost_speed : MIN_BOOST_SPEED
                 );
-                p_pstate->boost_cooldown = 3.0f;
+                p_pstate->boost_cooldown = BOOST_COOLDOWN;
 
                 ParticleEmitter_t emitter = {
                     .spr = NULL,

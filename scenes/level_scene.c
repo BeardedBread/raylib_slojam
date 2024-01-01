@@ -220,7 +220,7 @@ static void level_scene_render_func(Scene_t* scene)
             const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
             DrawRectangle(
                 scene->subscene_pos.x, stat_height,
-                HEALTH_LENGTH * p_pstate->boost_cooldown / 3.0f, 36, BLUE
+                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 36, BLUE
             );
             DrawRectangle(
                 scene->subscene_pos.x + 5, stat_height + 4,
@@ -372,7 +372,18 @@ static void arena_render_func(Scene_t* scene)
 
             for (uint8_t i = 0; i < n_pos; i++)
             {
-                if (p_ent->m_tag == PLAYER_ENT_TAG || p_cspr == NULL)
+                if (p_ent->m_tag == PLAYER_ENT_TAG)
+                {
+
+                    DrawCircleV(spr_positions[i], p_ent->size, c);
+                    float radius = (BOOST_COOLDOWN - p_pstate->boost_cooldown) / BOOST_COOLDOWN * 6;
+                    Vector2 pos = Vector2Add(
+                        spr_positions[i], 
+                        Vector2Scale(p_pstate->aim_dir, -16)
+                    );
+                    DrawCircleV(pos, radius, (p_pstate->boost_cooldown > 0)? GRAY : WHITE);
+                }
+                else if (p_cspr == NULL)
                 {
                     DrawCircleV(spr_positions[i], p_ent->size, c);
                 }
@@ -824,14 +835,16 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_LEFT);
     sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_RIGHT);
-    sc_map_put_64(&scene->scene.action_map, KEY_ONE, ACTION_SELECT1);
-    sc_map_put_64(&scene->scene.action_map, KEY_TWO, ACTION_SELECT2);
-    sc_map_put_64(&scene->scene.action_map, KEY_THREE, ACTION_SELECT3);
-    sc_map_put_64(&scene->scene.action_map, KEY_FOUR, ACTION_SELECT4);
+    sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_SELECT1);
+    sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_SELECT2);
+    sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_SELECT3);
+    sc_map_put_64(&scene->scene.action_map, KEY_J, ACTION_SELECT1);
+    sc_map_put_64(&scene->scene.action_map, KEY_K, ACTION_SELECT2);
+    sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_SELECT3);
     sc_map_put_64(&scene->scene.action_map, KEY_SPACE, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_MOVE);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
-    sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
+    sc_map_put_64(&scene->scene.action_map, KEY_Q, ACTION_PAUSE);
     sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_RESTART);
 
     scene->scene.subscene->type = SUB_SCENE;
