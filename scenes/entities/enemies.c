@@ -2,6 +2,7 @@
 #include "../assets_tag.h"
 #include <math.h>
 static Sprite_t* enemies_sprite_map[1] = {0};
+static Sprite_t* boss_sprite_map[3] = {0};
 
 Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
 {
@@ -44,6 +45,18 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     return p_ent;
 }
 
+static unsigned int boss_sprite_logic(Entity_t* ent)
+{
+    CLifeTimer_t* p_life = get_component(ent, CLIFETIMER_T);
+    float life_frac = (float)p_life->current_life/ (float)p_life->max_life;
+
+    if (life_frac > 0.66f) return 0;
+
+    if (life_frac > 0.33f) return 1;
+
+    return 2;
+}
+
 Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 pos)
 {
     Entity_t* p_finalenemy = create_enemy(ent_manager, size);
@@ -71,6 +84,9 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
     p_attract->attract_factor = -1;
     p_attract->range_factor = 5.0;
 
+    CSprite_t* p_cspr = get_component(p_finalenemy, CSPRITE_T);
+    p_cspr->sprites = boss_sprite_map;
+    p_cspr->transition_func = boss_sprite_logic;
     return p_finalenemy;
 }
 
@@ -79,5 +95,13 @@ bool init_enemies_creation(Assets_t* assets)
     Sprite_t* spr = get_sprite(assets, "enm_normal");
     enemies_sprite_map[0] = spr;
 
+    spr = get_sprite(assets, "finale1");
+    boss_sprite_map[0] = spr;
+
+    spr = get_sprite(assets, "finale2");
+    boss_sprite_map[1] = spr;
+
+    spr = get_sprite(assets, "finale3");
+    boss_sprite_map[2] = spr;
     return true;
 }

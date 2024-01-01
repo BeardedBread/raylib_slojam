@@ -382,7 +382,7 @@ static void arena_render_func(Scene_t* scene)
                     Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
                     if (p_ent->m_tag == ENEMY_ENT_TAG)
                     {
-                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / 128);
+                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / p_cspr->sprites[p_cspr->current_idx]->frame_size.x);
                     }
                     else
                     {
@@ -610,7 +610,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             // Game ending stuff
                                             LevelSceneData_t* lvl_data = &((LevelScene_t*)(scene->parent_scene))->data;
                                             create_final_enemy(
-                                                &scene->parent_scene->ent_manager, 32,
+                                                &scene->parent_scene->ent_manager, 48,
                                                 (Vector2){
                                                     lvl_data->game_field_size.x/2,
                                                     lvl_data->game_field_size.y/2
