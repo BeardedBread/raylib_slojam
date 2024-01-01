@@ -73,6 +73,7 @@ static CHurtbox_t churtbox_buffer[MAX_COMP_POOL_SIZE];
 static CAttract_t cattractor_buffer[MAX_COMP_POOL_SIZE];
 static CMagnet_t cmagnet_buffer[MAX_COMP_POOL_SIZE];
 static CMoney_t cmoney_buffer[MAX_COMP_POOL_SIZE];
+static CWallet_t cwallet_buffer[MAX_COMP_POOL_SIZE];
 static CSprite_t csprite_buffer[MAX_COMP_POOL_SIZE];
 static CLifeTimer_t clifetimer_buffer[MAX_COMP_POOL_SIZE];
 static CEmitter_t cemitter_buffer[MAX_COMP_POOL_SIZE];
@@ -102,6 +103,7 @@ static MemPool_t comp_mempools[N_COMPONENTS] = {
     {cspawner_buffer, 32, sizeof(CSpawner_t), NULL, {0}},
     {cspawn_buffer, MAX_COMP_POOL_SIZE, sizeof(CSpawn_t), NULL, {0}},
     {choming_buffer, MAX_COMP_POOL_SIZE, sizeof(CHoming_t), NULL, {0}},
+    {cwallet_buffer, MAX_COMP_POOL_SIZE, sizeof(CWallet_t), NULL, {0}},
 };
 static MemPool_t ent_mempool = {
     .buffer = entity_buffer,

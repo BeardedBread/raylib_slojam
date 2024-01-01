@@ -41,6 +41,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_ct->active = true;
     p_ct->edge_b = EDGE_WRAPAROUND;
     p_ct->shape_factor = 1.0f;
+    p_ct->velocity_cap = 1000;
 
     add_component(p_ent, CPLAYERSTATE_T);
 
@@ -67,9 +68,9 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_magnet->l2_range = 80*80;
     p_magnet->accel = 1500.0f;
     
-    //add_component(p_ent, CPLAYERSTATE_T);
-    CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
-    p_pstate->collected = 100000;
+    add_component(p_ent, CPLAYERSTATE_T);
+    //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
+    //p_pstate->collected = 100000;
 
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = player_sprite_map;

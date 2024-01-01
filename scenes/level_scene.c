@@ -757,12 +757,12 @@ void restart_level_scene(LevelScene_t* scene)
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     shop_scene->data.store = (UpgradeStoreInventory){
-        .firerate_upgrade = {250, 3, 3, 200,1000},
-        .projspeed_upgrade = {200, 3, 3, 150, 1000},
+        .firerate_upgrade = {200, 3, 3, 125, 1000},
+        .projspeed_upgrade = {150, 3, 3, 150, 1000},
         .damage_upgrade = {150, 3, 3, 150, 1000},
-        .health_upgrade = {200, 3, 3, 200, 1000},
-        .full_heal = {100, -1, -1, 100, 700},
-        .escape = {2000, 1, 1, 0, 5000},
+        .health_upgrade = {200, 3, 3, 150, 1000},
+        .full_heal = {100, -1, -1, 75, 600},
+        .escape = {1750, 1, 1, 0, 5000},
         .thumper = {200, 1, 1, 0, 1000},
         .maws = {400, 1, 1, 0, 1000},
     };

@@ -4,7 +4,7 @@
 static Sprite_t* enemies_sprite_map[1] = {0};
 static Sprite_t* boss_sprite_map[3] = {0};
 
-Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
+Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
 {
     Entity_t* p_ent = add_entity(ent_manager, ENEMY_ENT_TAG);
     if (p_ent == NULL) return NULL;
@@ -14,6 +14,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
     p_ct->edge_b = EDGE_BOUNCE;
+    p_ct->velocity_cap = 400;
 
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = size;
@@ -37,6 +38,12 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size)
     p_container->item = CONTAINER_ENEMY;
     p_container->num = 2;
 
+    if (value > 0)
+    {
+        CWallet_t* p_wallet = add_component(p_ent, CWALLET_T);
+        p_wallet->value = value;
+    }
+
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = enemies_sprite_map;
     p_cspr->current_idx = 0;
@@ -59,7 +66,7 @@ static unsigned int boss_sprite_logic(Entity_t* ent)
 
 Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 pos)
 {
-    Entity_t* p_finalenemy = create_enemy(ent_manager, size);
+    Entity_t* p_finalenemy = create_enemy(ent_manager, size, 0);
     if (p_finalenemy == NULL) return NULL;
 
     CContainer_t* p_container = get_component(p_finalenemy, CCONTAINER_T);

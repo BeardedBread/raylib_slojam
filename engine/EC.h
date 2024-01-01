@@ -29,6 +29,7 @@ typedef enum ComponentEnum {
     CSPAWNER_T,
     CSPAWNED_T,
     CHOMING_T,
+    CWALLET_T,
 } ComponentEnum_t;
 
 typedef enum EdgeBehaviour {
@@ -84,6 +85,10 @@ typedef struct _CMagnet_t {
     float l2_range;
     float accel;
 } CMagnet_t;
+
+typedef struct _CWallet_t {
+    int32_t value;
+} CWallet_t;
 
 typedef struct _CMoney_t {
     int32_t value;

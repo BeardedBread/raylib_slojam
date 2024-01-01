@@ -13,6 +13,7 @@ Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t v
 
     p_ent->size = size;
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
+    p_ct->velocity_cap = 1000;
     float angle = GetRandomValue(0, 360) * 1.0f * PI /180;
     p_ct->velocity = Vector2Scale((Vector2){cosf(angle), sinf(angle)}, 300);
     p_ct->shape_factor = 9;

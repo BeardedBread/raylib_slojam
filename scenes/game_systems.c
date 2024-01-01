@@ -207,12 +207,15 @@ void life_update_system(Scene_t* scene)
         Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (p_life->current_life <= 0)
         {
-            if (p_ent->m_tag == ENEMY_ENT_TAG)
+            CWallet_t* p_wallet = get_component(p_ent, CWALLET_T);
+            //if (p_ent->m_tag == ENEMY_ENT_TAG)
+            if (p_wallet != NULL)
             {
                 CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
                 float value = 1.0; // always have 1
                 value += (100.0f - p_ent->size) / 8 + Vector2LengthSqr(p_ct->velocity) / 250000.0;
-                Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, (int32_t)value);
+                //Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, (int32_t)value);
+                Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, p_wallet->value);
                 if (money_ent != NULL)
                 {
                     money_ent->position = p_ent->position;
@@ -487,6 +490,12 @@ void movement_update_system(Scene_t* scene)
             p_ctransform->velocity,
             Vector2Scale(p_ctransform->accel, delta_time)
         );
+
+        float vel = Vector2Length(p_ctransform->velocity);
+        if ( vel > p_ctransform->velocity_cap)
+        {
+            p_ctransform->velocity = Vector2Scale(Vector2Normalize(p_ctransform->velocity), vel);
+        }
 
         // 3 dp precision
         if (fabs(p_ctransform->velocity.x) < 1e-3) p_ctransform->velocity.x = 0;
@@ -791,7 +800,13 @@ void container_destroy_system(Scene_t* scene)
                 angle += increment / 2;
                 for (uint8_t i = 0; i < p_container->num; ++i)
                 {
-                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / SIZE_SPLIT_FACTOR);
+                    int32_t value = 0;
+                    CWallet_t* p_wallet = get_component(p_ent, CWALLET_T);
+                    if (p_wallet != NULL)
+                    {
+                        value = (p_wallet->value >> 1) + 1;
+                    }
+                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / SIZE_SPLIT_FACTOR, value);
                     p_enemy->position = p_ent->position;
 
                     CTransform_t* enemy_ct = get_component(p_enemy, CTRANSFORM_T);
