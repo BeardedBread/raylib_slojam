@@ -67,14 +67,26 @@ typedef enum GameState {
     GAME_ENDED
 } GameState;
 
+typedef struct LevelCamera {
+    Camera2D cam;
+    Vector2 target_pos;
+    float base_y;
+    Vector2 current_vel;
+    float mass;
+    float c; // damping factor
+    float k; // spring constant
+}LevelCamera_t;
+
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
-    Camera2D cam;
+    LevelCamera_t camera;
+    Vector2 cam_pos;
     Rectangle game_rec;
     Vector2 game_field_size;
     GameState game_state;
     Image weapon_icons;
     RenderTexture2D stat_view;
+    float screenshake_time;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

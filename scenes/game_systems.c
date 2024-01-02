@@ -751,6 +751,11 @@ void hitbox_update_system(Scene_t* scene)
                     {
                         p_life->current_life--;
                     }
+
+                    if (p_other_ent->m_tag == PLAYER_ENT_TAG)
+                    {
+                        data->screenshake_time = 0.2f;
+                    }
                     break;
                 }
             }

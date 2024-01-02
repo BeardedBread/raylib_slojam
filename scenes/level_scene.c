@@ -10,6 +10,7 @@
 #include "mempool.h"
 #include "scenes.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define TEXT_COLOUR WHITE
 #define BG_COLOUR BLACK
@@ -295,7 +296,7 @@ static void arena_render_func(Scene_t* scene)
     
     BeginTextureMode(data->game_viewport);
         ClearBackground(ARENA_COLOUR);
-        BeginMode2D(data->cam);
+        BeginMode2D(data->camera.cam);
 
         if (data->game_state == GAME_STARTING)
         {
@@ -552,6 +553,35 @@ static void game_over_check(Scene_t* scene)
             }
         }
     }
+}
+
+static void screenshake_update_system(Scene_t* scene)
+{
+    LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+
+
+    if (data->screenshake_time > 0.0f)
+    {
+        data->screenshake_time -= scene->delta_time;
+        data->camera.cam.target.x = -5 + 10.0f * (float)rand() / (float)RAND_MAX;
+        data->camera.cam.target.y = -5 + 10.0f * (float)rand() / (float)RAND_MAX;
+    }
+
+        // Mass-Spring damper update
+    float x = - data->camera.cam.target.x;
+    float v = data->camera.current_vel.x; 
+    float F = data->camera.k * x - data->camera.c * v;
+    const float dt = scene->delta_time;
+    float a_dt = F * dt / data->camera.mass;
+    data->camera.cam.target.x += (data->camera.current_vel.x + a_dt * 0.5) * dt;
+
+    x = - data->camera.cam.target.y;
+    v = data->camera.current_vel.y; 
+    F = data->camera.k * x - data->camera.c * v;
+    a_dt = F * dt / data->camera.mass;
+    data->camera.cam.target.y += (data->camera.current_vel.x + a_dt * 0.5) * dt;
+    data->camera.current_vel.y += a_dt;
+
 }
 
 static void shop_check_mouse(Scene_t* scene)
@@ -817,15 +847,13 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.game_rec = (Rectangle){ARENA_START_X, ARENA_START_Y, ARENA_WIDTH, ARENA_HEIGHT};
     scene->scene.time_scale = 1.0f;
 
-    memset(&scene->data.cam, 0, sizeof(Camera2D));
-    scene->data.cam.zoom = 1.0;
-    scene->data.cam.target = (Vector2){
-        0,0
-    };
-    scene->data.cam.offset = (Vector2){
-        0,0
-    };
-    
+    memset(&scene->data.camera, 0, sizeof(LevelCamera_t));
+    scene->data.camera.cam.rotation = 0.0f;
+    scene->data.camera.cam.zoom = 1.0f;
+    scene->data.camera.mass = 0.2f;
+    scene->data.camera.k = 6.2f;
+    scene->data.camera.c = 2.2f;
+
     sc_array_add(&scene->scene.systems, &update_player_emitter_system);
     sc_array_add(&scene->scene.systems, &weapon_cooldown_system);
     sc_array_add(&scene->scene.systems, &player_movement_input_system);
@@ -847,6 +875,7 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &homing_update_system);
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
+    sc_array_add(&scene->scene.systems, &screenshake_update_system);
     sc_array_add(&scene->scene.systems, &game_over_check);
     sc_array_add(&scene->scene.systems, &sprite_animation_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
