@@ -298,6 +298,10 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->boost_cooldown > 0)
         {
             p_pstate->boost_cooldown -= scene->delta_time;
+            if (p_pstate->boost_cooldown <= 0)
+            {
+                play_sfx(scene->engine, PLAYER_READY_SFX, false);
+            }
         }
 
         if (p_pstate->boosting == 0b01)
@@ -755,6 +759,10 @@ void hitbox_update_system(Scene_t* scene)
                     if (p_other_ent->m_tag == PLAYER_ENT_TAG)
                     {
                         data->screenshake_time = 0.2f;
+                        if (p_other_life->current_life < CRIT_HEALTH && p_other_life->current_life > 0)
+                        {
+                            play_sfx(scene->engine, PLAYER_WARN_SFX, false);
+                        }
                     }
                     break;
                 }

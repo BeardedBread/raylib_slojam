@@ -142,7 +142,7 @@ static void level_scene_render_func(Scene_t* scene)
         shop_scene->data.shop_rec.width, 180,
         (Color){0,0,0,255}
     );
-    if (player_ent != NULL)
+    if (player_ent != NULL && player_ent->m_alive)
     {
         CWeaponStore_t* p_weaponstore = get_component(player_ent, CWEAPONSTORE_T);
         CWeapon_t* p_weapon = get_component(player_ent, CWEAPON_T);
