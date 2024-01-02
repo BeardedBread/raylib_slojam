@@ -226,10 +226,30 @@ static void level_scene_render_func(Scene_t* scene)
                 scene->subscene_pos.x + 5, stat_height + 4,
                 HEALTH_LENGTH - 10, 28, GRAY
             );
-            DrawRectangle(
-                scene->subscene_pos.x + 5, stat_height + 4,
-                (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28, RED
-            );
+
+            {
+                static bool health_flash = false;
+                if (p_life->current_life <= CRIT_HEALTH)
+                {
+                    static float flash_timing = 0.0f;
+                    flash_timing += scene->delta_time;
+                    if (flash_timing >= 0.2f)
+                    {
+                        health_flash = !health_flash;
+                        flash_timing = 0.0f;
+                    }
+                }
+                else
+                {
+                    health_flash = false;
+                }
+                DrawRectangle(
+                    scene->subscene_pos.x + 5, stat_height + 4,
+                    (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
+                    (health_flash) ? WHITE : RED
+                );
+            }
+
             stat_height += 40 + 5;
 
             DrawTextureRec(
