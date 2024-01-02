@@ -118,6 +118,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
     return ACTION_PROPAGATE;
 }
 #define STATS_Y_OFFSET 0
+
 static void level_scene_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
@@ -194,7 +195,6 @@ static void level_scene_render_func(Scene_t* scene)
             (Vector2){data->game_rec.x, data->game_rec.y},
             WHITE
         );
-
 
         static char mem_stats[512];
         print_mempool_stats(mem_stats);
@@ -291,11 +291,28 @@ static void level_scene_render_func(Scene_t* scene)
     UnloadImage(mask);
 }
 
+#define N_CIRCS 64
+struct PulseCircle
+{
+    float R;
+    float phase;
+    float rate;
+};
+struct PulseCircle circs[N_CIRCS] = {0};
+
 static void arena_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
     Entity_t* p_ent;
     
+    for (int i = 0; i < N_CIRCS; ++i)
+    {
+        circs[i].phase += scene->delta_time * circs[i].rate;
+        if (circs[i].phase > 2 * PI)
+        {
+            circs[i].phase -= 2 * PI;
+        }
+    }
     BeginTextureMode(data->game_viewport);
         ClearBackground(ARENA_COLOUR);
         BeginMode2D(data->camera.cam);
@@ -429,17 +446,43 @@ static void arena_render_func(Scene_t* scene)
                     2, (Color){255,255,255,64});
             }
 
-            // Not going into the final game
-            CSpawner_t* p_spawner = get_component(p_ent, CSPAWNER_T);
-            if (p_spawner != NULL)
-            {
-                static char buffer[64];
-                sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
-                DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
-            }
+
         }
 
         draw_particle_system(&scene->part_sys);
+        Vector2 center = {32, -10};
+        for (int i = 0; i < N_CIRCS; ++i)
+        {
+
+            DrawCircleV(center, fabs(circs[i].R * sinf(circs[i].phase)), BLACK);
+            center.y += data->game_field_size.y + 20;
+            DrawCircleV(center, fabs(circs[i].R * sinf(circs[i].phase)), BLACK);
+            center.y -= data->game_field_size.y + 20;
+            center.x += circs[i].R;
+        }
+
+        center = (Vector2){-10, 32};
+        for (int i = 0; i < N_CIRCS; ++i)
+        {
+            DrawCircleV(center, fabs(circs[i].R * sinf(circs[i].phase)), BLACK);
+            center.x += data->game_field_size.x + 20;
+            DrawCircleV(center, fabs(circs[i].R * sinf(circs[i].phase)), BLACK);
+            center.x -= data->game_field_size.x + 20;
+
+            center.y += circs[i].R;
+        }
+
+        CSpawner_t* p_spawner;
+        unsigned int ent_idx;
+        sc_map_foreach(&scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
+        {
+            // Not going into the final game
+            static char buffer[64];
+            sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
+            DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
+            break;
+        }
+
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
         DrawCircleV(raw_mouse_pos, 2, TEXT_COLOUR);
@@ -527,7 +570,7 @@ void shop_render_func(Scene_t* scene)
                 .x = 5,
                 .y = data->shop_rec.height / 2
             };
-            DrawText("Press Q or P\n\nto Pause", text_pos.x, text_pos.y, 54, TEXT_COLOUR);
+            DrawText("Press Q or P\n\nto Pause", text_pos.x, text_pos.y - (36 >> 1), 36,TEXT_COLOUR);
         }
 
     EndTextureMode();
@@ -833,6 +876,12 @@ void restart_level_scene(LevelScene_t* scene)
     for (uint8_t i = 0; i < 7; ++i)
     {
         shop_scene->data.ui.upgrades[i].button.enabled = true;
+    }
+    for (uint8_t i = 0; i < N_CIRCS; ++i)
+    {
+        circs[i].phase = 2 * PI * (float)rand()/ (float)RAND_MAX;
+        circs[i].R = 25;
+        circs[i].rate = 0.1f + 0.6f * (float)rand() / (float)RAND_MAX;
     }
     scene->data.game_state = GAME_STARTING;
 }
