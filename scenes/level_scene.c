@@ -117,7 +117,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
     }
     return ACTION_PROPAGATE;
 }
-#define STATS_Y_OFFSET -40
+#define STATS_Y_OFFSET 0
 static void level_scene_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
@@ -204,7 +204,7 @@ static void level_scene_render_func(Scene_t* scene)
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + 400, 12, TEXT_COLOUR);
 
         const int PLAYER_STAT_FONT = 24;
-        int stat_height = data->game_rec.y + STATS_Y_OFFSET;
+        int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 
         if (player_ent != NULL)
         {
@@ -220,11 +220,11 @@ static void level_scene_render_func(Scene_t* scene)
             CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
             const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
             DrawRectangle(
-                scene->subscene_pos.x, stat_height,
+                data->game_rec.x - 5, data->game_rec.y - 36 - 10,
                 HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 36, BLUE
             );
             DrawRectangle(
-                scene->subscene_pos.x + 5, stat_height + 4,
+                data->game_rec.x, data->game_rec.y - 36 - 5,
                 HEALTH_LENGTH - 10, 28, GRAY
             );
 
@@ -245,20 +245,22 @@ static void level_scene_render_func(Scene_t* scene)
                     health_flash = false;
                 }
                 DrawRectangle(
-                    scene->subscene_pos.x + 5, stat_height + 4,
+                    data->game_rec.x, data->game_rec.y - 36 - 5,
                     (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
                     (health_flash) ? WHITE : RED
                 );
             }
 
-            stat_height += 40 + 5;
+            //stat_height += 40 + 5;
 
             DrawTextureRec(
                 data->stat_view.texture,
                 (Rectangle){0,0,stat_view.width,stat_view.height},
                 (Vector2){
-                    scene->subscene_pos.x,
-                    stat_height
+                    //scene->subscene_pos.x,
+                    //stat_height,
+                    data->game_rec.x + data->game_rec.width - stat_view.width,
+                    data->game_rec.y - 45 - 10 // Hardcode the height
                 },
                 WHITE
             );
@@ -902,7 +904,7 @@ void init_level_scene(LevelScene_t* scene)
     scene->scene.subscene->parent_scene = &scene->scene;
     scene->scene.subscene->subscene = NULL;
     scene->scene.time_scale = 1.0f;
-    scene->scene.subscene_pos = (Vector2){ARENA_START_X + ARENA_WIDTH + 20, ARENA_START_Y + STATS_HEIGHT + STATS_Y_OFFSET};
+    scene->scene.subscene_pos = (Vector2){ARENA_START_X + ARENA_WIDTH + 20, ARENA_START_Y + STATS_Y_OFFSET};
     sc_array_add(&scene->scene.subscene->systems, &shop_check_mouse);
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
