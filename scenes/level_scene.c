@@ -527,7 +527,7 @@ void shop_render_func(Scene_t* scene)
                 .x = 5,
                 .y = data->shop_rec.height / 2
             };
-            DrawText("Press P to Pause", text_pos.x, text_pos.y - (36 >> 1), 36, TEXT_COLOUR);
+            DrawText("Press Q or P\n\nto Pause", text_pos.x, text_pos.y, 54, TEXT_COLOUR);
         }
 
     EndTextureMode();
@@ -882,10 +882,6 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &sprite_animation_system);
     sc_array_add(&scene->scene.systems, &arena_render_func);
 
-    sc_map_put_64(&scene->scene.action_map, KEY_W, ACTION_UP);
-    sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_DOWN);
-    sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_LEFT);
-    sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_RIGHT);
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_SELECT1);
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_SELECT2);
     sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_SELECT3);
@@ -895,8 +891,9 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_SPACE, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_MOVE);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
+    sc_map_put_64(&scene->scene.action_map, KEY_P, ACTION_PAUSE);
     sc_map_put_64(&scene->scene.action_map, KEY_Q, ACTION_PAUSE);
-    sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_RESTART);
+    sc_map_put_64(&scene->scene.action_map, KEY_Y, ACTION_RESTART);
 
     scene->scene.subscene->type = SUB_SCENE;
     init_scene(scene->scene.subscene, NULL, &shop_do_action);
