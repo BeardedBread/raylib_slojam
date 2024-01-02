@@ -706,9 +706,20 @@ void hitbox_update_system(Scene_t* scene)
                     p_hurtbox->attack_dir = (Vector2){0,0};
                     p_hurtbox->invuln_timer = p_hurtbox->invuln_time;
                     CLifeTimer_t* p_other_life = get_component(p_other_ent, CLIFETIMER_T);
+
                     if (p_other_life != NULL)
                     {
+                        int16_t prev_life = p_other_life->current_life;
                         p_other_life->current_life -= p_hitbox->atk;
+                        if (p_other_ent->m_tag == PLAYER_ENT_TAG)
+                        {
+                            // Last chance if previous health is not in critical health
+                            // Just a little mercy for huge hits
+                            if (prev_life > CRIT_HEALTH && p_other_life->current_life <= 0)
+                            {
+                                p_other_life->current_life = 1;
+                            }
+                        }
                         if (p_other_life->current_life <= 0)
                         {
                             p_hurtbox->attack_dir = attack_dir;
@@ -759,6 +770,7 @@ void hitbox_update_system(Scene_t* scene)
                     if (p_other_ent->m_tag == PLAYER_ENT_TAG)
                     {
                         data->screenshake_time = 0.2f;
+
                         if (p_other_life->current_life < CRIT_HEALTH && p_other_life->current_life > 0)
                         {
                             play_sfx(scene->engine, PLAYER_WARN_SFX, false);
