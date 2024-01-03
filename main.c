@@ -29,6 +29,7 @@ const int screenHeight = 960;
 const float DT = 1/60.0;
 const uint8_t MAX_STEPS = 10;
 
+static Music ambient_mus;
 void update_loop(void)
 {
     Scene_t* scene = engine.scenes[engine.curr_scene];
@@ -47,6 +48,12 @@ void update_loop(void)
     update_entity_manager(&scene->ent_manager);
     render_scene(scene);
     update_sfx_list(&engine);
+
+    UpdateMusicStream(ambient_mus);
+    if (!IsMusicStreamPlaying(ambient_mus))
+    {
+        PlayMusicStream(ambient_mus);
+    }
 }
 
 static int load_all_assets(Assets_t* assets)
@@ -249,11 +256,14 @@ int main(void)
         emscripten_set_keydown_callback("#canvas", NULL, 1, keyDownCallback);
         emscripten_set_main_loop(update_loop, 0, 1);
     #else
+    ambient_mus = LoadMusicStream("res/ambient.mp3");
     while (!WindowShouldClose())
     {
         update_loop();
     }
     #endif
+    StopMusicStream(ambient_mus);
+    UnloadMusicStream(ambient_mus);
     UnloadImage(weapon_img);
     free_level_scene(&lvl_scene);
     deinit_engine(&engine);

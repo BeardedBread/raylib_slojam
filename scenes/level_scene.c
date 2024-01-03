@@ -118,7 +118,6 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
     return ACTION_PROPAGATE;
 }
 #define STATS_Y_OFFSET 0
-
 static void level_scene_render_func(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
@@ -196,13 +195,12 @@ static void level_scene_render_func(Scene_t* scene)
             WHITE
         );
 
-        static char mem_stats[512];
-        print_mempool_stats(mem_stats);
-        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y, 12, TEXT_COLOUR);
-        
-        sprintf(mem_stats, "part sys free: %u", get_number_of_free_emitter(&scene->part_sys));
-        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + 400, 12, TEXT_COLOUR);
 
+        static char mem_stats[256];
+        //print_mempool_stats(mem_stats);
+
+        sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
+        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 
@@ -483,6 +481,7 @@ static void arena_render_func(Scene_t* scene)
             break;
         }
 
+        draw_particle_system(&scene->part_sys);
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
         DrawCircleV(raw_mouse_pos, 2, TEXT_COLOUR);
@@ -570,7 +569,8 @@ void shop_render_func(Scene_t* scene)
                 .x = 5,
                 .y = data->shop_rec.height / 2
             };
-            DrawText("Press Q or P\n\nto Pause", text_pos.x, text_pos.y - (36 >> 1), 36,TEXT_COLOUR);
+            DrawText("Press Q or P", text_pos.x, text_pos.y, 36, TEXT_COLOUR);
+            DrawText("to Pause", text_pos.x, text_pos.y + 36 + 2, 36, TEXT_COLOUR);
         }
 
     EndTextureMode();
