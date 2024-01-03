@@ -256,7 +256,7 @@ int main(void)
         emscripten_set_keydown_callback("#canvas", NULL, 1, keyDownCallback);
         emscripten_set_main_loop(update_loop, 0, 1);
     #else
-    ambient_mus = LoadMusicStream("res/ambient.mp3");
+    ambient_mus = LoadMusicStream("res/ambient.ogg");
     while (!WindowShouldClose())
     {
         update_loop();
