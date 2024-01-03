@@ -48,6 +48,8 @@ typedef struct _CTransform_t {
     EdgeBehaviour_t edge_b;
     float shape_factor;
     uint8_t boundary_checks;
+    int8_t x_crossed;
+    int8_t y_crossed;
 } CTransform_t;
 
 typedef struct _CPlayerState_t {

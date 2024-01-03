@@ -344,11 +344,20 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->moving & 1)
         {
             p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->aim_dir), MOVE_ACCEL);
-            
+            if (p_ctransform->x_crossed != 0)
+            {
+                p_ctransform->accel.x *= -1;
+            }
+            if (p_ctransform->y_crossed != 0)
+            {
+                p_ctransform->accel.y *= -1;
+            }
             play_sfx(scene->engine, PLAYER_MOVE_SFX, false);
         }
         else
         {
+            p_ctransform->x_crossed = 0;
+            p_ctransform->y_crossed = 0;
             stop_sfx(scene->engine, PLAYER_MOVE_SFX);
         }
         p_pstate->moving <<= 1;
@@ -567,19 +576,23 @@ void movement_update_system(Scene_t* scene)
             if (p_ent->position.x < 0)
             {
                 p_ent->position.x += data->game_field_size.x;
+                p_ctransform->x_crossed--;
             }
             else if (p_ent->position.x > data->game_field_size.x)
             {
                 p_ent->position.x -= data->game_field_size.x;
+                p_ctransform->x_crossed++;
             }
             
             if (p_ent->position.y < 0)
             {
                 p_ent->position.y += data->game_field_size.y;
+                p_ctransform->y_crossed--;
             }
             else if (p_ent->position.y > data->game_field_size.y)
             {
                 p_ent->position.y -= data->game_field_size.y;
+                p_ctransform->y_crossed++;
             }
         }
         
