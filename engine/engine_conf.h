@@ -1,7 +1,7 @@
 #ifndef _ENGINE_CONF_H
 #define _ENGINE_CONF_H
 
-#define MAX_ENTITIES 4096
+#define MAX_ENTITIES 2048
 #define MAX_TEXTURES 16
 #define MAX_SPRITES 64
 #define MAX_SOUNDS 32
