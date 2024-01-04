@@ -4,8 +4,11 @@
 static Sprite_t* enemies_sprite_map[1] = {0};
 static Sprite_t* boss_sprite_map[3] = {0};
 
+#define MAX_MOMENTUM 3500
 Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
 {
+    if (size == 0) return NULL;
+
     Entity_t* p_ent = add_entity(ent_manager, ENEMY_ENT_TAG);
     if (p_ent == NULL) return NULL;
 
@@ -14,7 +17,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
     CTransform_t* p_ct = add_component(p_ent, CTRANSFORM_T);
     p_ct->active = true;
     p_ct->edge_b = EDGE_BOUNCE;
-    p_ct->velocity_cap = 400;
+    p_ct->velocity_cap = MAX_MOMENTUM / size;
 
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = size;
