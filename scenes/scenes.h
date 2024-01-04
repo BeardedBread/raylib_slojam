@@ -77,6 +77,12 @@ typedef struct LevelCamera {
     float k; // spring constant
 }LevelCamera_t;
 
+typedef struct Timer {
+    float fractional;
+    uint8_t seconds;
+    uint8_t minutes;
+} Timer_t;
+
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
     LevelCamera_t camera;
@@ -87,6 +93,7 @@ typedef struct LevelSceneData {
     Image weapon_icons;
     RenderTexture2D stat_view;
     float screenshake_time;
+    Timer_t survival_timer;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

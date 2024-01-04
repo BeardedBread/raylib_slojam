@@ -784,7 +784,7 @@ void hitbox_update_system(Scene_t* scene)
                     {
                         data->screenshake_time = 0.2f;
 
-                        if (p_other_life->current_life < CRIT_HEALTH && p_other_life->current_life > 0)
+                        if (p_other_life->current_life <= CRIT_HEALTH && p_other_life->current_life > 0)
                         {
                             play_sfx(scene->engine, PLAYER_WARN_SFX, false);
                         }

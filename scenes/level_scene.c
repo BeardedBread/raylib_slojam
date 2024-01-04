@@ -311,6 +311,21 @@ static void arena_render_func(Scene_t* scene)
             circs[i].phase -= 2 * PI;
         }
     }
+
+    if (data->game_state == GAME_PLAYING)
+    {
+        data->survival_timer.fractional += scene->delta_time;
+        if (data->survival_timer.fractional > 1.0f)
+        {
+            data->survival_timer.fractional -= 1.0f;
+            data->survival_timer.seconds++;
+        }
+        if (data->survival_timer.seconds == 60)
+        {
+            data->survival_timer.seconds -= 60;
+            data->survival_timer.minutes++;
+        }
+    }
     BeginTextureMode(data->game_viewport);
         ClearBackground(ARENA_COLOUR);
         BeginMode2D(data->camera.cam);
@@ -334,14 +349,17 @@ static void arena_render_func(Scene_t* scene)
             const char* game_over_str;
             if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
             {
-                game_over_str = "You have perished.";
+                game_over_str = "You did not get the void particle.";
             }
             else
             {
-                game_over_str = "You survived! Wonderful!";
+                game_over_str = "You escaped with the void particle!";
             }
 
-            DrawText(game_over_str, data->game_field_size.x / 4 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
+            DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (24 >> 1), 24, TEXT_COLOUR);
+            static char buf[64];
+            sprintf(buf, "Survial Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
+            DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
         }
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
@@ -893,6 +911,7 @@ void restart_level_scene(LevelScene_t* scene)
         circs[i].R = 25;
         circs[i].rate = 0.1f + 0.6f * (float)rand() / (float)RAND_MAX;
     }
+    memset(&scene->data.survival_timer, 0, sizeof(scene->data.survival_timer));
     scene->data.game_state = GAME_STARTING;
 }
 
