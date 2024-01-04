@@ -120,6 +120,20 @@ static int load_all_assets(Assets_t* assets)
     spr->frame_count = 1;
     spr->speed = 0;
 
+    spr = add_sprite(assets, "ms_ctrl", game_tex);
+    spr->origin = (Vector2){288,64};
+    spr->frame_size = (Vector2){192,224};
+    spr->anchor = (Vector2){96,112};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "kb_ctrl", game_tex);
+    spr->origin = (Vector2){480,64};
+    spr->frame_size = (Vector2){320,224};
+    spr->anchor = (Vector2){160,112};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
     spr = add_sprite(assets, "finale3", game_tex);
     spr->origin = (Vector2){192,96};
     spr->frame_size = (Vector2){64,64};

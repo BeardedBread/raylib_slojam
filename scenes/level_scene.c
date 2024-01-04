@@ -317,7 +317,17 @@ static void arena_render_func(Scene_t* scene)
 
         if (data->game_state == GAME_STARTING)
         {
-            DrawText("Press Shoot to Begin", data->game_field_size.x / 4, data->game_field_size.y / 2 - (36 >> 1), 36, TEXT_COLOUR);
+            DrawText("Void Particle", data->game_field_size.x / 4, data->game_field_size.y / 4 - (72 >> 1), 72, TEXT_COLOUR);
+
+            Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
+            draw_sprite(spr, 0, (Vector2){
+                data->game_field_size.x * 3 / 4,data->game_field_size.y  / 2},
+            0.0f, false);
+            spr = get_sprite(&scene->engine->assets, "kb_ctrl");
+            draw_sprite(spr, 0, (Vector2){
+                data->game_field_size.x / 4,data->game_field_size.y / 2},
+            0.0f, false);
+            DrawText("Press Shoot to Begin", data->game_field_size.x / 4 + 50, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
         }
         else if (data->game_state == GAME_ENDED)
         {
