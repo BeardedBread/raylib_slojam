@@ -55,6 +55,8 @@ Entity_t* create_end_item(EntityManager_t* ent_manager, float size)
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->poison_value = 0.0f; 
 
+    CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+    p_ct->edge_b = EDGE_WRAPAROUND;
     return p_ent;
 }
 
