@@ -344,14 +344,31 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->moving & 1)
         {
             p_ctransform->accel = Vector2Scale(Vector2Normalize(p_pstate->aim_dir), MOVE_ACCEL);
-            if (p_ctransform->x_crossed != 0)
+
+            if (
+                (p_ctransform->x_crossed > 0 && p_player->position.x < raw_mouse_pos.x)
+                || (p_ctransform->x_crossed < 0 && p_player->position.x > raw_mouse_pos.x)
+            )
             {
                 p_ctransform->accel.x *= -1;
             }
-            if (p_ctransform->y_crossed != 0)
+            else
+            {
+                p_ctransform->x_crossed = 0;
+            }
+
+            if (
+                (p_ctransform->y_crossed > 0 && p_player->position.y < raw_mouse_pos.y)
+                || (p_ctransform->y_crossed < 0 && p_player->position.y > raw_mouse_pos.y)
+            )
             {
                 p_ctransform->accel.y *= -1;
             }
+            else
+            {
+                p_ctransform->y_crossed = 0;
+            }
+
             play_sfx(scene->engine, PLAYER_MOVE_SFX, false);
         }
         else
