@@ -14,7 +14,7 @@
 
 #define TEXT_COLOUR WHITE
 #define BG_COLOUR BLACK
-#define ARENA_COLOUR (Color){30,30,30,255}
+#define ARENA_COLOUR (Color){20,20,20,255}
 #define THEME_COLOUR RED
 #define SELECTION_COLOUR PINK
 
@@ -283,6 +283,9 @@ static void level_scene_render_func(Scene_t* scene)
             },
             WHITE
         );
+        Vector2 raw_mouse_pos = GetMousePosition();
+        Sprite_t* spr = get_sprite(&scene->engine->assets, "crosshair");
+        draw_sprite(spr, 0, raw_mouse_pos, 0.0f, false);
     EndDrawing();
     UnloadImage(stat_view);
     UnloadImage(mask);
@@ -527,10 +530,6 @@ static void arena_render_func(Scene_t* scene)
         }
 
         draw_particle_system(&scene->part_sys);
-        Vector2 raw_mouse_pos = GetMousePosition();
-        raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
-        Sprite_t* spr = get_sprite(&scene->engine->assets, "crosshair");
-        draw_sprite(spr, 0, raw_mouse_pos, 0.0f, false);
 
         EndMode2D();
 
@@ -822,7 +821,7 @@ static void generate_shop_UI(ShopSceneData* data)
     Scene_t* scene = (Scene_t*)CONTAINER_OF(data, ShopScene_t, data);
     const int padding = 5;
     const int DOT_SPACING = 40;
-    const int DESCRPTION_BOX_HEIGHT = 130;
+    const int DESCRPTION_BOX_HEIGHT = 20;
     const int width = data->shop_rec.width - padding * 2;
     const int height = data->shop_rec.height - padding * 2;
     const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 6;
@@ -1009,8 +1008,8 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
-    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - STATS_HEIGHT + 50);
-    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - STATS_HEIGHT + 50};
+    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - STATS_HEIGHT);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - STATS_HEIGHT};
 
     shop_scene->data.ui.icon_size = 70;
     shop_scene->data.ui.dot_size = 10;

@@ -136,8 +136,8 @@ static int load_all_assets(Assets_t* assets)
 
     spr = add_sprite(assets, "crosshair", game_tex);
     spr->origin = (Vector2){0,160};
-    spr->frame_size = (Vector2){64,64};
-    spr->anchor = (Vector2){32,32};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
     spr->frame_count = 1;
     spr->speed = 0;
 
