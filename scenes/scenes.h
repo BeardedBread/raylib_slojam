@@ -94,6 +94,9 @@ typedef struct LevelSceneData {
     RenderTexture2D stat_view;
     float screenshake_time;
     Timer_t survival_timer;
+    uint16_t endeffect_timer;
+    Vector2 endeffect_pos;
+    bool win_flag;
 }LevelSceneData_t;
 
 typedef struct LevelScene {

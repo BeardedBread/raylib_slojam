@@ -895,6 +895,9 @@ void container_destroy_system(Scene_t* scene)
             {
                 LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
                 data->game_state = GAME_ENDED;
+                data->endeffect_timer = 0;
+                data->endeffect_pos = p_ent->position;
+                data->win_flag = true;
             }
             break;
             default:

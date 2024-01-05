@@ -88,7 +88,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 new_weapon = 3;
             break;
             case ACTION_PAUSE:
-                if (!pressed)
+                if (!pressed && data->game_state == GAME_PLAYING)
                 {
                     play_sfx(scene->engine, PAUSE_SFX, true);
                     scene->time_scale = 0.0f;
@@ -430,47 +430,50 @@ static void arena_render_func(Scene_t* scene)
                 }
             }
 
-            CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
-            Vector2 look_dir = {0};
-            if (p_pstate != NULL)
+            if (data->game_state != GAME_ENDED)
             {
-                look_dir = Vector2Scale(p_pstate->aim_dir, 64);
-            }
-
-            for (uint8_t i = 0; i < n_pos; i++)
-            {
-                if (p_ent->m_tag == PLAYER_ENT_TAG)
+                CPlayerState_t* p_pstate = get_component(p_ent, CPLAYERSTATE_T);
+                Vector2 look_dir = {0};
+                if (p_pstate != NULL)
                 {
-
-                    DrawCircleV(spr_positions[i], p_ent->size, c);
-                    float radius = (BOOST_COOLDOWN - p_pstate->boost_cooldown) / BOOST_COOLDOWN * 6;
-                    Vector2 pos = Vector2Add(
-                        spr_positions[i], 
-                        Vector2Scale(p_pstate->aim_dir, -16)
-                    );
-                    DrawCircleV(pos, radius, (p_pstate->boost_cooldown > 0)? GRAY : WHITE);
-                }
-                else if (p_cspr == NULL)
-                {
-                    DrawCircleV(spr_positions[i], p_ent->size, c);
+                    look_dir = Vector2Scale(p_pstate->aim_dir, 64);
                 }
 
-                if (spr!= NULL)
+                for (uint8_t i = 0; i < n_pos; i++)
                 {
-                    Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
-                    if (p_ent->m_tag == ENEMY_ENT_TAG)
+                    if (p_ent->m_tag == PLAYER_ENT_TAG)
                     {
-                        draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / spr->frame_size.x);
+
+                        DrawCircleV(spr_positions[i], p_ent->size, c);
+                        float radius = (BOOST_COOLDOWN - p_pstate->boost_cooldown) / BOOST_COOLDOWN * 6;
+                        Vector2 pos = Vector2Add(
+                            spr_positions[i], 
+                            Vector2Scale(p_pstate->aim_dir, -16)
+                        );
+                        DrawCircleV(pos, radius, (p_pstate->boost_cooldown > 0)? GRAY : WHITE);
                     }
-                    else
+                    else if (p_cspr == NULL)
                     {
-                        draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                        DrawCircleV(spr_positions[i], p_ent->size, c);
                     }
+
+                    if (spr!= NULL)
+                    {
+                        Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
+                        if (p_ent->m_tag == ENEMY_ENT_TAG)
+                        {
+                            draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / spr->frame_size.x);
+                        }
+                        else
+                        {
+                            draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                        }
+                    }
+                    DrawLineEx(
+                        spr_positions[i],
+                        Vector2Add(spr_positions[i], look_dir),
+                        2, (Color){255,255,255,64});
                 }
-                DrawLineEx(
-                    spr_positions[i],
-                    Vector2Add(spr_positions[i], look_dir),
-                    2, (Color){255,255,255,64});
             }
         }
 
@@ -494,19 +497,32 @@ static void arena_render_func(Scene_t* scene)
         {
             const char* game_over_str;
             static char buf[64];
-            if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+            if (!data->win_flag)
             {
                 game_over_str = "You did not get the void particle.";
-                sprintf(buf, "Survival Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
+                sprintf(buf, "Survival Time: %u:%02u", data->survival_timer.minutes, data->survival_timer.seconds);
             }
             else
             {
                 game_over_str = "You escaped with the void particle!";
-                sprintf(buf, "Completion Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
+                sprintf(buf, "Completion Time: %u:%02u", data->survival_timer.minutes, data->survival_timer.seconds);
             }
 
             DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (24 >> 1), 24, TEXT_COLOUR);
             DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
+            DrawText("Press Y to begin a new cycle", data->game_field_size.x / 8 , data->game_field_size.y *9/10- (24 >> 1), 24, TEXT_COLOUR);
+
+            if (data->endeffect_timer < 2000)
+            {
+                float alpha = 255;
+                if (data->endeffect_timer > 1000)
+                {
+                    alpha = 255 - 255 * (data->endeffect_timer - 1000) * 1.0f/1000.0f;
+                }
+                DrawCircleV(data->endeffect_pos, data->endeffect_timer,(Color){255,255,255,alpha});
+                data->endeffect_timer += 1500 * scene->delta_time;
+
+            }
         }
         Vector2 center = {32, -10};
         for (int i = 0; i < N_CIRCS; ++i)
@@ -640,7 +656,10 @@ static void game_over_check(Scene_t* scene)
             {
                 CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
                 p_life->current_life = 0;
-                //remove_entity(&scene->ent_manager, p_ent->m_id);
+            }
+            if (p_ent->m_tag == PLAYER_ENT_TAG)
+            {
+                remove_entity(&scene->ent_manager, p_ent->m_id);
             }
         }
         update_entity_manager(&scene->ent_manager);
@@ -940,6 +959,8 @@ void restart_level_scene(LevelScene_t* scene)
     }
     memset(&scene->data.survival_timer, 0, sizeof(scene->data.survival_timer));
     scene->data.game_state = GAME_STARTING;
+    scene->data.endeffect_timer = 4000;
+    scene->data.win_flag = false;
 }
 
 void init_level_scene(LevelScene_t* scene)
