@@ -529,7 +529,8 @@ static void arena_render_func(Scene_t* scene)
         draw_particle_system(&scene->part_sys);
         Vector2 raw_mouse_pos = GetMousePosition();
         raw_mouse_pos = Vector2Subtract(raw_mouse_pos, (Vector2){data->game_rec.x, data->game_rec.y});
-        DrawCircleV(raw_mouse_pos, 2, TEXT_COLOUR);
+        Sprite_t* spr = get_sprite(&scene->engine->assets, "crosshair");
+        draw_sprite(spr, 0, raw_mouse_pos, 0.0f, false);
 
         EndMode2D();
 

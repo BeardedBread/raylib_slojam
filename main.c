@@ -121,23 +121,30 @@ static int load_all_assets(Assets_t* assets)
     spr->speed = 0;
 
     spr = add_sprite(assets, "ms_ctrl", game_tex);
-    spr->origin = (Vector2){288,64};
-    spr->frame_size = (Vector2){192,224};
-    spr->anchor = (Vector2){96,112};
+    spr->origin = (Vector2){256,64};
+    spr->frame_size = (Vector2){192,256};
+    spr->anchor = (Vector2){96,128};
     spr->frame_count = 1;
     spr->speed = 0;
 
     spr = add_sprite(assets, "kb_ctrl", game_tex);
-    spr->origin = (Vector2){480,64};
-    spr->frame_size = (Vector2){320,224};
-    spr->anchor = (Vector2){160,112};
+    spr->origin = (Vector2){448,64};
+    spr->frame_size = (Vector2){352,256};
+    spr->anchor = (Vector2){176,128};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "crosshair", game_tex);
+    spr->origin = (Vector2){0,160};
+    spr->frame_size = (Vector2){64,64};
+    spr->anchor = (Vector2){32,32};
     spr->frame_count = 1;
     spr->speed = 0;
 
     spr = add_sprite(assets, "finale3", game_tex);
     spr->origin = (Vector2){192,96};
-    spr->frame_size = (Vector2){64,64};
-    spr->anchor = (Vector2){32,32};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
     spr->frame_count = 1;
     spr->speed = 0;
 
@@ -261,6 +268,10 @@ int main(void)
     lvl_scene.data.weapon_icons = weapon_img;
 
     change_scene(&engine, 0);
+
+#if !defined(PLATFORM_WEB)
+    DisableCursor();                    // Limit cursor to relative movement inside the window
+#endif
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
