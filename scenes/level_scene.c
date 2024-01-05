@@ -70,6 +70,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 if (data->game_state == GAME_STARTING)
                 {
                     create_spawner(&scene->ent_manager);
+                    play_sfx(scene->engine, RANKUP_SFX, false);
                     data->game_state = GAME_PLAYING;
                 }
                 p_playerstate->shoot |= (pressed) ? 1 : 0;
@@ -642,6 +643,7 @@ static void game_over_check(Scene_t* scene)
                 //remove_entity(&scene->ent_manager, p_ent->m_id);
             }
         }
+        update_entity_manager(&scene->ent_manager);
     }
 }
 
@@ -774,6 +776,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             {
                                                 p_spawner->data.rank = MAX_RANK - 1;
                                             }
+                                            play_sfx(scene->engine, RANKUP_SFX, false);
                                         }
                                         break;
                                         case 5:
@@ -980,8 +983,8 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
     sc_array_add(&scene->scene.systems, &screenshake_update_system);
-    sc_array_add(&scene->scene.systems, &game_over_check);
     sc_array_add(&scene->scene.systems, &sprite_animation_system);
+    sc_array_add(&scene->scene.systems, &game_over_check);
     sc_array_add(&scene->scene.systems, &arena_render_func);
 
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_SELECT1);
