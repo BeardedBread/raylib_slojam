@@ -352,12 +352,12 @@ static void arena_render_func(Scene_t* scene)
             Vector2 center = Vector2Scale(data->game_field_size, 0.5f);
             for (uint8_t i = 0; i < lit_ring; i++)
             {
-                DrawCircleLinesV(center, radius, WHITE);
+                DrawCircleLinesV(center, radius, (Color){255,255,255,72});
                 radius += RING_RADIUS_INCREMENT;
             }
             for (uint8_t i = 0; i < unlit_ring; i++)
             {
-                DrawCircleLinesV(center, radius, GRAY);
+                DrawCircleLinesV(center, radius, (Color){255,255,255,16});
                 radius += RING_RADIUS_INCREMENT;
             }
             break;
