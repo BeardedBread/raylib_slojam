@@ -52,6 +52,9 @@ Entity_t* create_end_item(EntityManager_t* ent_manager, float size)
     p_cspr->sprites = collectible_sprites;
     p_cspr->current_idx = 0;
 
+    CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
+    p_life->poison_value = 0.0f; 
+
     return p_ent;
 }
 

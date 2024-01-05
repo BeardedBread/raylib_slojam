@@ -1,7 +1,7 @@
 #include "engine.h"
 #include "level_ent.h"
 #include "assets_tag.h"
-
+#include "constants.h"
 #include "scenes.h"
 #include "raymath.h"
 
@@ -16,7 +16,6 @@ struct RankSpawnData {
 
 static const uint32_t SIZE_RANGES[5] = {12,18,32,56,80};
 static const uint32_t SPEED_RANGES[4] = {100,200,250,320};
-#define MAX_RANK 8
 static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
     {50, {5,1}, {10,100,100,100}, {100,100,100}, 7, 1.0f},
     {150, {4,1}, {0,100,100,100}, {70,100,100}, 12, 1.1f},

@@ -22,11 +22,10 @@ void restart_level_scene(LevelScene_t* scene);
 
 static char* TEXT_DESCRIPTION[] = {
     "Fire rate",
-    "Projectile speed",
-    "Damage",
+    "Projectile Speed",
     "Max Health",
     "Full Heal",
-    "Escape?",
+    "Void Particle",
     "Thumper",
     "Maws",
 };
@@ -326,40 +325,38 @@ static void arena_render_func(Scene_t* scene)
             data->survival_timer.minutes++;
         }
     }
+    const int RING_MAX_DIAMETER = (data->game_field_size.x > data->game_field_size.y) ? 
+        data->game_field_size.y : data->game_field_size.x;
+
+    const int RING_RADIUS_INCREMENT = (RING_MAX_DIAMETER / 2) / (MAX_RANK);
     BeginTextureMode(data->game_viewport);
         ClearBackground(ARENA_COLOUR);
         BeginMode2D(data->camera.cam);
 
-        if (data->game_state == GAME_STARTING)
-        {
-            DrawText("Void Particle", data->game_field_size.x / 4, data->game_field_size.y / 4 - (72 >> 1), 72, TEXT_COLOUR);
 
-            Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
-            draw_sprite(spr, 0, (Vector2){
-                data->game_field_size.x * 3 / 4,data->game_field_size.y  / 2},
-            0.0f, false);
-            spr = get_sprite(&scene->engine->assets, "kb_ctrl");
-            draw_sprite(spr, 0, (Vector2){
-                data->game_field_size.x / 4,data->game_field_size.y / 2},
-            0.0f, false);
-            DrawText("Press Shoot to Begin", data->game_field_size.x / 4 + 50, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
-        }
-        else if (data->game_state == GAME_ENDED)
+        CSpawner_t* p_spawner;
+        unsigned int ent_idx;
+        sc_map_foreach(&scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
         {
-            const char* game_over_str;
-            if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+            // Not going into the final game
+            //static char buffer[64];
+            //sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
+            //DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
+            uint8_t lit_ring = p_spawner->data.rank + 1;
+            uint8_t unlit_ring = MAX_RANK - lit_ring;
+            int radius = RING_RADIUS_INCREMENT;
+            Vector2 center = Vector2Scale(data->game_field_size, 0.5f);
+            for (uint8_t i = 0; i < lit_ring; i++)
             {
-                game_over_str = "You did not get the void particle.";
+                DrawCircleLinesV(center, radius, WHITE);
+                radius += RING_RADIUS_INCREMENT;
             }
-            else
+            for (uint8_t i = 0; i < unlit_ring; i++)
             {
-                game_over_str = "You escaped with the void particle!";
+                DrawCircleLinesV(center, radius, GRAY);
+                radius += RING_RADIUS_INCREMENT;
             }
-
-            DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (24 >> 1), 24, TEXT_COLOUR);
-            static char buf[64];
-            sprintf(buf, "Survial Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
-            DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
+            break;
         }
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
@@ -471,11 +468,42 @@ static void arena_render_func(Scene_t* scene)
                     Vector2Add(spr_positions[i], look_dir),
                     2, (Color){255,255,255,64});
             }
-
-
         }
 
         draw_particle_system(&scene->part_sys);
+
+        if (data->game_state == GAME_STARTING)
+        {
+            DrawText("Void Particle", data->game_field_size.x / 4, data->game_field_size.y / 4 - (72 >> 1), 72, TEXT_COLOUR);
+
+            Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
+            draw_sprite(spr, 0, (Vector2){
+                data->game_field_size.x * 3 / 4,data->game_field_size.y  / 2},
+            0.0f, false);
+            spr = get_sprite(&scene->engine->assets, "kb_ctrl");
+            draw_sprite(spr, 0, (Vector2){
+                data->game_field_size.x / 4,data->game_field_size.y / 2},
+            0.0f, false);
+            DrawText("Press Shoot to Begin", data->game_field_size.x / 4 + 50, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
+        }
+        else if (data->game_state == GAME_ENDED)
+        {
+            const char* game_over_str;
+            static char buf[64];
+            if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]) == 0)
+            {
+                game_over_str = "You did not get the void particle.";
+                sprintf(buf, "Survival Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
+            }
+            else
+            {
+                game_over_str = "You escaped with the void particle!";
+                sprintf(buf, "Completion Time: %u:%u", data->survival_timer.minutes, data->survival_timer.seconds);
+            }
+
+            DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (24 >> 1), 24, TEXT_COLOUR);
+            DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
+        }
         Vector2 center = {32, -10};
         for (int i = 0; i < N_CIRCS; ++i)
         {
@@ -496,17 +524,6 @@ static void arena_render_func(Scene_t* scene)
             center.x -= data->game_field_size.x + 20;
 
             center.y += circs[i].R;
-        }
-
-        CSpawner_t* p_spawner;
-        unsigned int ent_idx;
-        sc_map_foreach(&scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
-        {
-            // Not going into the final game
-            static char buffer[64];
-            sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
-            DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
-            break;
         }
 
         draw_particle_system(&scene->part_sys);
@@ -682,11 +699,12 @@ static void shop_check_mouse(Scene_t* scene)
 static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pressed)
 {
     ShopSceneData* data = &(((ShopScene_t*)scene)->data);
+    LevelSceneData_t* lvl_data = &(((LevelScene_t*)scene->parent_scene)->data);
 
     switch(action)
     {
         case ACTION_SHOOT:
-            if (!pressed)
+            if (!pressed && lvl_data->game_state == GAME_PLAYING)
             {
                 Entity_t* p_player;
                 sc_map_foreach_value(&scene->parent_scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
@@ -750,6 +768,12 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                                     lvl_data->game_field_size.y/2
                                                 }
                                             );
+                                            CSpawner_t* p_spawner;
+                                            unsigned int ent_idx;
+                                            sc_map_foreach(&scene->parent_scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
+                                            {
+                                                p_spawner->data.rank = MAX_RANK - 1;
+                                            }
                                         }
                                         break;
                                         case 5:
