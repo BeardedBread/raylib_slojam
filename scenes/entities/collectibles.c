@@ -27,7 +27,7 @@ Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t v
 
     CAttract_t* p_attract = add_component(p_ent, CATTRACTOR_T);
     p_attract->attract_idx = 1;
-    p_attract->attract_factor = 1;
+    p_attract->attract_factor = 1.5f;
     p_attract->range_factor = 1;
 
     CMoney_t* p_money = add_component(p_ent, CMONEY_T);

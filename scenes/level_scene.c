@@ -219,7 +219,7 @@ static void level_scene_render_func(Scene_t* scene)
             const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
             DrawRectangle(
                 data->game_rec.x - 5, data->game_rec.y - 36 - 10,
-                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 36, BLUE
+                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 36, YELLOW
             );
             DrawRectangle(
                 data->game_rec.x, data->game_rec.y - 36 - 5,
@@ -401,7 +401,7 @@ static void arena_render_func(Scene_t* scene)
             }
             else if (p_ent->m_tag == COLLECT_ENT_TAG)
             {
-                c = GOLD;
+                c = SKYBLUE;
             }
             
             Vector2 spr_positions[4];
