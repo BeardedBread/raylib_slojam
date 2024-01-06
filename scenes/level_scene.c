@@ -266,7 +266,7 @@ static void level_scene_render_func(Scene_t* scene)
 
         draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
-        draw_rec.y = shop_scene->data.shop_rec.y = scene->subscene_pos.y - 2;
+        draw_rec.y = shop_scene->data.shop_rec.y + scene->subscene_pos.y - 2;
         draw_rec.width += 4;
         draw_rec.height += 4;
         DrawRectangleRec(draw_rec, RED);
@@ -280,7 +280,18 @@ static void level_scene_render_func(Scene_t* scene)
             draw_rec,
             (Vector2){
                 shop_scene->data.shop_rec.x + scene->subscene_pos.x,
-                shop_scene->data.shop_rec.y = scene->subscene_pos.y
+                shop_scene->data.shop_rec.y + scene->subscene_pos.y
+            },
+            WHITE
+        );
+
+        draw_rec.height = -data->credits_view.texture.height;
+        DrawTextureRec(
+            data->credits_view.texture,
+            draw_rec,
+            (Vector2){
+                shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                shop_scene->data.shop_rec.y + scene->subscene_pos.y + shop_scene->data.shop_rec.height + 10
             },
             WHITE
         );
@@ -1045,12 +1056,23 @@ void init_level_scene(LevelScene_t* scene)
         shop_scene->data.shop_rec.width, 180
     );
     restart_level_scene(scene);
+
+    scene->data.credits_view = LoadRenderTexture(350, STATS_HEIGHT);
+    BeginTextureMode(scene->data.credits_view);
+        ClearBackground(BG_COLOUR);
+        DrawText("Made with raylib by raysan5", 0, 0, 18, WHITE);
+        DrawText("Art by me, made with Krita", 0, 23, 18, WHITE);
+        DrawText("SFX by me, made with rfxgen by raysan5", 0, 46, 18, WHITE);
+        DrawText("Underwater Ambient Loop from Pixabay", 0, 69, 18, WHITE);
+        DrawText("Audio Edited with Tenacity", 0, 92, 18, WHITE);
+    EndTextureMode();
 }
 
 void free_level_scene(LevelScene_t* scene)
 {
     UnloadRenderTexture(scene->data.game_viewport); // Unload render texture
     UnloadRenderTexture(scene->data.stat_view);
+    UnloadRenderTexture(scene->data.credits_view);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     UnloadRenderTexture(shop_scene->data.shop_viewport); // Unload render texture

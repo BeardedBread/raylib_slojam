@@ -85,13 +85,14 @@ typedef struct Timer {
 
 typedef struct LevelSceneData {
     RenderTexture2D game_viewport;
+    RenderTexture2D stat_view;
+    RenderTexture2D credits_view;
     LevelCamera_t camera;
     Vector2 cam_pos;
     Rectangle game_rec;
     Vector2 game_field_size;
     GameState game_state;
     Image weapon_icons;
-    RenderTexture2D stat_view;
     float screenshake_time;
     Timer_t survival_timer;
     uint16_t endeffect_timer;
