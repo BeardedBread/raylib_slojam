@@ -85,13 +85,13 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
         50 * cos(angle), 50 * sin(angle)
     };
     CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
-    p_life->current_life = 300;
-    p_life->max_life = 300;
+    p_life->current_life = 500;
+    p_life->max_life = 500;
     CHurtbox_t* p_hurtbox = get_component(p_finalenemy, CHURTBOX_T);
     p_hurtbox->kb_mult = 3.0f;
     CAttract_t* p_attract = add_component(p_finalenemy, CATTRACTOR_T);
     p_attract->attract_idx = 1;
-    p_attract->attract_factor = -1;
+    p_attract->attract_factor = -0.7;
     p_attract->range_factor = 5.0;
 
     CSprite_t* p_cspr = get_component(p_finalenemy, CSPRITE_T);

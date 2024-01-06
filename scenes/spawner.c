@@ -20,10 +20,10 @@ static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
     {50, {5,1}, {10,100,100,100}, {100,100,100}, 7, 1.0f},
     {150, {4,1}, {0,100,100,100}, {70,100,100}, 12, 1.1f},
     {250, {3,2}, {0,85,100,100}, {15,100,100}, 13, 1.2f},
-    {400, {3,1}, {0,25,100,100}, {0,85,100}, 16, 1.3f},
-    {600, {3,1}, {0,15,80,100}, {10,65,100}, 18, 1.5f},
+    {400, {3,1}, {0,25,100,100}, {0,85,100}, 16, 1.4f},
+    {600, {3,1}, {0,15,80,100}, {10,65,100}, 18, 1.6f},
     {800, {2,2}, {0,0,90,100}, {0,80,100}, 20, 1.8f},
-    {1000, {2,1}, {0,10,85,100}, {10,70,100}, 22, 2.0f},
+    {1000, {2,1}, {0,10,85,100}, {10,70,100}, 22, 2.1f},
     {2000, {2,1}, {0,0,70,100}, {10,50,100}, 24, 2.4f},
 };
 
@@ -97,7 +97,7 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
                 + RANK_DATA[spwn_data->rank].spawn_time_range[1] * (float)rand() / (float)RAND_MAX;
 
         float value = 1.0; // always have 1
-        value += (100.0f - enemy_sz) / 8 + speed / 200.0;
+        value += (120.0f - enemy_sz) / 8 + speed / 200.0;
         value *= RANK_DATA[spwn_data->rank].drop_modifier;
         Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager, enemy_sz, (int32_t)value);
         CSpawn_t* p_spwn = add_component(p_ent, CSPAWNED_T);
@@ -112,24 +112,24 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
             case 0:
                 p_ent->position = (Vector2){
                     -80,
-                    GetRandomValue(0, lvl_scene->data.game_field_size.y - enemy_sz)
+                    GetRandomValue(enemy_sz, lvl_scene->data.game_field_size.y - enemy_sz)
                 };
             break;
             case 1:
                 p_ent->position = (Vector2){
-                    GetRandomValue(0, lvl_scene->data.game_field_size.x - enemy_sz),
+                    GetRandomValue(enemy_sz, lvl_scene->data.game_field_size.x - enemy_sz),
                     -80
                 };
             break;
             case 2:
                 p_ent->position = (Vector2){
                     lvl_scene->data.game_field_size.x + 80,
-                    GetRandomValue(0, lvl_scene->data.game_field_size.y - enemy_sz)
+                    GetRandomValue(enemy_sz, lvl_scene->data.game_field_size.y - enemy_sz)
                 };
             break;
             default:
                 p_ent->position = (Vector2){
-                    GetRandomValue(0, lvl_scene->data.game_field_size.x - enemy_sz),
+                    GetRandomValue(enemy_sz, lvl_scene->data.game_field_size.x - enemy_sz),
                     lvl_scene->data.game_field_size.y + 80
                 };
             break;
