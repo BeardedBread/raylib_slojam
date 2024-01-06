@@ -401,6 +401,7 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox->atk = p_weapon->base_dmg * (1 + p_weapon->modifiers[2] * 0.2);
                     bullet_hitbox->src = DMGSRC_PLAYER;
                     bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
+                    bullet_hitbox->knockback = p_weapon->bullet_kb;
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
@@ -443,6 +444,7 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
                     bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
+                    bullet_hitbox->knockback = p_weapon->bullet_kb;
 
                     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
@@ -461,6 +463,7 @@ void player_movement_input_system(Scene_t* scene)
                     bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
                     bullet_hitbox->atk = p_weapon->base_dmg;
                     bullet_hitbox->src = DMGSRC_PLAYER;
+                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
 
                     bullet_life = get_component(p_bullet, CLIFETIMER_T);
                     bullet_life->poison_value = p_weapon->bullet_lifetime;
@@ -760,7 +763,7 @@ void hitbox_update_system(Scene_t* scene)
                     if (p_ct != NULL)
                     {
                         float kb = 10 * p_hitbox->knockback * p_hurtbox->kb_mult;
-                        if (kb < 200) kb = 200;
+                        if (kb > 100) kb = 100;
 
                         p_ct->velocity = 
                         Vector2Add(
@@ -830,11 +833,9 @@ void container_destroy_system(Scene_t* scene)
         CHurtbox_t* p_hurtbox = get_component(p_ent, CHURTBOX_T);
         CSpawn_t* p_spwn = get_component(p_ent, CSPAWNED_T);
         float angle = 0.0f;
-        float speed = 100.0f;
         if (p_ct != NULL)
         {
             angle = atan2f(p_ct->velocity.y, p_ct->velocity.x);
-            speed = Vector2Length(p_ct->velocity);
         }
 
         if (p_hurtbox != NULL)
@@ -850,6 +851,11 @@ void container_destroy_system(Scene_t* scene)
             case CONTAINER_ENEMY:
             {
                 if (p_ent->size / SIZE_SPLIT_FACTOR <= ENEMY_MIN_SIZE || p_container->num == 0) break;
+                CTransform_t* current_ct = get_component(p_ent, CTRANSFORM_T);
+                float momentum = p_ent->size * Vector2Length(current_ct->velocity);
+                momentum /= p_container->num;
+                float new_sz = p_ent->size / SIZE_SPLIT_FACTOR;
+                float speed = momentum / new_sz;
 
                 float increment = 2 * PI / p_container->num;
                 angle += increment / 2;
@@ -861,10 +867,12 @@ void container_destroy_system(Scene_t* scene)
                     {
                         value = (p_wallet->value >> 1) + 1;
                     }
-                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, p_ent->size / SIZE_SPLIT_FACTOR, value);
+                    Entity_t* p_enemy = create_enemy(&scene->ent_manager, new_sz, value);
                     p_enemy->position = p_ent->position;
 
                     CTransform_t* enemy_ct = get_component(p_enemy, CTRANSFORM_T);
+
+                    speed += 50 * (float)rand() / (float)RAND_MAX;
                     enemy_ct->velocity = (Vector2){
                         speed * cosf(angle),
                         speed * sinf(angle),

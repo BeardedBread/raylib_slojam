@@ -6,19 +6,19 @@ static Sprite_t* player_sprite_map[3] = {0};
 CWeapon_t all_weapons[3] = {
     // Pistol
     {
-        .base_dmg = 10, .proj_speed = 800, .fire_rate = 4.5f,
+        .base_dmg = 10, .proj_speed = 800, .fire_rate = 4.5f, .bullet_kb = 3.3f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 0, .weapon_idx = 0, .homing = false,
     },
     // Shotgun
     {
-        .base_dmg = 5, .proj_speed = 1100, .fire_rate = 1.3f,
+        .base_dmg = 5, .proj_speed = 1100, .fire_rate = 1.3f, .bullet_kb = 2.1f,
         .cooldown_timer = 0, .spread_range = 7*PI/180, .n_bullets = 7,
         .bullet_lifetime = 7.6f * 60.0f, .weapon_idx = 1, .homing = false,
     },
     // Homing Rockets
     {
-        .base_dmg = 7, .proj_speed = 500, .fire_rate = 2.6f,
+        .base_dmg = 7, .proj_speed = 500, .fire_rate = 2.6f, .bullet_kb = 4.2f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 3.0f, .weapon_idx = 2, .homing = true,
     },

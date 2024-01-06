@@ -15,6 +15,7 @@ Entity_t* create_bullet(EntityManager_t* ent_manager)
 
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = 6;
+    p_hitbox->knockback = 0.0f;
     p_hitbox->dmg_type = DMG_PROJ;
     p_hitbox->hit_sound = N_SFX;
 

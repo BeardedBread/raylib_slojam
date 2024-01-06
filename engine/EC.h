@@ -117,6 +117,7 @@ typedef struct _CWeapon {
     float cooldown_timer;
     float spread_range;
     float bullet_lifetime;
+    float bullet_kb;
     uint8_t n_bullets;
     uint8_t weapon_idx;
     bool homing;
