@@ -767,14 +767,6 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
 
                                 if (purchased)
                                 {
-                                    play_sfx(scene->engine, BUYING_SFX, true);
-                                    p_pstate->collected -= data->ui.upgrades[i].item->cost;
-                                    data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
-                                    if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)
-                                    {
-                                        data->ui.upgrades[i].item->cost =  data->ui.upgrades[i].item->cost_cap;
-                                    }
-
                                     switch (i)
                                     {
                                         case 0:
@@ -787,7 +779,14 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             p_life->max_life += HEALTH_INCREMENT;
                                         break;
                                         case 3:
-                                            p_life->current_life = p_life->max_life;
+                                            if (p_life->current_life == p_life->max_life)
+                                            {
+                                                purchased = false;
+                                            }
+                                            else
+                                            {
+                                                p_life->current_life = p_life->max_life;
+                                            }
                                         break;
                                         case 4:
                                         {
@@ -819,6 +818,18 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                         break;
                                     }
                                 }
+
+                                if (purchased)
+                                {
+                                    play_sfx(scene->engine, BUYING_SFX, true);
+                                    p_pstate->collected -= data->ui.upgrades[i].item->cost;
+                                    data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
+                                    if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)
+                                    {
+                                        data->ui.upgrades[i].item->cost =  data->ui.upgrades[i].item->cost_cap;
+                                    }
+                                }
+
                                 break;
                             }
                         }
@@ -952,8 +963,8 @@ void restart_level_scene(LevelScene_t* scene)
         .projspeed_upgrade = {150, 3, 3, 150, 1000},
         //.damage_upgrade = {150, 3, 3, 150, 1000},
         .health_upgrade = {200, 3, 3, 150, 1000},
-        .full_heal = {100, -1, -1, 75, 600},
-        .escape = {1750, 1, 1, 0, 5000},
+        .full_heal = {100, -1, -1, 100, 600},
+        .escape = {1850, 1, 1, 0, 5000},
         .thumper = {200, 1, 1, 0, 1000},
         .maws = {400, 1, 1, 0, 1000},
     };
