@@ -12,7 +12,7 @@
 #define PLAYER_C_HEIGHT 26
 
 #define ARENA_WIDTH 950
-#define ARENA_HEIGHT 800
+#define ARENA_HEIGHT 750
 
 #define CRIT_HEALTH 10
 #define MIN_BOOST_SPEED 300
