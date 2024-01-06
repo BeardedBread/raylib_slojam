@@ -28,7 +28,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
     p_hitbox->hit_sound = WEAPON1_HIT_SFX;
 
     CHurtbox_t* p_hurtbox = add_component(p_ent, CHURTBOX_T);
-    p_hurtbox->size = size;
+    p_hurtbox->size = size * 2;
     p_hurtbox->src = DMGSRC_ENEMY;
     p_hurtbox->kb_mult = 0.5f;
     p_hurtbox->invuln_time = 0.0f;

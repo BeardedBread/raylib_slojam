@@ -215,7 +215,7 @@ void life_update_system(Scene_t* scene)
                 float value = 1.0; // always have 1
                 value += (100.0f - p_ent->size) / 8 + Vector2LengthSqr(p_ct->velocity) / 250000.0;
                 //Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, (int32_t)value);
-                Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, p_wallet->value);
+                Entity_t* money_ent = create_collectible(&scene->ent_manager, 6, p_wallet->value);
                 if (money_ent != NULL)
                 {
                     money_ent->position = p_ent->position;
@@ -763,7 +763,7 @@ void hitbox_update_system(Scene_t* scene)
                     if (p_ct != NULL)
                     {
                         float kb = 10 * p_hitbox->knockback * p_hurtbox->kb_mult;
-                        if (kb > 100) kb = 100;
+                        if (kb > 400) kb = 400;
 
                         p_ct->velocity = 
                         Vector2Add(
