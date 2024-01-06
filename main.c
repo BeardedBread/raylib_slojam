@@ -12,6 +12,12 @@
     EM_BOOL keyDownCallback(int eventType, const EmscriptenKeyboardEvent *event, void* userData) {
         return true; // Just preventDefault everything lol
     }
+    EM_BOOL mouseClickCallback(int eventType, const EmscriptenMouseEvent *mouseEvent, void *userData)
+    {
+        // Disable cursor centers the cursor, just ignore that
+        //DisableCursor();
+        emscripten_request_pointerlock("#canvas", 1);
+    }
 #endif
 
 EntityManager_t ent_manager = {0};
@@ -279,6 +285,7 @@ int main(void)
         puts("Setting emscripten main loop");
         emscripten_set_keypress_callback("#canvas", NULL, 1, keyDownCallback);
         emscripten_set_keydown_callback("#canvas", NULL, 1, keyDownCallback);
+        emscripten_set_click_callback("#canvas", NULL, 1, mouseClickCallback);
         emscripten_set_main_loop(update_loop, 0, 1);
     #else
     ambient_mus = LoadMusicStream("res/ambient.ogg");
