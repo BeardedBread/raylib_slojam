@@ -385,6 +385,8 @@ static void arena_render_func(Scene_t* scene)
 
         sc_map_foreach_value(&scene->ent_manager.entities, p_ent)
         {
+            if (p_ent->m_tag == UTIL_ENT_TAG) continue;
+
             CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
             Sprite_t* spr = NULL;
             if (p_cspr != NULL)

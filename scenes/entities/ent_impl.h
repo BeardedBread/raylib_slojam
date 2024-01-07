@@ -8,6 +8,7 @@ typedef enum EntityTag {
     PLAYER_ENT_TAG,
     ENEMY_ENT_TAG,
     COLLECT_ENT_TAG,
+    UTIL_ENT_TAG,
 } EntityTag_t;
 
 bool init_player_creation(Assets_t* assets);

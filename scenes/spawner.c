@@ -148,7 +148,7 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
 
 Entity_t* create_spawner(EntityManager_t* ent_manager)
 {
-    Entity_t* p_ent = add_entity(ent_manager, NO_ENT_TAG);
+    Entity_t* p_ent = add_entity(ent_manager, UTIL_ENT_TAG);
     if (p_ent == NULL) return NULL;
 
     CSpawner_t* p_spawner = add_component(p_ent, CSPAWNER_T);
