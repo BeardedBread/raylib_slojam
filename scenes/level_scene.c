@@ -129,9 +129,18 @@ static void level_scene_render_func(Scene_t* scene)
     draw_rec.height *= -1;
 
     Entity_t* player_ent = NULL;
-    sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], player_ent)
+    // Due to a quirk in the looping, player_ent will be given a value
+    // before the loop starts.
+    // However, the loop will terminate on an empty map as expected.
+    // Yet, the value is assigned even on an empty map
+    // Hence, need to check for size before looping for this case
+    if (sc_map_size_64v(&scene->ent_manager.entities_map[PLAYER_ENT_TAG]))
     {
-        break;
+        // Obtain the first player
+        sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], player_ent)
+        {
+            break;
+        }
     }
 
     Image stat_view = GenImageColor(
@@ -142,7 +151,7 @@ static void level_scene_render_func(Scene_t* scene)
         shop_scene->data.shop_rec.width, 180,
         (Color){0,0,0,255}
     );
-    if (player_ent != NULL && player_ent->m_alive)
+    if (player_ent != NULL)
     {
         CWeaponStore_t* p_weaponstore = get_component(player_ent, CWEAPONSTORE_T);
         CWeapon_t* p_weapon = get_component(player_ent, CWEAPON_T);
@@ -519,7 +528,7 @@ static void arena_render_func(Scene_t* scene)
                 sprintf(buf, "Completion Time: %u:%02u", data->survival_timer.minutes, data->survival_timer.seconds);
             }
 
-            DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (24 >> 1), 24, TEXT_COLOUR);
+            DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
             DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
             DrawText("Press Y to begin a new cycle", data->game_field_size.x / 8 , data->game_field_size.y *9/10- (24 >> 1), 24, TEXT_COLOUR);
 
@@ -965,7 +974,7 @@ void restart_level_scene(LevelScene_t* scene)
         .health_upgrade = {200, 3, 3, 150, 1000},
         .full_heal = {100, -1, -1, 100, 600},
         .escape = {1850, 1, 1, 0, 5000},
-        .thumper = {200, 1, 1, 0, 1000},
+        .thumper = {300, 1, 1, 0, 1000},
         .maws = {400, 1, 1, 0, 1000},
     };
 
@@ -1015,12 +1024,13 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &invuln_update_system);
     sc_array_add(&scene->scene.systems, &money_collection_system);
     sc_array_add(&scene->scene.systems, &hitbox_update_system);
-    sc_array_add(&scene->scene.systems, &player_dir_reset_system);
+    //sc_array_add(&scene->scene.systems, &player_dir_reset_system);
 
     // Entities may be 'removed' here
     sc_array_add(&scene->scene.systems, &life_update_system);
 
     // Entities may be dead after here
+    sc_array_add(&scene->scene.systems, &stop_emitter_on_death_system);
     sc_array_add(&scene->scene.systems, &ai_update_system);
     sc_array_add(&scene->scene.systems, &homing_update_system);
     sc_array_add(&scene->scene.systems, &spawned_update_system);

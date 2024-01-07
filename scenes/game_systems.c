@@ -1004,6 +1004,25 @@ void update_player_emitter_system(Scene_t* scene)
     }
 }
 
+void stop_emitter_on_death_system(Scene_t* scene)
+{
+    CEmitter_t* p_emitter;
+    unsigned long ent_idx;
+    sc_map_foreach(&scene->ent_manager.component_map[CEMITTER_T], ent_idx, p_emitter)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+
+        if (!p_ent->m_alive)
+        {
+            if (is_emitter_handle_alive(&scene->part_sys, p_emitter->handle))
+            {
+                stop_emitter_handle(&scene->part_sys, p_emitter->handle);
+                unload_emitter_handle(&scene->part_sys, p_emitter->handle);
+            }
+        }
+    }
+}
+
 void simple_particle_system_update(Particle_t* part, void* user_data)
 {
     Scene_t* scene = (Scene_t*)user_data;
