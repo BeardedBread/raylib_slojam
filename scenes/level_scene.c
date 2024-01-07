@@ -199,8 +199,8 @@ static void level_scene_render_func(Scene_t* scene)
         static char mem_stats[256];
         //print_mempool_stats(mem_stats);
 
-        sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
-        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
+        //sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
+        //DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 
@@ -218,11 +218,11 @@ static void level_scene_render_func(Scene_t* scene)
             CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
             const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
             DrawRectangle(
-                data->game_rec.x - 5, data->game_rec.y - 36 - 10,
-                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 36, YELLOW
+                data->game_rec.x - 5, data->game_rec.y - 32 -  5 - 4,
+                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 32 + 3, YELLOW
             );
             DrawRectangle(
-                data->game_rec.x, data->game_rec.y - 36 - 5,
+                data->game_rec.x, data->game_rec.y - 32 - 5,
                 HEALTH_LENGTH - 10, 28, GRAY
             );
 
@@ -243,7 +243,7 @@ static void level_scene_render_func(Scene_t* scene)
                     health_flash = false;
                 }
                 DrawRectangle(
-                    data->game_rec.x, data->game_rec.y - 36 - 5,
+                    data->game_rec.x, data->game_rec.y - 32 - 5,
                     (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
                     (health_flash) ? WHITE : RED
                 );
