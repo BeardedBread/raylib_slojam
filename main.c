@@ -276,10 +276,12 @@ int main(void)
     change_scene(&engine, 0);
 
 #if !defined(PLATFORM_WEB)
-    DisableCursor();                    // Limit cursor to relative movement inside the window
+    //DisableCursor();                    // Limit cursor to relative movement inside the window
 #endif
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+
+    ambient_mus = LoadMusicStream("res/ambient.ogg");
 
     #if defined(PLATFORM_WEB)
         puts("Setting emscripten main loop");
@@ -288,7 +290,6 @@ int main(void)
         emscripten_set_click_callback("#canvas", NULL, 1, mouseClickCallback);
         emscripten_set_main_loop(update_loop, 0, 1);
     #else
-    ambient_mus = LoadMusicStream("res/ambient.ogg");
     while (!WindowShouldClose())
     {
         update_loop();
