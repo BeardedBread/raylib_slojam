@@ -211,10 +211,6 @@ void life_update_system(Scene_t* scene)
             //if (p_ent->m_tag == ENEMY_ENT_TAG)
             if (p_wallet != NULL)
             {
-                CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
-                float value = 1.0; // always have 1
-                value += (100.0f - p_ent->size) / 8 + Vector2LengthSqr(p_ct->velocity) / 250000.0;
-                //Entity_t* money_ent = create_collectible(&scene->ent_manager, 10, (int32_t)value);
                 Entity_t* money_ent = create_collectible(&scene->ent_manager, 6, p_wallet->value);
                 if (money_ent != NULL)
                 {
@@ -491,7 +487,6 @@ void global_external_forces_system(Scene_t* scene)
     unsigned long ent_idx;
     sc_map_foreach(&scene->ent_manager.component_map[CTRANSFORM_T], ent_idx, p_ctransform)
     {
-        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         // Friction
         p_ctransform->accel = Vector2Add(
             p_ctransform->accel,

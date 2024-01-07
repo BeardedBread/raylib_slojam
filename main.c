@@ -17,6 +17,7 @@
         // Disable cursor centers the cursor, just ignore that
         //DisableCursor();
         emscripten_request_pointerlock("#canvas", 1);
+        return true;
     }
 #endif
 
