@@ -685,6 +685,13 @@ static void game_over_check(Scene_t* scene)
             {
                 remove_entity(&scene->ent_manager, p_ent->m_id);
             }
+
+            CEmitter_t* p_emitter = get_component(p_ent, CEMITTER_T);
+            if (p_emitter != NULL && is_emitter_handle_alive(&scene->part_sys, p_emitter->handle))
+            {
+                stop_emitter_handle(&scene->part_sys, p_emitter->handle);
+                unload_emitter_handle(&scene->part_sys, p_emitter->handle);
+            }
         }
         update_entity_manager(&scene->ent_manager);
     }
