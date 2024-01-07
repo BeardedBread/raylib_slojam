@@ -504,6 +504,7 @@ static void arena_render_func(Scene_t* scene)
         if (data->game_state == GAME_STARTING)
         {
             DrawText("Void Particle", data->game_field_size.x / 4, data->game_field_size.y / 4 - (72 >> 1), 72, TEXT_COLOUR);
+            DrawText("by SadPumpkin", data->game_field_size.x / 4 + 300, data->game_field_size.y / 4 + 36 + 5 - (20 >> 1), 20, TEXT_COLOUR);
 
             Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
             draw_sprite(spr, 0, (Vector2){
@@ -532,6 +533,7 @@ static void arena_render_func(Scene_t* scene)
 
             DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
             DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
+            DrawText("Thank you for playing!", data->game_field_size.x / 8 , data->game_field_size.y *8/10- (24 >> 1), 24, TEXT_COLOUR);
             DrawText("Press Y to begin a new cycle", data->game_field_size.x / 8 , data->game_field_size.y *9/10- (24 >> 1), 24, TEXT_COLOUR);
 
             if (data->endeffect_timer < 2000)
@@ -1083,9 +1085,9 @@ void init_level_scene(LevelScene_t* scene)
     scene->data.credits_view = LoadRenderTexture(350, STATS_HEIGHT);
     BeginTextureMode(scene->data.credits_view);
         ClearBackground(BG_COLOUR);
-        DrawText("Made with raylib by raysan5", 0, 0, 18, WHITE);
+        DrawText("Game made with raylib", 0, 0, 18, WHITE);
         DrawText("Art by me, made with Krita", 0, 23, 18, WHITE);
-        DrawText("SFX by me, made with rfxgen by raysan5", 0, 46, 18, WHITE);
+        DrawText("SFX by me, made with rfxgen", 0, 46, 18, WHITE);
         DrawText("Underwater Ambient Loop from Pixabay", 0, 69, 18, WHITE);
         DrawText("Audio Edited with Tenacity", 0, 92, 18, WHITE);
     EndTextureMode();
