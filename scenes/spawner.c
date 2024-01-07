@@ -97,7 +97,7 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
                 + RANK_DATA[spwn_data->rank].spawn_time_range[1] * (float)rand() / (float)RAND_MAX;
 
         float value = 1.0; // always have 1
-        value += (120.0f - enemy_sz) / 8 + speed / 200.0;
+        value += enemy_sz / 3 + speed / 200.0;
         value *= RANK_DATA[spwn_data->rank].drop_modifier;
         Entity_t* p_ent = create_enemy(&lvl_scene->scene.ent_manager, enemy_sz, (int32_t)value);
         CSpawn_t* p_spwn = add_component(p_ent, CSPAWNED_T);

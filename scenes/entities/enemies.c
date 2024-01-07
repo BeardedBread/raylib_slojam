@@ -21,7 +21,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
 
     CHitBoxes_t* p_hitbox = add_component(p_ent, CHITBOXES_T);
     p_hitbox->size = size;
-    p_hitbox->atk = size / 4.0f;
+    p_hitbox->atk = size / 3.0f;
     p_hitbox->knockback = size;
     p_hitbox->dmg_type = DMG_MELEE;
     p_hitbox->src = DMGSRC_ENEMY;
@@ -34,8 +34,8 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
     p_hurtbox->invuln_time = 0.0f;
 
     CLifeTimer_t* p_life = add_component(p_ent, CLIFETIMER_T);
-    p_life->current_life = 4;
-    p_life->max_life = 4;
+    p_life->max_life = size / 3.5f;
+    p_life->current_life = p_life->max_life;
 
     CContainer_t* p_container = add_component(p_ent, CCONTAINER_T);
     p_container->item = CONTAINER_ENEMY;
@@ -85,8 +85,8 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
         50 * cos(angle), 50 * sin(angle)
     };
     CLifeTimer_t* p_life = get_component(p_finalenemy, CLIFETIMER_T);
-    p_life->current_life = 500;
-    p_life->max_life = 500;
+    p_life->current_life = 400;
+    p_life->max_life = 400;
     CHurtbox_t* p_hurtbox = get_component(p_finalenemy, CHURTBOX_T);
     p_hurtbox->kb_mult = 3.0f;
     CAttract_t* p_attract = add_component(p_finalenemy, CATTRACTOR_T);
