@@ -743,6 +743,11 @@ void hitbox_update_system(Scene_t* scene)
                     if (p_other_life != NULL)
                     {
                         int16_t prev_life = p_other_life->current_life;
+                        if (p_other_life->current_life <= 0)
+                        {
+                            // Already dead, move on
+                            break;
+                        }
                         p_other_life->current_life -= p_hitbox->atk;
                         if (p_other_ent->m_tag == PLAYER_ENT_TAG)
                         {
