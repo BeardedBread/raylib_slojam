@@ -88,7 +88,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 new_weapon = 3;
             break;
             case ACTION_PAUSE:
-                if (!pressed && data->game_state == GAME_PLAYING)
+                if (!pressed)
                 {
                     play_sfx(scene->engine, PAUSE_SFX, true);
                     scene->time_scale = 0.0f;
@@ -514,7 +514,9 @@ static void arena_render_func(Scene_t* scene)
             draw_sprite(spr, 0, (Vector2){
                 data->game_field_size.x / 4,data->game_field_size.y / 2},
             0.0f, false);
-            DrawText("Press Shoot to Begin", data->game_field_size.x / 4 + 50, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
+            DrawText("Objective: Obtain the Void Particle from The Store", 25, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
+            DrawText("Move around and get used to the controls", 25, data->game_field_size.y *3/ 4  + 15 + (30 >> 1), 30, TEXT_COLOUR);
+            DrawText("Once you are ready, SHOOT to Begin", 25, data->game_field_size.y *3/ 4  + 45 + (30 >> 1), 30, TEXT_COLOUR);
         }
         else if (data->game_state == GAME_ENDED)
         {
@@ -648,6 +650,9 @@ void shop_render_func(Scene_t* scene)
                 data->ui.desc_box.y +(data->ui.desc_box.height / 2) - (UPGRADE_FONT_SIZE >> 1),
                 UPGRADE_FONT_SIZE, TEXT_COLOUR
             );
+            DrawText("Q/P to resume", data->ui.desc_box.x + 10,
+                data->ui.desc_box.y + data->ui.desc_box.height + 10,
+                24, TEXT_COLOUR);
         }
         else
         {
@@ -655,8 +660,8 @@ void shop_render_func(Scene_t* scene)
                 .x = 5,
                 .y = data->shop_rec.height / 2
             };
-            DrawText("Press Q or P", text_pos.x, text_pos.y, 36, TEXT_COLOUR);
-            DrawText("to Pause", text_pos.x, text_pos.y + 36 + 2, 36, TEXT_COLOUR);
+            DrawText("Press Q or P", text_pos.x, text_pos.y, 30, TEXT_COLOUR);
+            DrawText("to enter The Store", text_pos.x, text_pos.y + 30 + 2, 30, TEXT_COLOUR);
         }
 
     EndTextureMode();
@@ -885,7 +890,7 @@ static void generate_shop_UI(ShopSceneData* data)
     Scene_t* scene = (Scene_t*)CONTAINER_OF(data, ShopScene_t, data);
     const int padding = 5;
     const int DOT_SPACING = 40;
-    const int DESCRPTION_BOX_HEIGHT = 20;
+    const int DESCRPTION_BOX_HEIGHT = 50;
     const int width = data->shop_rec.width - padding * 2;
     const int height = data->shop_rec.height - padding * 2;
     const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 6;
@@ -960,7 +965,7 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.desc_box.x = padding;
     data->ui.desc_box.y = pos.y;
     data->ui.desc_box.width = width;
-    data->ui.desc_box.height = height - pos.y;
+    data->ui.desc_box.height = DESCRPTION_BOX_HEIGHT * 2;
 }
 
 void restart_level_scene(LevelScene_t* scene)
