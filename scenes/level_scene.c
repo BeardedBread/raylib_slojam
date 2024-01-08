@@ -160,6 +160,8 @@ static void level_scene_render_func(Scene_t* scene)
         const int icon_height = data->weapon_icons.height / 3;
         for (uint8_t i = 0; i < N_WEAPONS; ++i)
         {
+            if (!p_weaponstore->unlocked[i]) continue;
+
             ImageDraw(
                 &stat_view, data->weapon_icons,
                 (Rectangle){0, icon_height*i, icon_width, icon_height},
