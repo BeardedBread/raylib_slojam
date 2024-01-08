@@ -16,6 +16,7 @@ typedef enum SFXTag {
     ENEMY_DEAD_SFX,
     COLLECT_SFX,
     BUYING_SFX,
+    NOPE_SFX,
     PAUSE_SFX,
     RANKUP_SFX,
     ENDING_SFX,

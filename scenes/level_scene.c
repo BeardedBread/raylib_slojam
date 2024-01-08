@@ -538,7 +538,7 @@ static void arena_render_func(Scene_t* scene)
             DrawText(game_over_str, data->game_field_size.x / 8 , data->game_field_size.y / 2- (36 >> 1), 36, TEXT_COLOUR);
             DrawText(buf, data->game_field_size.x / 8 , data->game_field_size.y *3/4- (24 >> 1), 24, TEXT_COLOUR);
             DrawText("Thank you for playing!", data->game_field_size.x / 8 , data->game_field_size.y *8/10- (24 >> 1), 24, TEXT_COLOUR);
-            DrawText("Press Y to begin a new cycle", data->game_field_size.x / 8 , data->game_field_size.y *9/10- (24 >> 1), 24, TEXT_COLOUR);
+            DrawText("Press Y to begin a new cycle", data->game_field_size.x / 8 , data->game_field_size.y *9/10- (32 >> 1), 32, TEXT_COLOUR);
 
             if (data->endeffect_timer < 2000)
             {
@@ -856,9 +856,17 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                         data->ui.upgrades[i].item->cost =  data->ui.upgrades[i].item->cost_cap;
                                     }
                                 }
+                                else
+                                {
+                                    play_sfx(scene->engine, NOPE_SFX, true);
+                                }
 
-                                break;
                             }
+                            else
+                            {
+                                play_sfx(scene->engine, NOPE_SFX, true);
+                            }
+                            break;
                         }
                     }
                     break;

@@ -227,6 +227,9 @@ static int load_all_assets(Assets_t* assets)
     add_sound(assets, "snd_buy", "res/buy.ogg");
     load_sfx(&engine, "snd_buy", BUYING_SFX);
 
+    add_sound(assets, "snd_no", "res/nope.ogg");
+    load_sfx(&engine, "snd_no", NOPE_SFX);
+
     add_sound(assets, "snd_warn", "res/warn.ogg");
     load_sfx(&engine, "snd_warn", PLAYER_WARN_SFX);
 
