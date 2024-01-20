@@ -104,6 +104,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
         {
             if (new_weapon < p_weaponstore->n_weapons && p_weaponstore->unlocked[new_weapon])
             {
+                p_weapon->hold_timer = 0.0f;
                 p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
                 *p_weapon = p_weaponstore->weapons[new_weapon];
                 CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
@@ -143,12 +144,13 @@ static void level_scene_render_func(Scene_t* scene)
         }
     }
 
+    const int total_icons_width = (96 + 25) * 4;
     Image stat_view = GenImageColor(
-        shop_scene->data.shop_rec.width, 180,
+        total_icons_width, 180,
         BG_COLOUR
     );
     Image mask = GenImageColor(
-        shop_scene->data.shop_rec.width, 180,
+        total_icons_width, 180,
         (Color){0,0,0,255}
     );
     if (player_ent != NULL)
@@ -157,8 +159,8 @@ static void level_scene_render_func(Scene_t* scene)
         CWeapon_t* p_weapon = get_component(player_ent, CWEAPON_T);
 
         const int icon_width = data->weapon_icons.width;
-        const int icon_height = data->weapon_icons.height / 3;
-        for (uint8_t i = 0; i < N_WEAPONS; ++i)
+        const int icon_height = data->weapon_icons.height / 4;
+        for (uint8_t i = 0; i < p_weaponstore->n_weapons; ++i)
         {
             if (!p_weaponstore->unlocked[i]) continue;
 
@@ -403,6 +405,19 @@ static void arena_render_func(Scene_t* scene)
                 }
             }
 
+            CHitBoxes_t* p_hitbox = get_component(p_ent, CHITBOXES_T);
+            if (p_hitbox != NULL && p_hitbox->type == HITBOX_RAY)
+            {
+                DrawLineV(
+                    p_ent->position,
+                    Vector2Add(
+                        p_ent->position,
+                        Vector2Scale(p_hitbox->dir, 10000)
+                    ),
+                    WHITE
+                );
+            }
+
             Color c = BLUE;
             if (p_ent->m_tag == ENEMY_ENT_TAG)
             {
@@ -460,7 +475,7 @@ static void arena_render_func(Scene_t* scene)
                 Vector2 look_dir = {0};
                 if (p_pstate != NULL)
                 {
-                    look_dir = Vector2Scale(p_pstate->aim_dir, 64);
+                    look_dir = p_pstate->aim_dir;
                 }
 
                 for (uint8_t i = 0; i < n_pos; i++)
@@ -493,10 +508,34 @@ static void arena_render_func(Scene_t* scene)
                             draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
                         }
                     }
+
+                    CWeapon_t* p_weapon = get_component(p_ent, CWEAPON_T);
+                    if (p_weapon != NULL)
+                    {
+                        if (p_weapon->special_prop & 0x4 && p_weapon->hold_timer > 0)
+                        {
+                            float real_spread_range = p_weapon->spread_range * (1 - p_weapon->hold_timer/0.8f);
+                            if (real_spread_range < 0) real_spread_range = 0;
+                            Vector2 spread_p = Vector2Rotate(look_dir, -real_spread_range);
+                            DrawLineEx(
+                                spr_positions[i],
+                                Vector2Add(spr_positions[i], Vector2Scale(spread_p, 6000)),
+                                2, (Color){255,255,255,32}
+                            );
+                            spread_p = Vector2Rotate(look_dir, real_spread_range);
+                            DrawLineEx(
+                                spr_positions[i],
+                                Vector2Add(spr_positions[i], Vector2Scale(spread_p, 6000)),
+                                2, (Color){255,255,255,32}
+                            );
+                        }
+                    }
+
                     DrawLineEx(
                         spr_positions[i],
-                        Vector2Add(spr_positions[i], look_dir),
-                        2, (Color){255,255,255,64});
+                        Vector2Add(spr_positions[i], Vector2Scale(look_dir, 64)),
+                        2, (Color){255,255,255,64}
+                    );
                 }
             }
         }
@@ -1069,9 +1108,11 @@ void init_level_scene(LevelScene_t* scene)
     sc_map_put_64(&scene->scene.action_map, KEY_A, ACTION_SELECT1);
     sc_map_put_64(&scene->scene.action_map, KEY_S, ACTION_SELECT2);
     sc_map_put_64(&scene->scene.action_map, KEY_D, ACTION_SELECT3);
+    sc_map_put_64(&scene->scene.action_map, KEY_F, ACTION_SELECT4);
     sc_map_put_64(&scene->scene.action_map, KEY_J, ACTION_SELECT1);
     sc_map_put_64(&scene->scene.action_map, KEY_K, ACTION_SELECT2);
     sc_map_put_64(&scene->scene.action_map, KEY_L, ACTION_SELECT3);
+    sc_map_put_64(&scene->scene.action_map, KEY_SEMICOLON, ACTION_SELECT4);
     sc_map_put_64(&scene->scene.action_map, KEY_SPACE, ACTION_BOOST);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_RIGHT, ACTION_MOVE);
     sc_map_put_64(&scene->scene.action_map, MOUSE_BUTTON_LEFT, ACTION_SHOOT);
@@ -1099,8 +1140,9 @@ void init_level_scene(LevelScene_t* scene)
 
     generate_shop_UI(&shop_scene->data);
 
+    const int total_icons_width = (96 + 25) * 4;
     scene->data.stat_view = LoadRenderTexture(
-        shop_scene->data.shop_rec.width, 180
+        total_icons_width, 180
     );
     restart_level_scene(scene);
 

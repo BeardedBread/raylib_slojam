@@ -244,7 +244,8 @@ void life_update_system(Scene_t* scene)
             p_life->poison += p_life->poison_value * scene->delta_time;
             if (p_life->poison > 100.0f)
             {
-                p_life->current_life--;
+                // Poison is insta-kill
+                p_life->current_life = 0;
                 p_life->poison = 0.0f;
             }
         }
@@ -266,6 +267,13 @@ void weapon_cooldown_system(Scene_t* scene)
 
 static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float angle, float speed)
 {
+    if (p_weapon->special_prop & 0x4)
+    {
+        float real_spread_range = p_weapon->spread_range * (1 - p_weapon->hold_timer * speed/ 150.0f);
+        if (real_spread_range < 0.0f) real_spread_range = 0.0f;
+        angle += -real_spread_range + 2*real_spread_range * (float)rand() / (float)RAND_MAX;
+    }
+
     CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
     bullet_ct->velocity = (Vector2){
         speed * cosf(angle),
@@ -282,10 +290,18 @@ static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float 
     CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
     bullet_life->poison_value = p_weapon->bullet_lifetime;
 
-    if (p_weapon->homing)
+    if (p_weapon->special_prop & 0x1)
     {
         //bullet_life->poison_value = 0;
         bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
+    }
+
+    if (p_weapon->special_prop & 0x2)
+    {
+        bullet_hitbox->type = HITBOX_RAY;
+        bullet_life->max_life = 4096;
+        bullet_life->current_life = 4096;
+        //bullet_life->poison_value = 0;
     }
 
     CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
@@ -409,9 +425,24 @@ void player_movement_input_system(Scene_t* scene)
         if (p_pstate->shoot > 0)
         {
             CWeapon_t* p_weapon = get_component(p_player, CWEAPON_T);
+            if (p_weapon == NULL) goto shoot_end;
+            if (p_weapon->cooldown_timer > 0) goto shoot_end;
+            if (p_weapon->special_prop & 0x2)
+            {
+                if (p_weapon->hold_timer < 3.0f)
+                {
+                    p_weapon->hold_timer += scene->delta_time;
+                }
+                if (p_pstate->shoot != 0b10) goto shoot_end;
+            }
+
             float speed = p_weapon->proj_speed * (1 + 0.1f * p_weapon->modifiers[1]);
             if (p_weapon != NULL && p_weapon->cooldown_timer <= 0)
             {
+                if (p_weapon->special_prop & 0x2)
+                {
+                    data->screenshake_time = 0.1f;
+                }
                 uint8_t bullets = p_weapon->n_bullets;
                 float angle = atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x);
                 float angle_increment = 0.0f;
@@ -422,7 +453,7 @@ void player_movement_input_system(Scene_t* scene)
 
                     update_bullet(p_bullet, p_weapon, angle, speed);
 
-                    if (p_weapon->homing)
+                    if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
@@ -446,7 +477,7 @@ void player_movement_input_system(Scene_t* scene)
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
                     p_bullet->position = p_player->position;
                     update_bullet(p_bullet, p_weapon, angle, speed);
-                    if (p_weapon->homing)
+                    if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
@@ -456,7 +487,7 @@ void player_movement_input_system(Scene_t* scene)
                     p_bullet = create_bullet(&scene->ent_manager);
                     p_bullet->position = p_player->position;
                     update_bullet(p_bullet, p_weapon, angle + 2 * angle_increment, speed);
-                    if (p_weapon->homing)
+                    if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
@@ -471,8 +502,11 @@ void player_movement_input_system(Scene_t* scene)
                 play_sfx(scene->engine, WEAPON1_FIRE_SFX + p_weapon->weapon_idx, true);
             }
 
-            p_pstate->shoot = 0;
+            p_weapon->hold_timer = 0.0f;
         }
+shoot_end:
+        p_pstate->shoot <<= 1;
+        p_pstate->shoot &= 0x3;
     }
 }
 
@@ -685,6 +719,7 @@ void hitbox_update_system(Scene_t* scene)
             uint8_t n_pos = 1;
             target_positions[0] = p_other_ent->position;
 
+            // Account for wraparound hitboxes
             CTransform_t* p_ct = get_component(p_other_ent, CTRANSFORM_T);
             if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)
             {
@@ -720,10 +755,26 @@ void hitbox_update_system(Scene_t* scene)
 
             for (uint8_t i = 0; i < n_pos; i++)
             {
-                float dist = Vector2Distance(p_ent->position, target_positions[i]);
+                float dist = 0.0f;
+                if (p_hitbox->type == HITBOX_RAY)
+                {
+                    Vector2 dir_norm = Vector2Normalize(p_hitbox->dir);
+                    float t = Vector2DotProduct(
+                        Vector2Subtract(p_other_ent->position, p_ent->position),
+                        dir_norm
+                    );
+                    if (t < 0) t = 0;
+
+                    Vector2 p = Vector2Add(p_ent->position, Vector2Scale(dir_norm, t));
+                    dist = Vector2Distance(p, target_positions[i]);
+                }
+                else
+                {
+                    dist = Vector2Distance(p_ent->position, target_positions[i]);
+                }
 
                 // On hit
-                if (dist < p_ent->size + p_other_ent->size)
+                if (dist < p_hitbox->size + p_hurtbox->size)
                 {
                     Vector2 attack_dir = Vector2Subtract(target_positions[i], p_ent->position);
                     p_hurtbox->attack_dir = (Vector2){0,0};
@@ -774,8 +825,8 @@ void hitbox_update_system(Scene_t* scene)
                         .spr = NULL,
                         .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
                         .position = {
-                            .x = p_ent->position.x,
-                            .y = p_ent->position.y,
+                            .x = p_other_ent->position.x,
+                            .y = p_other_ent->position.y,
                         },
                         .angle_offset = atan2f(attack_dir.y, attack_dir.x) * 180 / PI - 180,
                         .part_type = PARTICLE_SQUARE,

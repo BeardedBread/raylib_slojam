@@ -1,26 +1,32 @@
 #include "EC.h"
 #include "ent_impl.h"
 
-static Sprite_t* player_sprite_map[3] = {0};
+static Sprite_t* player_sprite_map[4] = {0};
 
-CWeapon_t all_weapons[3] = {
+CWeapon_t all_weapons[4] = {
     // Pistol
     {
         .base_dmg = 8, .proj_speed = 800, .fire_rate = 4.5f, .bullet_kb = 3.3f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 0, .weapon_idx = 0, .homing = false,
+        .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
     },
     // Shotgun
     {
         .base_dmg = 5, .proj_speed = 1100, .fire_rate = 1.3f, .bullet_kb = 2.1f,
         .cooldown_timer = 0, .spread_range = 7*PI/180, .n_bullets = 7,
-        .bullet_lifetime = 7.6f * 60.0f, .weapon_idx = 1, .homing = false,
+        .bullet_lifetime = 7.6f * 60.0f, .weapon_idx = 1, .special_prop = 0x0,
     },
     // Homing Rockets
     {
         .base_dmg = 12, .proj_speed = 500, .fire_rate = 2.6f, .bullet_kb = 4.2f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 3.0f, .weapon_idx = 2, .homing = true,
+        .bullet_lifetime = 3.0f, .weapon_idx = 2, .special_prop = 0x1,
+    },
+    // Laser
+    {
+        .base_dmg = 20, .proj_speed = 200, .fire_rate = 0.8f, .bullet_kb = 0.0f,
+        .cooldown_timer = 0, .spread_range = 30*PI/180, .n_bullets = 1,
+        .bullet_lifetime = 50.0f * 60.0f, .weapon_idx = 3, .special_prop = 0x2 | 0x4,
     },
 };
 
@@ -47,11 +53,12 @@ Entity_t* create_player(EntityManager_t* ent_manager)
 
     CWeaponStore_t* p_weaponstore = add_component(p_ent, CWEAPONSTORE_T);
     memcpy(p_weaponstore->weapons, all_weapons, sizeof(all_weapons));
-    p_weaponstore->n_weapons = 3;
+    p_weaponstore->n_weapons = 4;
     p_weaponstore->unlocked[0] = true;
     p_weaponstore->unlocked[1] = false;
     p_weaponstore->unlocked[2] = false;
-    for (uint8_t i = 0; i < 3; ++i)
+    p_weaponstore->unlocked[3] = true;
+    for (uint8_t i = 0; i < 4; ++i)
     {
         p_weaponstore->weapons[i].modifiers = p_weaponstore->modifier;
     }
@@ -69,8 +76,8 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_magnet->accel = 1500.0f;
     
     add_component(p_ent, CPLAYERSTATE_T);
-    //CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
-    //p_pstate->collected = 100000;
+    CPlayerState_t* p_pstate = add_component(p_ent, CPLAYERSTATE_T);
+    p_pstate->collected = 100000;
 
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = player_sprite_map;
@@ -85,6 +92,7 @@ bool init_player_creation(Assets_t* assets)
 {
     Sprite_t* spr = get_sprite(assets, "plr_wep1");
     player_sprite_map[0] = spr;
+    player_sprite_map[3]= spr;
 
     spr = get_sprite(assets, "plr_wep2");
     player_sprite_map[1]= spr;

@@ -115,12 +115,13 @@ typedef struct _CWeapon {
     float proj_speed;
     float fire_rate;
     float cooldown_timer;
+    float hold_timer;
     float spread_range;
     float bullet_lifetime;
     float bullet_kb;
     uint8_t n_bullets;
     uint8_t weapon_idx;
-    bool homing;
+    uint8_t special_prop;
     const uint8_t* modifiers;
 } CWeapon_t;
 
@@ -131,17 +132,25 @@ typedef struct _CWeaponStore {
     uint8_t modifier[8];
 } CWeaponStore_t;
 
+typedef enum HitBoxType {
+    HITBOX_CIRCLE = 0, // Circular hitbox
+    HITBOX_RAY, //Infinite range ray
+} HitBoxType_t;
+
 typedef struct _CHitBoxes_t {
     Vector2 offset;
+    Vector2 dir;
     float size;
     float knockback;
     uint8_t atk;
     bool one_hit;
+    HitBoxType_t type;
     DamageType dmg_type;
     DamageSource src;
     unsigned int hit_sound;
 } CHitBoxes_t;
 
+// All hurtbox are circular
 typedef struct _CHurtbox_t {
     Vector2 offset;
     float size;
