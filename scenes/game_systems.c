@@ -264,6 +264,35 @@ void weapon_cooldown_system(Scene_t* scene)
     }
 }
 
+static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float angle, float speed)
+{
+    CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+    bullet_ct->velocity = (Vector2){
+        speed * cosf(angle),
+        speed * sinf(angle),
+    };
+    bullet_ct->velocity_cap = speed * 2;
+    CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+    bullet_hitbox->atk = p_weapon->base_dmg * (1 + p_weapon->modifiers[2] * 0.2);
+    bullet_hitbox->src = DMGSRC_PLAYER;
+    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
+    bullet_hitbox->knockback = p_weapon->bullet_kb;
+    bullet_hitbox->dir = Vector2Normalize(bullet_ct->velocity);
+
+    CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
+    bullet_life->poison_value = p_weapon->bullet_lifetime;
+
+    if (p_weapon->homing)
+    {
+        //bullet_life->poison_value = 0;
+        bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
+    }
+
+    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
+    p_cspr->current_idx = p_weapon->weapon_idx;
+    p_cspr->rotation = angle * 180 / PI;
+}
+
 void player_movement_input_system(Scene_t* scene)
 {
     LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
@@ -389,31 +418,16 @@ void player_movement_input_system(Scene_t* scene)
                 if (p_weapon->n_bullets % 2 == 1)
                 {
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
-                    CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-                    bullet_ct->velocity = Vector2Scale(p_pstate->aim_dir, speed);
-                    bullet_ct->velocity_cap = speed * 2;
                     p_bullet->position = p_player->position;
-                    CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
-                    bullet_hitbox->atk = p_weapon->base_dmg * (1 + p_weapon->modifiers[2] * 0.2);
-                    bullet_hitbox->src = DMGSRC_PLAYER;
-                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
-                    bullet_hitbox->knockback = p_weapon->bullet_kb;
 
-                    CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
-                    bullet_life->poison_value = p_weapon->bullet_lifetime;
+                    update_bullet(p_bullet, p_weapon, angle, speed);
 
                     if (p_weapon->homing)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
                         p_homing->target_idx = target_idx;
-                        bullet_life->poison_value = 0;
-                        bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
                     }
-
-                    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
-                    p_cspr->current_idx = p_weapon->weapon_idx;
-                    p_cspr->rotation = angle * 180 / PI;
 
                     bullets--;
                     angle -= p_weapon->spread_range;
@@ -430,43 +444,24 @@ void player_movement_input_system(Scene_t* scene)
                 for (uint8_t i = 0; i < bullets; i++)
                 {
                     Entity_t* p_bullet = create_bullet(&scene->ent_manager);
-                    CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-                    bullet_ct->velocity = (Vector2){
-                        speed * cosf(angle),
-                        speed * sinf(angle),
-                    };
                     p_bullet->position = p_player->position;
-                    CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
-                    bullet_hitbox->atk = p_weapon->base_dmg;
-                    bullet_hitbox->src = DMGSRC_PLAYER;
-                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
-                    bullet_hitbox->knockback = p_weapon->bullet_kb;
-
-                    CLifeTimer_t* bullet_life = get_component(p_bullet, CLIFETIMER_T);
-                    bullet_life->poison_value = p_weapon->bullet_lifetime;
-
-                    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
-                    p_cspr->current_idx = p_weapon->weapon_idx;
-                    p_cspr->rotation = angle * 180 / PI;
+                    update_bullet(p_bullet, p_weapon, angle, speed);
+                    if (p_weapon->homing)
+                    {
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->target_idx = target_idx;
+                    }
 
                     p_bullet = create_bullet(&scene->ent_manager);
-                    bullet_ct = get_component(p_bullet, CTRANSFORM_T);
-                    bullet_ct->velocity = (Vector2){
-                        speed * cosf(angle + 2 * angle_increment),
-                        speed * sinf(angle + 2 * angle_increment),
-                    };
                     p_bullet->position = p_player->position;
-                    bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
-                    bullet_hitbox->atk = p_weapon->base_dmg;
-                    bullet_hitbox->src = DMGSRC_PLAYER;
-                    bullet_hitbox->hit_sound = WEAPON1_HIT_SFX + p_weapon->weapon_idx;
-
-                    bullet_life = get_component(p_bullet, CLIFETIMER_T);
-                    bullet_life->poison_value = p_weapon->bullet_lifetime;
-
-                    p_cspr = get_component(p_bullet, CSPRITE_T);
-                    p_cspr->current_idx = p_weapon->weapon_idx;
-                    p_cspr->rotation = (angle + 2 * angle_increment) * 180 / PI;
+                    update_bullet(p_bullet, p_weapon, angle + 2 * angle_increment, speed);
+                    if (p_weapon->homing)
+                    {
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->target_idx = target_idx;
+                    }
 
                     angle -= p_weapon->spread_range;
                     angle_increment += p_weapon->spread_range;
