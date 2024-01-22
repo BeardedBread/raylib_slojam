@@ -210,10 +210,10 @@ static void level_scene_render_func(Scene_t* scene)
 
 
         static char mem_stats[256];
-        //print_mempool_stats(mem_stats);
+        print_mempool_stats(mem_stats);
 
-        //sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
-        //DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
+        sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
+        DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 

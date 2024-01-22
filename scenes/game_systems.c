@@ -302,11 +302,14 @@ static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float 
         bullet_life->max_life = 4096;
         bullet_life->current_life = 4096;
         //bullet_life->poison_value = 0;
+        remove_component(p_bullet, CSPRITE_T);
     }
-
-    CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
-    p_cspr->current_idx = p_weapon->weapon_idx;
-    p_cspr->rotation = angle * 180 / PI;
+    else
+    {
+        CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
+        p_cspr->current_idx = p_weapon->weapon_idx;
+        p_cspr->rotation = angle * 180 / PI;
+    }
 }
 
 void player_movement_input_system(Scene_t* scene)
@@ -460,9 +463,34 @@ void player_movement_input_system(Scene_t* scene)
                         p_homing->target_idx = target_idx;
                     }
 
+                    if (p_weapon->weapon_idx == 3)
+                    {
+                        Entity_t* trail = add_entity(&scene->ent_manager, NO_ENT_TAG);
+                        trail->position = p_bullet->position;
+                        CTransform_t* trail_ct = add_component(trail, CTRANSFORM_T);
+                        trail_ct->velocity = Vector2Scale(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity, 12);
+                        trail_ct->velocity_cap = speed * 12;
+                        trail_ct->active = true;
+                        CEmitter_t* p_emitter = add_component(trail, CEMITTER_T);
+                        ParticleEmitter_t emitter = {
+                            .spr = NULL,
+                            .part_type = PARTICLE_LINE,
+                            .config = get_emitter_conf(&scene->engine->assets, "part_ltrail"),
+                            //.position = new_pos,
+                            .position = trail->position,
+                            .n_particles = 50,
+                            .user_data = scene,
+                            .update_func = &simple_particle_system_update,
+                            .emitter_update_func = NULL,
+                        };
+                        p_emitter->handle = play_particle_emitter(&scene->part_sys, &emitter);
+                        update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(trail_ct->velocity.y, trail_ct->velocity.x) *180/PI - 180);
+                    }
+
                     bullets--;
                     angle -= p_weapon->spread_range;
                     angle_increment = p_weapon->spread_range;
+
                 }
                 else
                 {
@@ -1013,7 +1041,6 @@ void update_player_emitter_system(Scene_t* scene)
     {
         Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         CEmitter_t* p_emitter = get_component(p_ent, CEMITTER_T);
-        Vector2 new_pos = Vector2Add(p_ent->position, p_emitter->offset);
 
         if (p_pstate->moving & 1)
         {
@@ -1040,7 +1067,6 @@ void update_player_emitter_system(Scene_t* scene)
             stop_emitter_handle(&scene->part_sys, p_emitter->handle);
             unload_emitter_handle(&scene->part_sys, p_emitter->handle);
         }
-        update_emitter_handle_position(&scene->part_sys, p_emitter->handle, new_pos);
         update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x) *180/PI - 180);
     }
 }
@@ -1060,6 +1086,11 @@ void stop_emitter_on_death_system(Scene_t* scene)
                 stop_emitter_handle(&scene->part_sys, p_emitter->handle);
                 unload_emitter_handle(&scene->part_sys, p_emitter->handle);
             }
+        }
+        else
+        {
+            Vector2 new_pos = Vector2Add(p_ent->position, p_emitter->offset);
+            update_emitter_handle_position(&scene->part_sys, p_emitter->handle, new_pos);
         }
     }
 }
