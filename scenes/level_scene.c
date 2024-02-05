@@ -210,7 +210,7 @@ static void level_scene_render_func(Scene_t* scene)
         );
 
 
-        static char mem_stats[256];
+        static char mem_stats[512];
         print_mempool_stats(mem_stats);
 
         sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
