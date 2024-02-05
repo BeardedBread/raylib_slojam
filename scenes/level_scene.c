@@ -28,6 +28,7 @@ static char* TEXT_DESCRIPTION[] = {
     "Void Particle",
     "Thumper",
     "Maws",
+    "Flux",
 };
 
 static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pressed)
@@ -630,7 +631,7 @@ void shop_render_func(Scene_t* scene)
         ClearBackground(BG_COLOUR);
         if (scene->state_bits & RENDER_BIT)
         {
-            for (uint8_t i = 0; i < 7; ++i)
+            for (uint8_t i = 0; i < N_UPGRADES; ++i)
             {
                 Rectangle box = data->ui.upgrades[i].button.box;
                 DrawRectangleRec(
@@ -880,6 +881,9 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                         case 6:
                                             p_weapons->unlocked[2] = true;
                                         break;
+                                        case 7:
+                                            p_weapons->unlocked[3] = true;
+                                        break;
                                         default:
                                         break;
                                     }
@@ -942,10 +946,10 @@ static void generate_shop_UI(ShopSceneData* data)
     const int DESCRPTION_BOX_HEIGHT = 50;
     const int width = data->shop_rec.width - padding * 2;
     const int height = data->shop_rec.height - padding * 2;
-    const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 6;
+    const int upgrade_height = (height - DESCRPTION_BOX_HEIGHT) / 7;
 
     Vector2 pos = {padding,padding};
-            // Stats Upgrades: Hardcoded to 3 upgrades lol
+    // Stats Upgrades: Hardcoded to 3 upgrades lol
     for (uint8_t i = 0; i < 3; ++i)
     {
         data->ui.upgrades[i].button.box.x = pos.x;
@@ -993,6 +997,16 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[6].show_dots = false;
     data->ui.upgrades[6].button.enabled = true;
 
+    pos.y += (upgrade_height > data->ui.icon_size) ? upgrade_height : data->ui.icon_size; 
+
+    data->ui.upgrades[7].button.box.x = (padding + (width >> 1)) >> 1;
+    data->ui.upgrades[7].button.box.y = pos.y;
+    data->ui.upgrades[7].button.box.width = data->ui.icon_size;
+    data->ui.upgrades[7].button.box.height = data->ui.icon_size;
+    data->ui.upgrades[7].dot_spacing = DOT_SPACING;
+    data->ui.upgrades[7].show_dots = false;
+    data->ui.upgrades[7].button.enabled = true;
+
     data->ui.upgrades[0].item = &data->store.firerate_upgrade;
     data->ui.upgrades[0].spr = get_sprite(&scene->engine->assets, "upg1_icon");
     data->ui.upgrades[1].item = &data->store.projspeed_upgrade;
@@ -1009,6 +1023,9 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[5].spr = get_sprite(&scene->engine->assets, "upg7_icon");
     data->ui.upgrades[6].item = &data->store.maws;
     data->ui.upgrades[6].spr = get_sprite(&scene->engine->assets, "upg8_icon");
+
+    data->ui.upgrades[7].item = &data->store.flux;
+    data->ui.upgrades[7].spr = get_sprite(&scene->engine->assets, "upg8_icon");
 
     pos.y += data->ui.icon_size + padding; 
     data->ui.desc_box.x = padding;
@@ -1041,9 +1058,10 @@ void restart_level_scene(LevelScene_t* scene)
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},
         .maws = {400, 1, 1, 0, 1000},
+        .flux = {700, 1, 1, 0, 2000},
     };
 
-    for (uint8_t i = 0; i < 7; ++i)
+    for (uint8_t i = 0; i < N_UPGRADES; ++i)
     {
         shop_scene->data.ui.upgrades[i].button.enabled = true;
     }
@@ -1131,8 +1149,8 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
-    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - STATS_HEIGHT);
-    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - STATS_HEIGHT};
+    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - 80);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - 80};
 
     shop_scene->data.ui.icon_size = 70;
     shop_scene->data.ui.dot_size = 10;

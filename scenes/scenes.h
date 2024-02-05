@@ -2,6 +2,7 @@
 #define SCENES_H
 #include "engine.h"
 #include "ent_impl.h"
+#include "constants.h"
 
 typedef struct UIButton {
     Rectangle box;
@@ -28,7 +29,7 @@ typedef struct UpgradeBox {
 } UpgradeBox;
 
 typedef struct ShopUI {
-    UpgradeBox upgrades[7];
+    UpgradeBox upgrades[N_UPGRADES];
     Rectangle desc_box;
     int icon_size;
     int dot_size;
@@ -46,6 +47,7 @@ typedef struct UpgradeStoreInventory
     StoreItem escape;
     StoreItem thumper;
     StoreItem maws;
+    StoreItem flux;
 } UpgradeStoreInventory;
 
 typedef struct ShopSceneData {

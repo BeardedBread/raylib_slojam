@@ -57,7 +57,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     p_weaponstore->unlocked[0] = true;
     p_weaponstore->unlocked[1] = false;
     p_weaponstore->unlocked[2] = false;
-    p_weaponstore->unlocked[3] = true;
+    p_weaponstore->unlocked[3] = false;
     for (uint8_t i = 0; i < 4; ++i)
     {
         p_weaponstore->weapons[i].modifiers = p_weaponstore->modifier;
