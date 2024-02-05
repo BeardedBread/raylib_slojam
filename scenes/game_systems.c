@@ -471,6 +471,10 @@ void player_movement_input_system(Scene_t* scene)
                         trail_ct->velocity = Vector2Scale(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity, 12);
                         trail_ct->velocity_cap = speed * 12;
                         trail_ct->active = true;
+
+                        // Knockback
+                        p_ctransform->velocity = Vector2Scale(Vector2Normalize(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity), -150);
+
                         CEmitter_t* p_emitter = add_component(trail, CEMITTER_T);
                         ParticleEmitter_t emitter = {
                             .spr = NULL,
