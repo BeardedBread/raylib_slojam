@@ -110,12 +110,11 @@ void homing_update_system(Scene_t* scene)
             Vector2Normalize(to_target)
         );
 
-        const float rocket_accel = 4000.0f;
         float eta =
-            -v_c / rocket_accel
+            -v_c / p_homing->homing_accl
             + sqrtf(
-                v_c * v_c / (rocket_accel * rocket_accel)
-                + 2 * Vector2Length(to_target) / rocket_accel
+                v_c * v_c / (p_homing->homing_accl * p_homing->homing_accl)
+                + 2 * Vector2Length(to_target) / p_homing->homing_accl
             )
         ;
 
@@ -124,7 +123,7 @@ void homing_update_system(Scene_t* scene)
         Vector2 to_predict = Vector2Subtract(predict_pos, self_pos);
         p_ct->accel = Vector2Scale(
             Vector2Normalize(to_predict),
-            rocket_accel
+            p_homing->homing_accl
         );
 
         CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
@@ -460,6 +459,7 @@ void player_movement_input_system(Scene_t* scene)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
                     }
 
@@ -509,6 +509,7 @@ void player_movement_input_system(Scene_t* scene)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
                     }
 
@@ -519,6 +520,7 @@ void player_movement_input_system(Scene_t* scene)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
+                        p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
                     }
 
