@@ -241,20 +241,21 @@ static void level_scene_render_func(Scene_t* scene)
             );
 
             {
-                static bool health_flash = false;
+                static uint8_t health_flash = 0;
+                static float flash_timing = 0.0f;
                 if (p_life->current_life <= CRIT_HEALTH)
                 {
-                    static float flash_timing = 0.0f;
                     flash_timing += scene->delta_time;
                     if (flash_timing >= 0.2f)
                     {
                         health_flash = !health_flash;
-                        flash_timing = 0.0f;
+                        flash_timing -= 0.2f;
                     }
                 }
                 else
                 {
                     health_flash = false;
+                    flash_timing = 0.0f;
                 }
                 DrawRectangle(
                     data->game_rec.x, data->game_rec.y - 32 - 5,
