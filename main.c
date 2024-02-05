@@ -225,6 +225,8 @@ static int load_all_assets(Assets_t* assets)
     load_sfx(&engine, "snd_thump", WEAPON2_FIRE_SFX);
     add_sound(assets, "snd_maws", "res/maws.ogg");
     load_sfx(&engine, "snd_maws", WEAPON3_FIRE_SFX);
+    add_sound(assets, "snd_maws", "res/laser.ogg");
+    load_sfx(&engine, "snd_maws", WEAPON4_FIRE_SFX);
     
     add_sound(assets, "snd_nailsh", "res/nail_hit.ogg");
     load_sfx(&engine, "snd_nailsh", WEAPON1_HIT_SFX);
