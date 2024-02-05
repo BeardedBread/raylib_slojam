@@ -514,7 +514,7 @@ static void arena_render_func(Scene_t* scene)
                     {
                         if (p_weapon->special_prop & 0x4 && p_weapon->hold_timer > 0)
                         {
-                            float real_spread_range = p_weapon->spread_range * (1 - p_weapon->hold_timer/0.8f);
+                            float real_spread_range = p_weapon->spread_range * (1 - p_weapon->hold_timer * p_weapon->proj_speed / 150.0f);
                             if (real_spread_range < 0) real_spread_range = 0;
                             Vector2 spread_p = Vector2Rotate(look_dir, -real_spread_range);
                             DrawLineEx(
