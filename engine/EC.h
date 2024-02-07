@@ -185,6 +185,7 @@ typedef struct SpawnerData
     float spawn_timer;
     float rank_timer;
     uint16_t spawned;
+    uint16_t custom_counter[4];
 } SpawnerData;
 
 typedef void (*spawner_func_t)(Entity_t* self, SpawnerData* data, void* scene_data);
@@ -230,6 +231,7 @@ typedef struct _CSprite_t {
     float rotation_speed; // Degree / s
     int elapsed;
     Vector2 offset;
+    Color colour;
 } CSprite_t;
 
 typedef uint16_t EmitterHandle;

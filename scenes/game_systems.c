@@ -964,7 +964,7 @@ void container_destroy_system(Scene_t* scene)
                         CSpawner_t* p_spawner = get_component(p_spwn->spawner, CSPAWNER_T);
                         if (p_spawner != NULL)
                         {
-                            p_spawner->child_spawn_logic(p_ent, &p_spawner->data, scene);
+                            p_spawner->child_spawn_logic(p_enemy, &p_spawner->data, scene);
                             CSpawn_t* new_spwn = add_component(p_enemy, CSPAWNED_T);
                             new_spwn->spawner = p_spwn->spawner;
                         }

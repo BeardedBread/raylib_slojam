@@ -197,7 +197,7 @@ Font* get_font(Assets_t* assets, const char* name)
     return NULL;
 }
 
-void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool flip_x)
+void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool flip_x, Color colour)
 {
     Rectangle rec = {
         spr->origin.x + spr->frame_size.x * frame_num,
@@ -217,11 +217,11 @@ void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool
         rec,
         dest,
         spr->anchor,
-        rotation, WHITE
+        rotation, colour
     );
 }
 
-void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, float scale)
+void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, float scale, Color colour)
 {
     Rectangle rec = {
         spr->origin.x + spr->frame_size.x * frame_num,
@@ -243,6 +243,6 @@ void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotatio
         rec,
         dest,
         anchor,
-        rotation, WHITE
+        rotation, colour
     );
 }

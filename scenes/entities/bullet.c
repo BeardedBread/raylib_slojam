@@ -26,6 +26,7 @@ Entity_t* create_bullet(EntityManager_t* ent_manager)
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = bullet_sprite_map;
     p_cspr->current_idx = 0;
+    p_cspr->colour = WHITE;
 
     return p_ent;
 }

@@ -39,7 +39,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
 
     CContainer_t* p_container = add_component(p_ent, CCONTAINER_T);
     p_container->item = CONTAINER_ENEMY;
-    p_container->num = 2;
+    p_container->num = (rand() % 2) ? 2 : 3; // 50/50
 
     if (value > 0)
     {
@@ -51,6 +51,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
     p_cspr->sprites = enemies_sprite_map;
     p_cspr->current_idx = 0;
     p_cspr->rotation_speed = -30 + 60 * (float)rand() / (float)RAND_MAX; 
+    p_cspr->colour = WHITE;
 
     return p_ent;
 }
@@ -97,6 +98,8 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
     CSprite_t* p_cspr = get_component(p_finalenemy, CSPRITE_T);
     p_cspr->sprites = boss_sprite_map;
     p_cspr->transition_func = boss_sprite_logic;
+    p_cspr->colour = WHITE;
+
     return p_finalenemy;
 }
 

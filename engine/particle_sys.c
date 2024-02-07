@@ -288,7 +288,7 @@ void draw_particle_system(ParticleSystem_t* system)
                     case PARTICLE_SPRITE:
                         if (emitter->spr != NULL)
                         {
-                            draw_sprite(emitter->spr, 0, part->position, part->rotation, false);
+                            draw_sprite(emitter->spr, 0, part->position, part->rotation, false, WHITE);
                         }
                     break;
                     case PARTICLE_LINE:

@@ -82,6 +82,7 @@ Entity_t* create_player(EntityManager_t* ent_manager)
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = player_sprite_map;
     p_cspr->current_idx = 0;
+    p_cspr->colour = WHITE;
 
     add_component(p_ent, CEMITTER_T);
 

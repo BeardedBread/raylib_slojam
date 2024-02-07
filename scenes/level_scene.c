@@ -312,7 +312,7 @@ static void level_scene_render_func(Scene_t* scene)
         );
         Vector2 raw_mouse_pos = GetMousePosition();
         Sprite_t* spr = get_sprite(&scene->engine->assets, "crosshair");
-        draw_sprite(spr, 0, raw_mouse_pos, 0.0f, false);
+        draw_sprite(spr, 0, raw_mouse_pos, 0.0f, false, WHITE);
     EndDrawing();
     UnloadImage(stat_view);
     UnloadImage(mask);
@@ -503,11 +503,11 @@ static void arena_render_func(Scene_t* scene)
                         Vector2 pos = Vector2Add(spr_positions[i], p_cspr->offset);
                         if (p_ent->m_tag == ENEMY_ENT_TAG)
                         {
-                            draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / spr->frame_size.x);
+                            draw_sprite_scaled(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_ent->size * 2 / spr->frame_size.x, p_cspr->colour);
                         }
                         else
                         {
-                            draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x);
+                            draw_sprite(spr, p_cspr->current_frame, pos, p_cspr->rotation, p_cspr->flip_x, p_cspr->colour);
                         }
                     }
 
@@ -552,11 +552,11 @@ static void arena_render_func(Scene_t* scene)
             Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
             draw_sprite(spr, 0, (Vector2){
                 data->game_field_size.x * 3 / 4,data->game_field_size.y  / 2},
-            0.0f, false);
+            0.0f, false, WHITE);
             spr = get_sprite(&scene->engine->assets, "kb_ctrl");
             draw_sprite(spr, 0, (Vector2){
                 data->game_field_size.x / 4,data->game_field_size.y / 2},
-            0.0f, false);
+            0.0f, false, WHITE);
             DrawText("Objective: Obtain the Void Particle from The Store", 25, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
             DrawText("Move around and get used to the controls", 25, data->game_field_size.y *3/ 4  + 15 + (30 >> 1), 30, TEXT_COLOUR);
             DrawText("Once you are ready, SHOOT to Begin", 25, data->game_field_size.y *3/ 4  + 45 + (30 >> 1), 30, TEXT_COLOUR);
@@ -659,7 +659,7 @@ void shop_render_func(Scene_t* scene)
                 {
                     draw_sprite(
                         data->ui.upgrades[i].spr,
-                        0, center, 0.0f, 0
+                        0, center, 0.0f, 0, WHITE
                     );
                 }
 

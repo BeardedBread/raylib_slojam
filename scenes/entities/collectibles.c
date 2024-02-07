@@ -51,6 +51,7 @@ Entity_t* create_end_item(EntityManager_t* ent_manager, float size)
     CSprite_t* p_cspr = add_component(p_ent, CSPRITE_T);
     p_cspr->sprites = collectible_sprites;
     p_cspr->current_idx = 0;
+    p_cspr->colour = WHITE;
 
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->poison_value = 0.0f; 
