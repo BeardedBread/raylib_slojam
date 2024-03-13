@@ -31,8 +31,8 @@ static GameEngine_t engine = {
     .assets = {0}
 };
 
-const int screenWidth = 1440;
-const int screenHeight = 900;
+const int screenWidth = 1600;
+const int screenHeight = 1200;
 const float DT = 1/60.0;
 const uint8_t MAX_STEPS = 10;
 

@@ -197,6 +197,7 @@ typedef struct _CSpawner_t {
 } CSpawner_t;
 
 typedef struct _CHoming_t {
+    unsigned long target_tag;
     unsigned long target_idx;
     float homing_accl;
     Vector2 target_pos;

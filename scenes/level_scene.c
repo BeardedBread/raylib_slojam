@@ -1080,8 +1080,8 @@ void restart_level_scene(LevelScene_t* scene)
 
 void init_level_scene(LevelScene_t* scene)
 {
-#define ARENA_START_X 100
-#define ARENA_START_Y 80
+#define ARENA_START_X 25
+#define ARENA_START_Y 70
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
 
@@ -1150,8 +1150,8 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.subscene->systems, &shop_render_func);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
-    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - 80);
-    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - 80};
+    shop_scene->data.shop_viewport = LoadRenderTexture(350, ARENA_HEIGHT - 200);
+    shop_scene->data.shop_rec = (Rectangle){0, 0, 350, ARENA_HEIGHT - 200};
 
     shop_scene->data.ui.icon_size = 70;
     shop_scene->data.ui.dot_size = 10;

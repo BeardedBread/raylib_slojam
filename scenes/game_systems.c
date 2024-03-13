@@ -8,14 +8,14 @@
 
 static void simple_particle_system_update(Particle_t* part, void* user_data);
 
-static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos)
+static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos, unsigned int target_tag)
 {
     Entity_t* p_target;
     float shortest_dist = 1e6;
     unsigned long target_idx = MAX_ENTITIES;
     sc_map_foreach_value(&scene->ent_manager.entities, p_target)
     {
-        if (p_target->m_tag != ENEMY_ENT_TAG) continue;
+        if (p_target->m_tag != target_tag) continue;
 
         float curr_dist = Vector2DistanceSqr(p_target->position, pos);
         if (curr_dist < shortest_dist)
@@ -85,7 +85,7 @@ void homing_update_system(Scene_t* scene)
         if (p_target == NULL || !p_target->m_alive)
         {
             // Re-target but don't update
-            unsigned long target_idx = find_closest_entity(scene, self_pos);
+            unsigned long target_idx = find_closest_entity(scene, self_pos, p_homing->target_tag);
             if (target_idx != MAX_ENTITIES)
             {
                 p_homing->target_idx = target_idx;
@@ -457,10 +457,11 @@ void player_movement_input_system(Scene_t* scene)
 
                     if (p_weapon->special_prop & 0x1)
                     {
-                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
                         p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
+                        p_homing->target_tag = ENEMY_ENT_TAG;
                     }
 
                     if (p_weapon->weapon_idx == 3)
@@ -511,10 +512,11 @@ void player_movement_input_system(Scene_t* scene)
                     update_bullet(p_bullet, p_weapon, angle, speed);
                     if (p_weapon->special_prop & 0x1)
                     {
-                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
                         p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
+                        p_homing->target_tag = ENEMY_ENT_TAG;
                     }
 
                     p_bullet = create_bullet(&scene->ent_manager);
@@ -522,10 +524,11 @@ void player_movement_input_system(Scene_t* scene)
                     update_bullet(p_bullet, p_weapon, angle + 2 * angle_increment, speed);
                     if (p_weapon->special_prop & 0x1)
                     {
-                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos);
+                        unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
                         CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
                         p_homing->homing_accl = 4000.0f;
                         p_homing->target_idx = target_idx;
+                        p_homing->target_tag = ENEMY_ENT_TAG;
                     }
 
                     angle -= p_weapon->spread_range;
