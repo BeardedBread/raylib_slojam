@@ -26,13 +26,24 @@ static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
     {50, {5,1}, {10,100,100,100}, {100,100,100}, 7, 1.0f, {{0,0},{0,0}}},
     {150, {4,1}, {0,100,100,100}, {70,100,100}, 12, 1.1f, {{0,0},{0,0}}},
     {250, {3,2}, {0,85,100,100}, {15,100,100}, 13, 1.2f, {{3,10},{0,0}}},
-    {400, {3,1}, {0,25,100,100}, {0,85,100}, 16, 1.4f, {{5,10}, {0,0}}},
-    {600, {3,1}, {0,15,80,100}, {10,65,100}, 18, 1.6f, {{7,15},{0,0}}},
-    {800, {2,2}, {0,0,90,100}, {0,80,100}, 20, 1.8f, {{10,18},{0,0}}},
-    {1000, {2,1}, {0,10,85,100}, {10,70,100}, 22, 2.1f, {{12,20},{0,0}}},
-    {2000, {2,1}, {0,0,70,100}, {10,50,100}, 24, 2.4f, {{14,25},{0,0}}},
+    {400, {3,1}, {0,25,100,100}, {0,85,100}, 16, 1.4f, {{5,10}, {0,5}}},
+    {600, {3,1}, {0,15,80,100}, {10,65,100}, 18, 1.6f, {{7,15},{0,10}}},
+    {800, {2,2}, {0,0,90,100}, {0,80,100}, 20, 1.8f, {{10,18},{0,15}}},
+    {1000, {2,1}, {0,10,85,100}, {10,70,100}, 22, 2.1f, {{12,20},{0,20}}},
+    {2000, {2,1}, {0,0,70,100}, {10,50,100}, 24, 2.4f, {{14,25},{0,25}}},
 };
 
+static inline void make_enemy_maws(Entity_t* p_ent)
+{
+    CHoming_t* p_homing = add_component(p_ent, CHOMING_T);
+    p_homing->homing_accl = 1500.0f;
+    p_homing->target_idx = MAX_ENTITIES;
+    p_homing->target_tag = PLAYER_ENT_TAG;
+
+    CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
+    p_life->current_life = 1;
+    p_life->max_life = 1;
+}
 static inline void make_enemy_attract(Entity_t* p_ent)
 {
     CAttract_t* p_attract = add_component(p_ent, CATTRACTOR_T);
@@ -55,6 +66,10 @@ void split_spawn_logic_func(Entity_t* new_ent, SpawnerData* data, void* scene)
     {
         make_enemy_attract(new_ent);
         data->custom_counter[0]++;
+    }
+    else if (GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[1].prob) // Flat percent
+    {
+        make_enemy_maws(new_ent);
     }
 }
 
