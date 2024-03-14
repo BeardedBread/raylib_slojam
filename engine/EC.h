@@ -53,7 +53,6 @@ typedef struct _CTransform_t {
 } CTransform_t;
 
 typedef struct _CPlayerState_t {
-    Vector2 player_dir;
     Vector2 aim_dir;
     uint8_t moving;
     uint8_t boosting;
@@ -174,7 +173,8 @@ typedef struct _CLifeTimer_t {
 // This is so bad
 typedef void (*decision_func_t)(Entity_t* self, void* data, void* scene_data);
 typedef struct _CAIFunction_t {
-    void* data;
+    unsigned long target_tag;
+    unsigned long target_idx;
     decision_func_t func;
 } CAIFunction_t;
 

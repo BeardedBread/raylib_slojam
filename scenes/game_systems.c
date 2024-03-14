@@ -27,7 +27,7 @@ static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos, uns
     return target_idx;
 }
 
-void ai_update_system(Scene_t* scene)
+void spawner_update_system(Scene_t* scene)
 {
     CSpawner_t* p_spawner;
     unsigned int ent_idx;
@@ -994,17 +994,6 @@ void container_destroy_system(Scene_t* scene)
             default:
             break;
         }
-    }
-}
-
-void player_dir_reset_system(Scene_t* scene)
-{
-    CPlayerState_t* p_pstate;
-    unsigned int ent_idx;
-    sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
-    {
-        p_pstate->player_dir.x = 0;
-        p_pstate->player_dir.y = 0;
     }
 }
 

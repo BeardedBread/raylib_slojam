@@ -49,24 +49,6 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
         uint8_t new_weapon = p_weapon->weapon_idx;
         switch(action)
         {
-            case ACTION_UP:
-                p_playerstate->player_dir.y = (pressed)? -1 : 0;
-            break;
-            case ACTION_DOWN:
-                p_playerstate->player_dir.y = (pressed)? 1 : 0;
-            break;
-            case ACTION_LEFT:
-                p_playerstate->player_dir.x = (pressed)? -1 : 0;
-            break;
-            case ACTION_RIGHT:
-                p_playerstate->player_dir.x = (pressed)? 1 : 0;
-            break;
-            case ACTION_MOVE:
-                p_playerstate->moving |= (pressed) ? 1 : 0;
-            break;
-            case ACTION_BOOST:
-                p_playerstate->boosting |= (pressed) ? 1 : 0;
-            break;
             case ACTION_SHOOT:
                 if (data->game_state == GAME_STARTING)
                 {
@@ -1047,6 +1029,8 @@ void restart_level_scene(LevelScene_t* scene)
     Entity_t* player = create_player(&scene->scene.ent_manager);
     player->position = Vector2Scale(scene->data.game_field_size, 0.5f);
     //create_spawner(&scene->scene.ent_manager);
+    Entity_t* ai_enemy = create_enemy(&scene->scene.ent_manager, 16, 1);
+    ai_enemy->position = Vector2Scale(scene->data.game_field_size, 0.25f);
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
@@ -1108,14 +1092,14 @@ void init_level_scene(LevelScene_t* scene)
     sc_array_add(&scene->scene.systems, &invuln_update_system);
     sc_array_add(&scene->scene.systems, &money_collection_system);
     sc_array_add(&scene->scene.systems, &hitbox_update_system);
-    //sc_array_add(&scene->scene.systems, &player_dir_reset_system);
 
     // Entities may be 'removed' here
     sc_array_add(&scene->scene.systems, &life_update_system);
 
     // Entities may be dead after here
+    // Systems at this point cannot further destroy more entities
     sc_array_add(&scene->scene.systems, &stop_emitter_on_death_system);
-    sc_array_add(&scene->scene.systems, &ai_update_system);
+    sc_array_add(&scene->scene.systems, &spawner_update_system);
     sc_array_add(&scene->scene.systems, &homing_update_system);
     sc_array_add(&scene->scene.systems, &spawned_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
