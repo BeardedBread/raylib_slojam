@@ -49,6 +49,12 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
         uint8_t new_weapon = p_weapon->weapon_idx;
         switch(action)
         {
+            case ACTION_MOVE:
+                p_playerstate->moving |= (pressed) ? 1 : 0;
+            break;
+            case ACTION_BOOST:
+                p_playerstate->boosting |= (pressed) ? 1 : 0;
+            break;
             case ACTION_SHOOT:
                 if (data->game_state == GAME_STARTING)
                 {
@@ -1017,6 +1023,41 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.desc_box.height = DESCRPTION_BOX_HEIGHT * 2;
 }
 
+static void test_ai_func(Entity_t* self, void* data)
+{
+    LevelScene_t* level_scene = (LevelScene_t*)data; 
+    CAIFunction_t* c_ai = get_component(self, CAIFUNC_T);
+    CTransform_t* p_ct = get_component(self, CTRANSFORM_T);
+    p_ct->accel = (Vector2){0,0};
+
+    Entity_t* target = get_entity(&level_scene->scene.ent_manager, c_ai->target_idx);
+
+    if (target == NULL) return;
+
+    CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
+    if (p_pstate == NULL) return;
+
+    Vector2 target_dir = Vector2Normalize(Vector2Subtract(self->position, target->position));
+    float dist_to_target = Vector2Distance(self->position, target->position);
+    Vector2 target_back = Vector2Add(target->position, Vector2Scale(p_pstate->aim_dir, -64));
+    float side_check = Vector2DotProduct(self->position, p_pstate->aim_dir);
+    Vector2 to_flank = Vector2Add(
+        Vector2Normalize(Vector2Subtract(self->position, target_back)),
+        Vector2Rotate(p_pstate->aim_dir, PI / 2 * (side_check > 0 ? 1: -1))
+    );
+
+    float mag = Vector2DotProduct(target_dir, p_pstate->aim_dir) + 1.0f;
+    p_ct->accel = Vector2Scale(Vector2Normalize(to_flank), mag*-300);
+
+    // Try to get away from player, decaying magnitude
+    mag = 400.0f / (1.0f + expf(-dist_to_target));
+    p_ct->accel = Vector2Add(
+        p_ct->accel,
+        Vector2Scale(target_dir, mag)
+    );
+
+}
+
 void restart_level_scene(LevelScene_t* scene)
 {
     Entity_t* p_ent;
@@ -1031,6 +1072,14 @@ void restart_level_scene(LevelScene_t* scene)
     //create_spawner(&scene->scene.ent_manager);
     Entity_t* ai_enemy = create_enemy(&scene->scene.ent_manager, 16, 1);
     ai_enemy->position = Vector2Scale(scene->data.game_field_size, 0.25f);
+    CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
+    c_ai->target_tag = PLAYER_ENT_TAG;
+    c_ai->target_idx = MAX_ENTITIES;
+    c_ai->func = &test_ai_func;
+
+    CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
+    p_ct->shape_factor = 5.0f;
+    p_ct->velocity_cap = 600;
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
@@ -1100,8 +1149,9 @@ void init_level_scene(LevelScene_t* scene)
     // Systems at this point cannot further destroy more entities
     sc_array_add(&scene->scene.systems, &stop_emitter_on_death_system);
     sc_array_add(&scene->scene.systems, &spawner_update_system);
-    sc_array_add(&scene->scene.systems, &homing_update_system);
+    //sc_array_add(&scene->scene.systems, &homing_update_system);
     sc_array_add(&scene->scene.systems, &spawned_update_system);
+    sc_array_add(&scene->scene.systems, &ai_update_system);
     sc_array_add(&scene->scene.systems, &container_destroy_system);
     sc_array_add(&scene->scene.systems, &screenshake_update_system);
     sc_array_add(&scene->scene.systems, &sprite_animation_system);

@@ -3,6 +3,7 @@
 #include "constants.h"
 #include "assets_tag.h"
 
+#include "ai_functions.h"
 #include "ent_impl.h"
 #include "raymath.h"
 
@@ -15,6 +16,7 @@ static inline unsigned long find_closest_entity(Scene_t* scene, Vector2 pos, uns
     unsigned long target_idx = MAX_ENTITIES;
     sc_map_foreach_value(&scene->ent_manager.entities, p_target)
     {
+        if (!p_target->m_alive) continue;
         if (p_target->m_tag != target_tag) continue;
 
         float curr_dist = Vector2DistanceSqr(p_target->position, pos);
@@ -53,85 +55,6 @@ void spawned_update_system(Scene_t* scene)
                 p_spawner->spawnee_despawn_logic(p_ent, &p_spawner->data, scene);
             }
         }
-    }
-}
-
-void homing_update_system(Scene_t* scene)
-{
-    CHoming_t* p_homing;
-    unsigned int ent_idx;
-    sc_map_foreach(&scene->ent_manager.component_map[CHOMING_T], ent_idx, p_homing)
-    {
-        Entity_t* p_ent = get_entity(&scene->ent_manager, ent_idx);
-        if (!p_ent->m_alive) continue;
-
-        CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
-        if (p_ct == NULL)
-        {
-            remove_component(p_ent, CHOMING_T);
-            continue;
-        }
-
-        float vel = Vector2Length(p_ct->velocity);
-        if (vel > p_ct->velocity_cap)
-        {
-            p_ct->velocity = Vector2Scale(Vector2Normalize(p_ct->velocity), vel);
-        }
-
-        Vector2 self_pos = p_ent->position;
-        Vector2 self_vel = p_ct->velocity;
-
-        Entity_t* p_target = get_entity(&scene->ent_manager, p_homing->target_idx);
-        if (p_target == NULL || !p_target->m_alive)
-        {
-            // Re-target but don't update
-            unsigned long target_idx = find_closest_entity(scene, self_pos, p_homing->target_tag);
-            if (target_idx != MAX_ENTITIES)
-            {
-                p_homing->target_idx = target_idx;
-            }
-            p_ct->shape_factor = 0;
-            continue;
-        }
-        p_ct->shape_factor = 7;
-
-        Vector2 target_pos = p_target->position;
-        Vector2 target_vel = {0,0};
-        CTransform_t* target_ct = get_component(p_target, CTRANSFORM_T);
-        if (p_ct != NULL)
-        {
-            target_vel = target_ct->velocity;
-        }
-
-        Vector2 v_s = Vector2Subtract(target_vel, self_vel);
-        Vector2 to_target = Vector2Subtract(target_pos, self_pos);
-        float v_c = Vector2DotProduct(
-            Vector2Scale(v_s, -1.0f),
-            Vector2Normalize(to_target)
-        );
-
-        float eta =
-            -v_c / p_homing->homing_accl
-            + sqrtf(
-                v_c * v_c / (p_homing->homing_accl * p_homing->homing_accl)
-                + 2 * Vector2Length(to_target) / p_homing->homing_accl
-            )
-        ;
-
-        Vector2 predict_pos = Vector2Add(target_pos, Vector2Scale(target_vel, eta));
-
-        Vector2 to_predict = Vector2Subtract(predict_pos, self_pos);
-        p_ct->accel = Vector2Scale(
-            Vector2Normalize(to_predict),
-            p_homing->homing_accl
-        );
-
-        CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
-        if (p_cspr != NULL)
-        {
-            float angle = atan2f(to_target.y, to_target.x);
-            p_cspr->rotation = angle * 180 / PI;
-    }
     }
 }
 
@@ -458,10 +381,12 @@ void player_movement_input_system(Scene_t* scene)
                     if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
-                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
-                        p_homing->homing_accl = 4000.0f;
-                        p_homing->target_idx = target_idx;
-                        p_homing->target_tag = ENEMY_ENT_TAG;
+
+                        CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
+                        p_ai->target_idx = target_idx;
+                        p_ai->target_tag = ENEMY_ENT_TAG;
+                        p_ai->accl = 4000;
+                        p_ai->func = &homing_target_func;
                     }
 
                     if (p_weapon->weapon_idx == 3)
@@ -513,10 +438,11 @@ void player_movement_input_system(Scene_t* scene)
                     if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
-                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
-                        p_homing->homing_accl = 4000.0f;
-                        p_homing->target_idx = target_idx;
-                        p_homing->target_tag = ENEMY_ENT_TAG;
+                        CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
+                        p_ai->target_idx = target_idx;
+                        p_ai->target_tag = ENEMY_ENT_TAG;
+                        p_ai->accl = 4000;
+                        p_ai->func = &homing_target_func;
                     }
 
                     p_bullet = create_bullet(&scene->ent_manager);
@@ -525,10 +451,11 @@ void player_movement_input_system(Scene_t* scene)
                     if (p_weapon->special_prop & 0x1)
                     {
                         unsigned long target_idx = find_closest_entity(scene, raw_mouse_pos, ENEMY_ENT_TAG);
-                        CHoming_t* p_homing = add_component(p_bullet, CHOMING_T);
-                        p_homing->homing_accl = 4000.0f;
-                        p_homing->target_idx = target_idx;
-                        p_homing->target_tag = ENEMY_ENT_TAG;
+                        CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
+                        p_ai->target_idx = target_idx;
+                        p_ai->target_tag = ENEMY_ENT_TAG;
+                        p_ai->accl = 4000;
+                        p_ai->func = &homing_target_func;
                     }
 
                     angle -= p_weapon->spread_range;
@@ -1027,6 +954,37 @@ void sprite_animation_system(Scene_t* scene)
             p_cspr->current_frame++;
             p_cspr->current_frame %= spr->frame_count;
             p_cspr->elapsed = 0;
+        }
+    }
+}
+
+void ai_update_system(Scene_t* scene)
+{
+    unsigned int ent_idx;
+    CAIFunction_t* p_enemyai;
+    sc_map_foreach(&scene->ent_manager.component_map[CAIFUNC_T], ent_idx, p_enemyai)
+    {
+        Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
+        if (!p_ent->m_alive) continue;
+
+        p_enemyai->sub_sec += scene->delta_time;
+        if (p_enemyai->sub_sec > 1.0f)
+        {
+            p_enemyai->sub_sec -= 1.0f;
+            p_enemyai->sec++;
+        }
+
+        // Re-target
+        Entity_t* p_target = get_entity(&scene->ent_manager, p_enemyai->target_idx);
+        if (p_target == NULL || !p_target->m_alive)
+        {
+            p_enemyai->target_idx = find_closest_entity(scene, p_ent->position, p_enemyai->target_tag);
+            continue;
+        }
+
+        if (p_enemyai->func != NULL)
+        {
+            p_enemyai->func(p_ent, scene);
         }
     }
 }

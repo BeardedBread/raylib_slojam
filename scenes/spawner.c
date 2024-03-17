@@ -3,6 +3,7 @@
 #include "assets_tag.h"
 #include "constants.h"
 #include "scenes.h"
+#include "ai_functions.h"
 #include "raymath.h"
 
 struct SpawnVariantData {
@@ -35,15 +36,21 @@ static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
 
 static inline void make_enemy_maws(Entity_t* p_ent)
 {
-    CHoming_t* p_homing = add_component(p_ent, CHOMING_T);
-    p_homing->homing_accl = 1500.0f;
-    p_homing->target_idx = MAX_ENTITIES;
-    p_homing->target_tag = PLAYER_ENT_TAG;
+    CAIFunction_t* p_ai = add_component(p_ent, CAIFUNC_T);
+    p_ai->target_idx = MAX_ENTITIES;
+    p_ai->target_tag = PLAYER_ENT_TAG;
+    p_ai->func = &homing_target_func;
+    p_ai->accl = 800;
 
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;
     p_life->max_life = 1;
+
+    CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+    p_ct->shape_factor = 3;
+    p_ct->velocity_cap = 500;
 }
+
 static inline void make_enemy_attract(Entity_t* p_ent)
 {
     CAttract_t* p_attract = add_component(p_ent, CATTRACTOR_T);

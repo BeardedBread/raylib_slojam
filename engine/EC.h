@@ -28,7 +28,6 @@ typedef enum ComponentEnum {
     CAIFUNC_T,
     CSPAWNER_T,
     CSPAWNED_T,
-    CHOMING_T,
     CWALLET_T,
 } ComponentEnum_t;
 
@@ -170,11 +169,17 @@ typedef struct _CLifeTimer_t {
     float poison_value;
 } CLifeTimer_t;
 
-// This is so bad
-typedef void (*decision_func_t)(Entity_t* self, void* data, void* scene_data);
+typedef void (*decision_func_t)(Entity_t* self, void* scene_data);
 typedef struct _CAIFunction_t {
+    // For targeting
+    float accl;
     unsigned long target_tag;
     unsigned long target_idx;
+
+    // For counting purposes
+    float sub_sec;
+    uint32_t sec;
+
     decision_func_t func;
 } CAIFunction_t;
 
@@ -195,14 +200,6 @@ typedef struct _CSpawner_t {
     spawner_func_t spawnee_despawn_logic;
     spawner_func_t child_spawn_logic;
 } CSpawner_t;
-
-typedef struct _CHoming_t {
-    unsigned long target_tag;
-    unsigned long target_idx;
-    float homing_accl;
-    Vector2 target_pos;
-    Vector2 target_vel;
-} CHoming_t;
 
 typedef struct _CSpawn_t {
     Entity_t* spawner;

@@ -17,6 +17,7 @@ void sprite_animation_system(Scene_t* scene);
 void life_update_system(Scene_t* scene);
 void homing_update_system(Scene_t* scene);
 void spawner_update_system(Scene_t* scene);
+void ai_update_system(Scene_t* scene);
 void spawned_update_system(Scene_t* scene);
 void screen_edge_check_system(Scene_t* scene);
 #endif // _GAME_SYSTEMS_H

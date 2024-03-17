@@ -23,4 +23,5 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
 Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t value);
 Entity_t* create_end_item(EntityManager_t* ent_manager, float size);
 
+void homing_target_func(Entity_t* self, void* scene);
 #endif // _ENT_IMPL_H
