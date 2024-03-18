@@ -4,6 +4,7 @@
 #include "engine.h"
 #include "level_ent.h"
 #include "game_systems.h"
+#include "ai_functions.h"
 #include "constants.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -1021,41 +1022,6 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.desc_box.y = pos.y;
     data->ui.desc_box.width = width;
     data->ui.desc_box.height = DESCRPTION_BOX_HEIGHT * 2;
-}
-
-static void test_ai_func(Entity_t* self, void* data)
-{
-    LevelScene_t* level_scene = (LevelScene_t*)data; 
-    CAIFunction_t* c_ai = get_component(self, CAIFUNC_T);
-    CTransform_t* p_ct = get_component(self, CTRANSFORM_T);
-    p_ct->accel = (Vector2){0,0};
-
-    Entity_t* target = get_entity(&level_scene->scene.ent_manager, c_ai->target_idx);
-
-    if (target == NULL) return;
-
-    CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
-    if (p_pstate == NULL) return;
-
-    Vector2 target_dir = Vector2Normalize(Vector2Subtract(self->position, target->position));
-    float dist_to_target = Vector2Distance(self->position, target->position);
-    Vector2 target_back = Vector2Add(target->position, Vector2Scale(p_pstate->aim_dir, -64));
-    float side_check = Vector2DotProduct(self->position, p_pstate->aim_dir);
-    Vector2 to_flank = Vector2Add(
-        Vector2Normalize(Vector2Subtract(self->position, target_back)),
-        Vector2Rotate(p_pstate->aim_dir, PI / 2 * (side_check > 0 ? 1: -1))
-    );
-
-    float mag = Vector2DotProduct(target_dir, p_pstate->aim_dir) + 1.0f;
-    p_ct->accel = Vector2Scale(Vector2Normalize(to_flank), mag*-300);
-
-    // Try to get away from player, decaying magnitude
-    mag = 400.0f / (1.0f + expf(-dist_to_target));
-    p_ct->accel = Vector2Add(
-        p_ct->accel,
-        Vector2Scale(target_dir, mag)
-    );
-
 }
 
 void restart_level_scene(LevelScene_t* scene)
