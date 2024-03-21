@@ -175,6 +175,9 @@ typedef struct _CAIFunction_t {
     float accl;
     unsigned long target_tag;
     unsigned long target_idx;
+    int8_t last_side;
+    int8_t side;
+    float counter;
 
     // For counting purposes
     float sub_sec;

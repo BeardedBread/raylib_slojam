@@ -64,34 +64,71 @@ void homing_target_func(Entity_t* self, void* scene)
         p_cspr->rotation = angle * 180 / PI;
     }
 }
+
+static const uint8_t scale_factors[4][5] = {
+    {2,1,1,1,3},
+    {1,1,2,1,4},
+    {1,3,2,1,6},
+    {2,1,1,1,4},
+};
 void test_ai_func(Entity_t* self, void* data)
 {
     LevelScene_t* level_scene = (LevelScene_t*)data; 
     CAIFunction_t* c_ai = get_component(self, CAIFUNC_T);
     CTransform_t* p_ct = get_component(self, CTRANSFORM_T);
-    p_ct->accel = (Vector2){0,0};
+    CLifeTimer_t* p_life = get_component(self, CLIFETIMER_T);
 
     Entity_t* target = get_entity(&level_scene->scene.ent_manager, c_ai->target_idx);
 
     if (target == NULL) return;
 
+    if (
+        Vector2DistanceSqr(self->position, target->position) < 150 * 150
+        && p_life->current_life < 20
+    )
+    {
+        homing_target_func(self, data);
+        return;
+    }
+
     CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
     if (p_pstate == NULL) return;
 
     Vector2 target_dir = Vector2Normalize(Vector2Subtract(self->position, target->position));
+    const uint8_t (*factors)[5] = scale_factors;
+    CWeapon_t* p_wep = get_component(target, CWEAPON_T);
+    if (p_wep != NULL)
+    {
+        factors += p_wep->weapon_idx;
+    }
+
     // Avoid direct sight
     Vector2 rotated_aim = Vector2Rotate(p_pstate->aim_dir, PI / 2.0f);
-    float side_check = Vector2DotProduct(target_dir, rotated_aim);
-    
+    float dot_mag = Vector2DotProduct(target_dir, rotated_aim);
+    int8_t side_check = dot_mag > 0 ? 1:-1;
+    if (side_check ^ c_ai->last_side)
+    {
+        c_ai->counter = 0;
+    }
+    else
+    {
+        c_ai->counter += level_scene->scene.delta_time;
+    }
+    if (c_ai->counter > 0.1f)
+    {
+        c_ai->side = side_check;
+    }
+    c_ai->last_side = side_check;
+
     float mag = Vector2DotProduct(target_dir, p_pstate->aim_dir);
     mag = mag > 0 ? mag : 0.0f;
-    mag *= mag * 1000.0f;
-    p_ct->accel = Vector2Scale((side_check > 0) ? rotated_aim : Vector2Rotate(p_pstate->aim_dir, -PI / 2.0f), mag);
+    mag *= mag * 400.0f * (*factors)[0];
+    p_ct->accel = Vector2Scale(Vector2Rotate(p_pstate->aim_dir, (PI / 2.0f) * c_ai->side), mag);
 
     // Try to be behind player
-    Vector2 target_back = Vector2Add(target->position, Vector2Scale(p_pstate->aim_dir, -target->size * 10.0f));
+    Vector2 target_back = Vector2Add(target->position, Vector2Scale(p_pstate->aim_dir, -target->size * (dot_mag + 1.0f)));
     Vector2 err = Vector2Subtract(self->position, target_back);
-    Vector2 accel_to_back = Vector2Scale(err, -2.2f);
+    Vector2 accel_to_back = Vector2Scale(err, -2.5f * (*factors)[1]);
     p_ct->accel = Vector2Add(accel_to_back, p_ct->accel);
 
     // Try to get away from player, decaying magnitude
@@ -99,7 +136,7 @@ void test_ai_func(Entity_t* self, void* data)
     mag = 1000.0f * (1.0f / (1.0f + expf(dist_to_target)) - 0.5f);
     p_ct->accel = Vector2Add(
         p_ct->accel,
-        Vector2Scale(target_dir, mag)
+        Vector2Scale(target_dir, mag * (*factors)[2])
     );
 
     // Try to stay away from walls
@@ -119,4 +156,9 @@ void test_ai_func(Entity_t* self, void* data)
         p_ct->accel,
         Vector2Scale(wall_accel, 1200.0f)
     );
+
+    mag = Vector2Length(p_ct->accel);
+    float true_mag = (mag > c_ai->accl) ? c_ai->accl : mag;
+
+    p_ct->accel = Vector2Scale(p_ct->accel, true_mag / mag);
 }

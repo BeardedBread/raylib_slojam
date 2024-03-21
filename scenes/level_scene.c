@@ -1041,7 +1041,11 @@ void restart_level_scene(LevelScene_t* scene)
     CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
     c_ai->target_tag = PLAYER_ENT_TAG;
     c_ai->target_idx = MAX_ENTITIES;
+    c_ai->accl = 800.0;
     c_ai->func = &test_ai_func;
+    CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
+    p_life->current_life = 100;
+    p_life->max_life = 100;
 
     CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
     p_ct->shape_factor = 5.0f;
