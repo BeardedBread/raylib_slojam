@@ -6,6 +6,7 @@
 typedef enum EntityTag {
     NO_ENT_TAG = 0,
     PLAYER_ENT_TAG,
+    BULLET_ENT_TAG,
     ENEMY_ENT_TAG,
     COLLECT_ENT_TAG,
     UTIL_ENT_TAG,

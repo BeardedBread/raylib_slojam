@@ -67,10 +67,35 @@ void homing_target_func(Entity_t* self, void* scene)
 
 static const uint8_t scale_factors[4][5] = {
     {2,1,1,1,3},
-    {1,1,2,1,4},
-    {1,3,2,1,6},
-    {2,1,1,1,4},
+    {1,1,4,1,4},
+    {1,2,3,1,6},
+    {3,1,1,1,4},
 };
+
+static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos)
+{
+    Entity_t* p_bullet;
+    float shortest_dist = 200.0f;
+    unsigned long target_idx = MAX_ENTITIES;
+    sc_map_foreach_value(&scene->ent_manager.entities_map[BULLET_ENT_TAG], p_bullet)
+    {
+        if (!p_bullet->m_alive) continue;
+
+        CTransform_t* p_bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+        Vector2 pred_pos = Vector2Add(
+            p_bullet->position,
+            Vector2Scale(p_bullet_ct->velocity, scene->delta_time)
+        );
+        float curr_dist = Vector2Distance(pred_pos, pos);
+        if (curr_dist < shortest_dist)
+        {
+            shortest_dist = curr_dist;
+            target_idx = p_bullet->m_id;
+        }
+    }
+    return target_idx;
+}
+
 void test_ai_func(Entity_t* self, void* data)
 {
     LevelScene_t* level_scene = (LevelScene_t*)data; 
@@ -90,6 +115,7 @@ void test_ai_func(Entity_t* self, void* data)
         homing_target_func(self, data);
         return;
     }
+
 
     CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
     if (p_pstate == NULL) return;
@@ -156,6 +182,23 @@ void test_ai_func(Entity_t* self, void* data)
         p_ct->accel,
         Vector2Scale(wall_accel, 1200.0f)
     );
+
+    unsigned long bullet_idx = find_closest_bullet(&level_scene->scene, self->position);
+
+    if (bullet_idx != MAX_ENTITIES)
+    {
+        Entity_t* p_bullet = get_entity(&level_scene->scene.ent_manager, bullet_idx);
+        Vector2 bullet_dir = Vector2Normalize(Vector2Subtract(self->position, p_bullet->position));
+        CTransform_t* p_bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+
+        Vector2 rotated_aim = Vector2Normalize(Vector2Rotate(p_bullet_ct->velocity, PI / 2.0f));
+        float dot_mag = Vector2DotProduct(bullet_dir, rotated_aim);
+        int8_t side_check = dot_mag > 0 ? 1:-1;
+
+        p_ct->accel = Vector2Add(p_ct->accel,
+            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1500.0f)
+            );
+    }
 
     mag = Vector2Length(p_ct->accel);
     float true_mag = (mag > c_ai->accl) ? c_ai->accl : mag;

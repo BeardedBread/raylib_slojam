@@ -1041,7 +1041,7 @@ void restart_level_scene(LevelScene_t* scene)
     CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
     c_ai->target_tag = PLAYER_ENT_TAG;
     c_ai->target_idx = MAX_ENTITIES;
-    c_ai->accl = 800.0;
+    c_ai->accl = 2000.0;
     c_ai->func = &test_ai_func;
     CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
     p_life->current_life = 100;
@@ -1087,6 +1087,7 @@ void init_level_scene(LevelScene_t* scene)
 #define ARENA_START_Y 70
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
+    init_entity_tag_map(&scene->scene.ent_manager, BULLET_ENT_TAG, 256);
 
     scene->data.game_field_size = (Vector2){ARENA_WIDTH, ARENA_HEIGHT};
     scene->data.game_viewport = LoadRenderTexture(ARENA_WIDTH, ARENA_HEIGHT);
