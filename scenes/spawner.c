@@ -40,7 +40,7 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     p_ai->target_idx = MAX_ENTITIES;
     p_ai->target_tag = PLAYER_ENT_TAG;
     p_ai->func = &homing_target_func;
-    p_ai->accl = 800;
+    p_ai->accl = 1000;
 
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;

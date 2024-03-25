@@ -1,6 +1,7 @@
 #include "ai_functions.h"
 #include "scenes.h"
 #include "raymath.h"
+#include "assets_tag.h"
 void homing_target_func(Entity_t* self, void* scene)
 {
     LevelScene_t* level_scene = (LevelScene_t*)scene; 
@@ -204,4 +205,36 @@ void test_ai_func(Entity_t* self, void* data)
     float true_mag = (mag > c_ai->accl) ? c_ai->accl : mag;
 
     p_ct->accel = Vector2Scale(p_ct->accel, true_mag / mag);
+
+    // Shooting logic
+    //
+    float facing_angle = atan2f(-target_dir.y, -target_dir.x) * 180 / PI;
+    CWeapon_t* p_weapon = get_component(self, CWEAPON_T);
+    if (p_weapon->cooldown_timer <= 0)
+    {
+        Entity_t* p_bullet = create_bullet(&level_scene->scene.ent_manager);
+        p_bullet->position = self->position;
+        CTransform_t* bullet_ct = get_component(p_bullet, CTRANSFORM_T);
+        bullet_ct->velocity = Vector2Scale(target_dir, -p_weapon->proj_speed);
+        CHitBoxes_t* bullet_hitbox = get_component(p_bullet, CHITBOXES_T);
+        bullet_hitbox->atk = p_weapon->base_dmg;
+        bullet_hitbox->src = DMGSRC_ENEMY;
+        bullet_hitbox->hit_sound = WEAPON1_HIT_SFX;
+        bullet_hitbox->knockback = p_weapon->bullet_kb;
+        bullet_hitbox->dir = target_dir;
+        p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate);
+
+        CHurtbox_t* p_hurtbox = add_component(p_bullet, CHURTBOX_T);
+        p_hurtbox->size = p_bullet->size *1.05f;
+        p_hurtbox->src = DMGSRC_ENEMY;
+
+        CSprite_t* p_cspr = get_component(p_bullet, CSPRITE_T);
+        p_cspr->colour = RED;
+        p_cspr->current_idx = p_weapon->weapon_idx;
+        p_cspr->rotation = facing_angle;
+        play_sfx(level_scene->scene.engine, WEAPON1_FIRE_SFX, true);
+    }
+
+    CSprite_t* p_cspr = get_component(self, CSPRITE_T);
+    p_cspr->rotation = facing_angle;
 }

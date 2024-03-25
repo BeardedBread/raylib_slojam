@@ -1036,23 +1036,33 @@ void restart_level_scene(LevelScene_t* scene)
     Entity_t* player = create_player(&scene->scene.ent_manager);
     player->position = Vector2Scale(scene->data.game_field_size, 0.5f);
     //create_spawner(&scene->scene.ent_manager);
-    Entity_t* ai_enemy = create_enemy(&scene->scene.ent_manager, 16, 1);
-    ai_enemy->position = Vector2Scale(scene->data.game_field_size, 0.25f);
-    CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
-    c_ai->target_tag = PLAYER_ENT_TAG;
-    c_ai->target_idx = MAX_ENTITIES;
-    c_ai->accl = 2000.0;
-    c_ai->func = &test_ai_func;
-    CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
-    p_life->current_life = 100;
-    p_life->max_life = 100;
 
-    CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
-    p_ct->shape_factor = 5.0f;
-    p_ct->velocity_cap = 600;
+    {
+        Entity_t* ai_enemy = create_enemy(&scene->scene.ent_manager, 16, 1);
+        ai_enemy->position = Vector2Scale(scene->data.game_field_size, 0.25f);
+        CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
+        c_ai->target_tag = PLAYER_ENT_TAG;
+        c_ai->target_idx = MAX_ENTITIES;
+        c_ai->accl = 2000.0;
+        c_ai->func = &test_ai_func;
+        CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
+        p_life->current_life = 50;
+        p_life->max_life = 50;
 
-    CSprite_t* p_cspr = get_component(ai_enemy, CSPRITE_T);
-    p_cspr->current_idx = 3;
+        CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
+        p_ct->shape_factor = 5.0f;
+        p_ct->velocity_cap = 600;
+
+        CSprite_t* p_cspr = get_component(ai_enemy, CSPRITE_T);
+        p_cspr->current_idx = 3;
+
+        CWeapon_t* p_weapon = add_component(ai_enemy, CWEAPON_T);
+        *p_weapon = (CWeapon_t){
+        .base_dmg = 5, .proj_speed = 500, .fire_rate = 1.0f, .bullet_kb = 3.3f,
+        .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
+        .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
+        };
+    }
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
