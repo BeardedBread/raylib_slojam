@@ -1015,7 +1015,7 @@ static void generate_shop_UI(ShopSceneData* data)
     data->ui.upgrades[6].spr = get_sprite(&scene->engine->assets, "upg8_icon");
 
     data->ui.upgrades[7].item = &data->store.flux;
-    data->ui.upgrades[7].spr = get_sprite(&scene->engine->assets, "upg8_icon");
+    data->ui.upgrades[7].spr = get_sprite(&scene->engine->assets, "upg9_icon");
 
     pos.y += data->ui.icon_size + padding; 
     data->ui.desc_box.x = padding;
@@ -1050,6 +1050,9 @@ void restart_level_scene(LevelScene_t* scene)
     CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
     p_ct->shape_factor = 5.0f;
     p_ct->velocity_cap = 600;
+
+    CSprite_t* p_cspr = get_component(ai_enemy, CSPRITE_T);
+    p_cspr->current_idx = 3;
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;

@@ -95,7 +95,7 @@ static int load_all_assets(Assets_t* assets)
         spr->speed = 0;
     }
 
-    for (unsigned int i = 0; i < 8; i++)
+    for (unsigned int i = 0; i < 9; i++)
     {
         sprintf(buffer, "upg%u_icon", i+1);
         spr = add_sprite(assets, buffer, game_tex);
@@ -110,6 +110,27 @@ static int load_all_assets(Assets_t* assets)
     spr->origin = (Vector2){0,32};
     spr->frame_size = (Vector2){128,128};
     spr->anchor = (Vector2){64,64};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "enm_attract", game_tex);
+    spr->origin = (Vector2){0,160};
+    spr->frame_size = (Vector2){128,128};
+    spr->anchor = (Vector2){64,64};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "enm_maw", game_tex);
+    spr->origin = (Vector2){128,160};
+    spr->frame_size = (Vector2){64,32};
+    spr->anchor = (Vector2){32,16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "enm_ai", game_tex);
+    spr->origin = (Vector2){128,192};
+    spr->frame_size = (Vector2){64,64};
+    spr->anchor = (Vector2){32,32};
     spr->frame_count = 1;
     spr->speed = 0;
 
@@ -142,7 +163,7 @@ static int load_all_assets(Assets_t* assets)
     spr->speed = 0;
 
     spr = add_sprite(assets, "crosshair", game_tex);
-    spr->origin = (Vector2){0,160};
+    spr->origin = (Vector2){0,288};
     spr->frame_size = (Vector2){32,32};
     spr->anchor = (Vector2){16,16};
     spr->frame_count = 1;

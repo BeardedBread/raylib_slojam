@@ -49,6 +49,12 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
     p_ct->shape_factor = 3;
     p_ct->velocity_cap = 500;
+
+    CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
+    p_cspr->current_idx = 2;
+    remove_component(p_ent, CCONTAINER_T);
+
+    p_ent->size = 24;
 }
 
 static inline void make_enemy_attract(Entity_t* p_ent)
@@ -59,7 +65,7 @@ static inline void make_enemy_attract(Entity_t* p_ent)
     p_attract->range_factor = 15.0 * p_ent->size / 32;
 
     CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
-    p_cspr->colour = GRAY;
+    p_cspr->current_idx = 1;
 }
 
 void split_spawn_logic_func(Entity_t* new_ent, SpawnerData* data, void* scene)

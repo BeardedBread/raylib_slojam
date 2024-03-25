@@ -1,7 +1,7 @@
 #include "ent_impl.h"
 #include "../assets_tag.h"
 #include <math.h>
-static Sprite_t* enemies_sprite_map[1] = {0};
+static Sprite_t* enemies_sprite_map[4] = {0};
 static Sprite_t* boss_sprite_map[3] = {0};
 
 #define MAX_MOMENTUM 3500
@@ -107,6 +107,12 @@ bool init_enemies_creation(Assets_t* assets)
 {
     Sprite_t* spr = get_sprite(assets, "enm_normal");
     enemies_sprite_map[0] = spr;
+    spr = get_sprite(assets, "enm_attract");
+    enemies_sprite_map[1] = spr;
+    spr = get_sprite(assets, "enm_maw");
+    enemies_sprite_map[2] = spr;
+    spr = get_sprite(assets, "enm_ai");
+    enemies_sprite_map[3] = spr;
 
     spr = get_sprite(assets, "finale1");
     boss_sprite_map[0] = spr;
