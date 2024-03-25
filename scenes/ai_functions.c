@@ -82,6 +82,9 @@ static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos)
     {
         if (!p_bullet->m_alive) continue;
 
+        CHitBoxes_t* p_hitbox = get_component(p_bullet, CHITBOXES_T);
+        if (p_hitbox->src == DMGSRC_ENEMY) continue;
+
         CTransform_t* p_bullet_ct = get_component(p_bullet, CTRANSFORM_T);
         Vector2 pred_pos = Vector2Add(
             p_bullet->position,

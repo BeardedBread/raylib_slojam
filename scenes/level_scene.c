@@ -1059,7 +1059,7 @@ void restart_level_scene(LevelScene_t* scene)
         CWeapon_t* p_weapon = add_component(ai_enemy, CWEAPON_T);
         *p_weapon = (CWeapon_t){
         .base_dmg = 5, .proj_speed = 500, .fire_rate = 1.0f, .bullet_kb = 3.3f,
-        .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
+        .cooldown_timer = 3.0f, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
         };
     }
