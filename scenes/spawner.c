@@ -18,21 +18,53 @@ struct RankSpawnData {
     uint8_t speed_chances[3];
     uint8_t max_spawns;
     float drop_modifier;
-    struct SpawnVariantData variant_data[2];
+    struct SpawnVariantData variant_data[3];
 };
 
 static const uint32_t SIZE_RANGES[5] = {12,18,32,56,80};
 static const uint32_t SPEED_RANGES[4] = {100,200,250,320};
 static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
-    {50, {5,1}, {10,100,100,100}, {100,100,100}, 7, 1.0f, {{0,0},{0,0}}},
-    {150, {4,1}, {0,100,100,100}, {70,100,100}, 12, 1.1f, {{0,0},{0,0}}},
-    {250, {3,2}, {0,85,100,100}, {15,100,100}, 13, 1.2f, {{3,10},{0,0}}},
-    {400, {3,1}, {0,25,100,100}, {0,85,100}, 16, 1.4f, {{5,10}, {0,5}}},
-    {600, {3,1}, {0,15,80,100}, {10,65,100}, 18, 1.6f, {{7,15},{0,10}}},
-    {800, {2,2}, {0,0,90,100}, {0,80,100}, 20, 1.8f, {{10,18},{0,15}}},
-    {1000, {2,1}, {0,10,85,100}, {10,70,100}, 22, 2.1f, {{12,20},{0,20}}},
-    {2000, {2,1}, {0,0,70,100}, {10,50,100}, 24, 2.4f, {{14,25},{0,25}}},
+    {50  , {5,1}, {10,100,100,100}, {100,100,100}, 7 , 1.0f, {{0 ,0 }, {0,0 },{0,0}}},
+    {150 , {4,1}, {0 ,100,100,100}, {70 ,100,100}, 12, 1.1f, {{0 ,0 }, {0,0 },{0,0}}},
+    {250 , {3,2}, {0 ,85 ,100,100}, {15 ,100,100}, 13, 1.2f, {{3 ,10}, {0,0 },{0,0}}},
+    {400 , {3,1}, {0 ,25 ,100,100}, {0  ,85 ,100}, 16, 1.4f, {{5 ,10}, {0,5 },{0,0}}},
+    {600 , {3,1}, {0 ,15 ,80 ,100}, {10 ,65 ,100}, 18, 1.6f, {{7 ,15}, {0,10},{1,30}}},
+    {800 , {2,2}, {0 ,0  ,90 ,100}, {0  ,80 ,100}, 20, 1.8f, {{10,18}, {0,15},{1,50}}},
+    {1000, {2,2}, {0 ,10 ,85 ,100}, {10 ,70 ,100}, 22, 2.1f, {{12,20}, {0,20},{1,80}}},
+    {2000, {2,1}, {0 ,0  ,70 ,100}, {0  ,50 ,100}, 24, 2.4f, {{14,25}, {0,25},{2,20}}},
+    {3000, {2,1}, {0 ,0  ,60 ,100}, {0  ,40 ,100}, 30, 2.7f, {{17,25}, {0,25},{2,40}}},
+    {9999, {2,1}, {0 ,0  ,50 ,100}, {0  ,30 ,100}, 40, 3.0f, {{20,25}, {0,30},{3,30}}},
 };
+
+static inline void make_enemy_ai(Entity_t* ai_enemy)
+{
+    ai_enemy->size = 16;
+    CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
+    c_ai->target_tag = PLAYER_ENT_TAG;
+    c_ai->target_idx = MAX_ENTITIES;
+    c_ai->accl = 2000.0;
+    c_ai->func = &test_ai_func;
+    CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
+    p_life->current_life = 50;
+    p_life->max_life = 50;
+
+    CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
+    p_ct->shape_factor = 5.0f;
+    p_ct->velocity_cap = 600;
+
+    CSprite_t* p_cspr = get_component(ai_enemy, CSPRITE_T);
+    p_cspr->current_idx = 3;
+
+    CWeapon_t* p_weapon = add_component(ai_enemy, CWEAPON_T);
+    *p_weapon = (CWeapon_t){
+    .base_dmg = 5, .proj_speed = 500, .fire_rate = 1.0f, .bullet_kb = 3.3f,
+    .cooldown_timer = 3.0f, .spread_range = 0, .n_bullets = 1,
+    .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
+    };
+
+    CWallet_t* p_wallet = get_component(ai_enemy, CWALLET_T);
+    p_wallet->value = 250;
+}
 
 static inline void make_enemy_maws(Entity_t* p_ent)
 {
@@ -54,7 +86,7 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     p_cspr->current_idx = 2;
     remove_component(p_ent, CCONTAINER_T);
 
-    p_ent->size = 24;
+    p_ent->size = p_ent->size < 16 ? 16 : p_ent->size;
 }
 
 static inline void make_enemy_attract(Entity_t* p_ent)
@@ -97,12 +129,16 @@ void despawn_logic_func(Entity_t* self, SpawnerData* data, void* scene)
 
     if (data->spawned == 0)
     {
-        data->spawn_timer /= 2;
+        data->spawn_timer = 0;
     }
 
     if (get_component(self, CATTRACTOR_T) != NULL)
     {
         data->custom_counter[0]--;
+    }
+    if (get_component(self, CWEAPON_T) != NULL)
+    {
+        data->custom_counter[1]--;
     }
 }
 
@@ -114,18 +150,15 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
         spwn_data->rank_timer += lvl_scene->scene.delta_time;
         if (spwn_data->rank_timer > 1.0f)
         {
-            spwn_data->rank_counter++; // +1 every sec
+            spwn_data->rank_counter += 1 + spwn_data->rank / 2 + spwn_data->rank / 4; // +1 every sec
             spwn_data->rank_timer -= 1.0f;
         }
         if (spwn_data->rank_counter >= RANK_DATA[spwn_data->rank].rank_up_value)
         {
             spwn_data->rank_counter -= RANK_DATA[spwn_data->rank].rank_up_value;
             spwn_data->rank++;
+            spwn_data->next_rank_count = RANK_DATA[spwn_data->rank].rank_up_value;
             play_sfx(lvl_scene->scene.engine, RANKUP_SFX, false);
-            // Reset spawning mechanics
-            //spwn_data->spawned = 0;
-            //spwn_data->spawn_timer = RANK_DATA[spwn_data->rank].spawn_time_range[0]
-            //    + RANK_DATA[spwn_data->rank].spawn_time_range[1] * (float)rand() / (float)RAND_MAX;
         }
     }
 
@@ -202,6 +235,15 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
             speed * sinf(angle),
         };
 
+        if (
+            spwn_data->custom_counter[1] < RANK_DATA[spwn_data->rank].variant_data[2].max_spawn
+            && GetRandomValue(0, 100) < RANK_DATA[spwn_data->rank].variant_data[2].prob
+        )
+        {
+            make_enemy_ai(p_ent);
+            spwn_data->custom_counter[1]++;
+        }
+
     }
 
 }
@@ -215,5 +257,6 @@ Entity_t* create_spawner(EntityManager_t* ent_manager)
     p_spawner->spawner_main_logic = &spawn_logic_func;
     p_spawner->spawnee_despawn_logic = &despawn_logic_func;
     p_spawner->child_spawn_logic = &split_spawn_logic_func;
+    p_spawner->data.next_rank_count = RANK_DATA[0].rank_up_value;
     return p_ent;
 }

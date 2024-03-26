@@ -190,6 +190,7 @@ typedef struct SpawnerData
 {
     uint8_t rank;
     uint32_t rank_counter;
+    uint32_t next_rank_count;
     float spawn_timer;
     float rank_timer;
     uint16_t spawned;

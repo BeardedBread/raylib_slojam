@@ -20,7 +20,7 @@ CWeapon_t all_weapons[4] = {
     {
         .base_dmg = 12, .proj_speed = 500, .fire_rate = 2.6f, .bullet_kb = 4.2f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 3.0f, .weapon_idx = 2, .special_prop = 0x1,
+        .bullet_lifetime = 0.75f * 60.0f, .weapon_idx = 2, .special_prop = 0x1,
     },
     // Laser
     {

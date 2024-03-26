@@ -361,16 +361,22 @@ static void arena_render_func(Scene_t* scene)
             //static char buffer[64];
             //sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
             //DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
-            uint8_t lit_ring = p_spawner->data.rank + 1;
-            uint8_t unlit_ring = MAX_RANK - lit_ring;
-            int radius = RING_RADIUS_INCREMENT;
             Vector2 center = Vector2Scale(data->game_field_size, 0.5f);
-            for (uint8_t i = 0; i < lit_ring; i++)
-            {
-                DrawCircleLinesV(center, radius, (Color){255,255,255,72});
-                radius += RING_RADIUS_INCREMENT;
-            }
-            for (uint8_t i = 0; i < unlit_ring; i++)
+            //for (uint8_t i = 0; i < lit_ring; i++)
+            //{
+            //    DrawCircleLinesV(center, radius, (Color){255,255,255,72});
+            //    radius += RING_RADIUS_INCREMENT;
+            //}
+            
+            DrawCircleV(
+                center,
+                RING_RADIUS_INCREMENT * p_spawner->data.rank
+                + RING_RADIUS_INCREMENT * p_spawner->data.rank_counter / p_spawner->data.next_rank_count
+                ,
+                (Color){255,255,255,32}
+            );
+            int radius = 0;
+            for (uint8_t i = 0; i < MAX_RANK; i++)
             {
                 DrawCircleLinesV(center, radius, (Color){255,255,255,16});
                 radius += RING_RADIUS_INCREMENT;
@@ -860,7 +866,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             unsigned int ent_idx;
                                             sc_map_foreach(&scene->parent_scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
                                             {
-                                                p_spawner->data.rank = MAX_RANK - 1;
+                                                p_spawner->data.rank = MAX_RANK - 2;
                                             }
                                             play_sfx(scene->engine, RANKUP_SFX, false);
                                         }
@@ -1037,40 +1043,14 @@ void restart_level_scene(LevelScene_t* scene)
     player->position = Vector2Scale(scene->data.game_field_size, 0.5f);
     //create_spawner(&scene->scene.ent_manager);
 
-    {
-        Entity_t* ai_enemy = create_enemy(&scene->scene.ent_manager, 16, 1);
-        ai_enemy->position = Vector2Scale(scene->data.game_field_size, 0.25f);
-        CAIFunction_t* c_ai = add_component(ai_enemy, CAIFUNC_T);
-        c_ai->target_tag = PLAYER_ENT_TAG;
-        c_ai->target_idx = MAX_ENTITIES;
-        c_ai->accl = 2000.0;
-        c_ai->func = &test_ai_func;
-        CLifeTimer_t* p_life = get_component(ai_enemy, CLIFETIMER_T);
-        p_life->current_life = 50;
-        p_life->max_life = 50;
-
-        CTransform_t* p_ct = get_component(ai_enemy, CTRANSFORM_T);
-        p_ct->shape_factor = 5.0f;
-        p_ct->velocity_cap = 600;
-
-        CSprite_t* p_cspr = get_component(ai_enemy, CSPRITE_T);
-        p_cspr->current_idx = 3;
-
-        CWeapon_t* p_weapon = add_component(ai_enemy, CWEAPON_T);
-        *p_weapon = (CWeapon_t){
-        .base_dmg = 5, .proj_speed = 500, .fire_rate = 1.0f, .bullet_kb = 3.3f,
-        .cooldown_timer = 3.0f, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
-        };
-    }
     update_entity_manager(&scene->scene.ent_manager);
 
     ShopScene_t* shop_scene = (ShopScene_t*)scene->scene.subscene;
     shop_scene->data.store = (UpgradeStoreInventory){
-        .firerate_upgrade = {200, 3, 3, 125, 1000},
-        .projspeed_upgrade = {150, 3, 3, 150, 1000},
+        .firerate_upgrade = {200, 4, 4, 125, 1000},
+        .projspeed_upgrade = {150, 4, 4, 150, 1000},
         //.damage_upgrade = {150, 3, 3, 150, 1000},
-        .health_upgrade = {200, 3, 3, 150, 1000},
+        .health_upgrade = {200, 4, 4, 150, 1000},
         .full_heal = {100, -1, -1, 100, 600},
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},

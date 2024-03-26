@@ -24,8 +24,8 @@
 #define N_UPGRADES 8
 
 #define SIZE_SPLIT_FACTOR 1.75f
-#define ENEMY_MIN_SIZE 10
+#define ENEMY_MIN_SIZE 13
 #define BOOST_COOLDOWN 3.0f
 
-#define MAX_RANK 8
+#define MAX_RANK 10
 #endif // __CONSTANTS_H
