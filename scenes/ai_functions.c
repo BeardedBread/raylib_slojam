@@ -76,7 +76,7 @@ static const uint8_t scale_factors[4][5] = {
 static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos)
 {
     Entity_t* p_bullet;
-    float shortest_dist = 200.0f;
+    float shortest_dist = 220.0f;
     unsigned long target_idx = MAX_ENTITIES;
     sc_map_foreach_value(&scene->ent_manager.entities_map[BULLET_ENT_TAG], p_bullet)
     {
@@ -111,20 +111,37 @@ void test_ai_func(Entity_t* self, void* data)
 
     if (target == NULL) return;
 
+    //Last check: If future position is towards a wall
+    Vector2 future_pos = Vector2Add(
+        self->position,
+        Vector2Scale(p_ct->velocity, level_scene->scene.delta_time)
+    );
+    if (
+        future_pos.x < 0 || future_pos.y < 0
+        || future_pos.x > level_scene->data.game_field_size.x
+        || future_pos.y > level_scene->data.game_field_size.y
+    )
+    {
+        // Home just to get out of the spot
+        homing_target_func(self, data);
+        return;
+    }
+
     if (
         Vector2DistanceSqr(self->position, target->position) < 150 * 150
         && p_life->current_life < 20
     )
     {
+        // Homing does not shoot (just a little mercy)
         homing_target_func(self, data);
         return;
     }
 
+    Vector2 target_dir = Vector2Normalize(Vector2Subtract(self->position, target->position));
 
     CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
     if (p_pstate == NULL) return;
 
-    Vector2 target_dir = Vector2Normalize(Vector2Subtract(self->position, target->position));
     const uint8_t (*factors)[5] = scale_factors;
     CWeapon_t* p_wep = get_component(target, CWEAPON_T);
     if (p_wep != NULL)
@@ -163,7 +180,7 @@ void test_ai_func(Entity_t* self, void* data)
 
     // Try to get away from player, decaying magnitude
     float dist_to_target = Vector2Distance(self->position, target->position) - 512.0f;
-    mag = 1000.0f * (1.0f / (1.0f + expf(dist_to_target)) - 0.5f);
+    mag = 800.0f * (1.0f / (1.0f + expf(dist_to_target)) - 0.5f);
     p_ct->accel = Vector2Add(
         p_ct->accel,
         Vector2Scale(target_dir, mag * (*factors)[2])
@@ -184,7 +201,7 @@ void test_ai_func(Entity_t* self, void* data)
 
     p_ct->accel = Vector2Add(
         p_ct->accel,
-        Vector2Scale(wall_accel, 1200.0f)
+        Vector2Scale(wall_accel, 900.0f)
     );
 
     unsigned long bullet_idx = find_closest_bullet(&level_scene->scene, self->position);
@@ -200,7 +217,7 @@ void test_ai_func(Entity_t* self, void* data)
         int8_t side_check = dot_mag > 0 ? 1:-1;
 
         p_ct->accel = Vector2Add(p_ct->accel,
-            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1500.0f)
+            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1200.0f)
             );
     }
 
@@ -209,8 +226,8 @@ void test_ai_func(Entity_t* self, void* data)
 
     p_ct->accel = Vector2Scale(p_ct->accel, true_mag / mag);
 
+
     // Shooting logic
-    //
     float facing_angle = atan2f(-target_dir.y, -target_dir.x) * 180 / PI;
     CWeapon_t* p_weapon = get_component(self, CWEAPON_T);
     if (p_weapon->cooldown_timer <= 0)
