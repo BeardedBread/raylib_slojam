@@ -51,6 +51,7 @@ void free_all_assets(Assets_t* assets);
 void term_assets(Assets_t* assets);
 
 Texture2D* add_texture(Assets_t* assets, const char* name, const char* path);
+Texture2D* add_texture_from_img(Assets_t* assets, const char* name, Image img);
 Sound* add_sound(Assets_t * assets, const char* name, const char* path);
 Font* add_font(Assets_t* assets, const char* name, const char* path);
 

@@ -282,15 +282,15 @@ void player_movement_input_system(Scene_t* scene)
                 p_pstate->boost_cooldown = BOOST_COOLDOWN;
 
                 ParticleEmitter_t emitter = {
-                    .spr = NULL,
+                    .spr = get_sprite(&scene->engine->assets, "ellip"),
                     .config = get_emitter_conf(&scene->engine->assets, "part_hit"),
                     .position = {
                         .x = p_player->position.x,
                         .y = p_player->position.y,
                     },
                     .angle_offset = atan2f(p_pstate->aim_dir.y, p_pstate->aim_dir.x) * 180 / PI - 180,
-                    .part_type = PARTICLE_LINE,
-                    .n_particles = 10,
+                    .part_type = PARTICLE_SPRITE,
+                    .n_particles = 3,
                     .user_data = scene,
                     .update_func = &simple_particle_system_update,
                     .emitter_update_func = NULL,
@@ -389,33 +389,33 @@ void player_movement_input_system(Scene_t* scene)
                         p_ai->func = &homing_target_func;
                     }
 
-                    if (p_weapon->weapon_idx == 3)
-                    {
-                        Entity_t* trail = add_entity(&scene->ent_manager, NO_ENT_TAG);
-                        trail->position = p_bullet->position;
-                        CTransform_t* trail_ct = add_component(trail, CTRANSFORM_T);
-                        trail_ct->velocity = Vector2Scale(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity, 12);
-                        trail_ct->velocity_cap = speed * 12;
-                        trail_ct->active = true;
+                    //if (p_weapon->weapon_idx == 3)
+                    //{
+                    //    Entity_t* trail = add_entity(&scene->ent_manager, NO_ENT_TAG);
+                    //    trail->position = p_bullet->position;
+                    //    CTransform_t* trail_ct = add_component(trail, CTRANSFORM_T);
+                    //    trail_ct->velocity = Vector2Scale(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity, 12);
+                    //    trail_ct->velocity_cap = speed * 12;
+                    //    trail_ct->active = true;
 
-                        // Knockback
-                        p_ctransform->velocity = Vector2Scale(Vector2Normalize(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity), -150);
+                    //    // Knockback
+                    //    p_ctransform->velocity = Vector2Scale(Vector2Normalize(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity), -150);
 
-                        CEmitter_t* p_emitter = add_component(trail, CEMITTER_T);
-                        ParticleEmitter_t emitter = {
-                            .spr = NULL,
-                            .part_type = PARTICLE_LINE,
-                            .config = get_emitter_conf(&scene->engine->assets, "part_ltrail"),
-                            //.position = new_pos,
-                            .position = trail->position,
-                            .n_particles = 50,
-                            .user_data = scene,
-                            .update_func = &simple_particle_system_update,
-                            .emitter_update_func = NULL,
-                        };
-                        p_emitter->handle = play_particle_emitter(&scene->part_sys, &emitter);
-                        update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(trail_ct->velocity.y, trail_ct->velocity.x) *180/PI - 180);
-                    }
+                    //    CEmitter_t* p_emitter = add_component(trail, CEMITTER_T);
+                    //    ParticleEmitter_t emitter = {
+                    //        .spr = get_sprite(&scene->engine->assets, "ellip"),
+                    //        .part_type = PARTICLE_LINE,
+                    //        .config = get_emitter_conf(&scene->engine->assets, "part_ltrail"),
+                    //        //.position = new_pos,
+                    //        .position = trail->position,
+                    //        .n_particles = 50,
+                    //        .user_data = scene,
+                    //        .update_func = &simple_particle_system_update,
+                    //        .emitter_update_func = NULL,
+                    //    };
+                    //    p_emitter->handle = play_particle_emitter(&scene->part_sys, &emitter);
+                    //    update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(trail_ct->velocity.y, trail_ct->velocity.x) *180/PI - 180);
+                    //}
 
                     bullets--;
                     angle -= p_weapon->spread_range;

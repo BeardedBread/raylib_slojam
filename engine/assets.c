@@ -59,6 +59,20 @@ Texture2D* add_texture(Assets_t* assets, const char* name, const char* path)
     return &textures[tex_idx].texture;
 }
 
+Texture2D* add_texture_from_img(Assets_t* assets, const char* name, Image img)
+{
+    uint8_t tex_idx = n_loaded[AST_TEXTURE];
+    assert(tex_idx < MAX_TEXTURES);
+    Texture2D tex = LoadTextureFromImage(img);
+    if (tex.width == 0 || tex.height == 0) return NULL;
+
+    textures[tex_idx].texture = tex;
+    strncpy(textures[tex_idx].name, name, MAX_NAME_LEN);
+    sc_map_put_s64(&assets->m_textures, textures[tex_idx].name, tex_idx);
+    n_loaded[AST_TEXTURE]++;
+    return &textures[tex_idx].texture;
+}
+
 Sprite_t* add_sprite(Assets_t* assets, const char* name, Texture2D* texture)
 {
     uint8_t spr_idx = n_loaded[AST_SPRITE];

@@ -176,6 +176,21 @@ static int load_all_assets(Assets_t* assets)
     spr->frame_count = 1;
     spr->speed = 0;
 
+    // Generate a elliptical sprite
+    Image tmp_img = GenImageColor(
+        32, 32,
+        (Color){0,0,0,0}
+    );
+    ImageDrawCircleLines(&tmp_img, 16, 16, 8, WHITE);
+    Texture2D* circ_tex = add_texture_from_img(assets, "circ_tex", tmp_img);
+    spr = add_sprite(assets, "ellip", circ_tex);
+    spr->origin = (Vector2){0, 0};
+    spr->frame_size = (Vector2){32, 32};
+    spr->anchor = (Vector2){16, 16};
+    spr->frame_count = 1;
+    spr->speed = 0;
+    UnloadImage(tmp_img);
+
     EmitterConfig_t emitter_conf = {
         .launch_range = {-10, 10},
         .speed_range = {200,340},
