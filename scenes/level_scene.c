@@ -427,6 +427,11 @@ static void arena_render_func(Scene_t* scene)
             else if (p_ent->m_tag == COLLECT_ENT_TAG)
             {
                 c = SKYBLUE;
+                CMoney_t* c_money = get_component(p_ent, CMONEY_T);
+                if (c_money != NULL && c_money->value > 50)
+                {
+                    c = GOLD;
+                }
             }
             
             Vector2 spr_positions[4];

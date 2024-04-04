@@ -67,13 +67,13 @@ void homing_target_func(Entity_t* self, void* scene)
 }
 
 static const uint8_t scale_factors[4][5] = {
-    {2,1,1,1,3},
+    {2,1,1,2,3},
     {1,1,4,1,4},
-    {1,2,3,1,6},
+    {1,2,2,3,6},
     {3,1,1,1,4},
 };
 
-static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos)
+static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos, float* dist)
 {
     Entity_t* p_bullet;
     float shortest_dist = 220.0f;
@@ -97,6 +97,7 @@ static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos)
             target_idx = p_bullet->m_id;
         }
     }
+    *dist = shortest_dist;
     return target_idx;
 }
 
@@ -204,7 +205,8 @@ void test_ai_func(Entity_t* self, void* data)
         Vector2Scale(wall_accel, 900.0f)
     );
 
-    unsigned long bullet_idx = find_closest_bullet(&level_scene->scene, self->position);
+    float bullet_dist = 0.0f;
+    unsigned long bullet_idx = find_closest_bullet(&level_scene->scene, self->position, &bullet_dist);
 
     if (bullet_idx != MAX_ENTITIES)
     {
@@ -217,7 +219,7 @@ void test_ai_func(Entity_t* self, void* data)
         int8_t side_check = dot_mag > 0 ? 1:-1;
 
         p_ct->accel = Vector2Add(p_ct->accel,
-            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1200.0f)
+            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1000.0f * (*factors)[3])
             );
     }
 
@@ -227,6 +229,14 @@ void test_ai_func(Entity_t* self, void* data)
     p_ct->accel = Vector2Scale(p_ct->accel, true_mag / mag);
 
 
+    if (bullet_idx != MAX_ENTITIES && bullet_dist < 64.0f)
+    {
+        Entity_t* p_bullet = get_entity(&level_scene->scene.ent_manager, bullet_idx);
+        if (get_component(p_bullet, CAIFUNC_T) != NULL)
+        {
+            target_dir = Vector2Normalize(Vector2Subtract(self->position, p_bullet->position));
+        }
+    }
     // Shooting logic
     float facing_angle = atan2f(-target_dir.y, -target_dir.x) * 180 / PI;
     CWeapon_t* p_weapon = get_component(self, CWEAPON_T);
