@@ -66,17 +66,21 @@ void homing_target_func(Entity_t* self, void* scene)
     }
 }
 
-static const uint8_t scale_factors[4][5] = {
-    {2,1,1,2,3},
-    {1,1,4,1,4},
-    {1,2,2,3,6},
-    {3,1,1,1,4},
+// This is dumb since the factors are not weighted equally
+// Last column not used
+static const float scale_factors[4][5] = {
+    {600.0f, 3.0f, 1.0f,1500.0f,3.0f},
+    {400.0f, 2.0f, 3.0f,800.0f,4.0f},
+    {200.0f, 1.0f, 1.0f,2500.0f,6.0f},
+    {2000.0f, 4.0f, 3.0f,0.0f,4.0f},
+};
+static const float starting_bullet_dist[4] = {
+    220.0f, 0.0, 400.0f, 0.0f
 };
 
-static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos, float* dist)
+static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos, float* shortest_dist)
 {
     Entity_t* p_bullet;
-    float shortest_dist = 220.0f;
     unsigned long target_idx = MAX_ENTITIES;
     sc_map_foreach_value(&scene->ent_manager.entities_map[BULLET_ENT_TAG], p_bullet)
     {
@@ -91,13 +95,12 @@ static inline unsigned long find_closest_bullet(Scene_t* scene, Vector2 pos, flo
             Vector2Scale(p_bullet_ct->velocity, scene->delta_time)
         );
         float curr_dist = Vector2Distance(pred_pos, pos);
-        if (curr_dist < shortest_dist)
+        if (curr_dist < *shortest_dist)
         {
-            shortest_dist = curr_dist;
+            *shortest_dist = curr_dist;
             target_idx = p_bullet->m_id;
         }
     }
-    *dist = shortest_dist;
     return target_idx;
 }
 
@@ -143,11 +146,13 @@ void test_ai_func(Entity_t* self, void* data)
     CPlayerState_t* p_pstate = get_component(target, CPLAYERSTATE_T);
     if (p_pstate == NULL) return;
 
-    const uint8_t (*factors)[5] = scale_factors;
+    const float (*factors)[5] = scale_factors;
+    float bullet_dist = starting_bullet_dist[0];
     CWeapon_t* p_wep = get_component(target, CWEAPON_T);
     if (p_wep != NULL)
     {
         factors += p_wep->weapon_idx;
+        bullet_dist += p_wep->weapon_idx;
     }
 
     // Avoid direct sight
@@ -170,13 +175,13 @@ void test_ai_func(Entity_t* self, void* data)
 
     float mag = Vector2DotProduct(target_dir, p_pstate->aim_dir);
     mag = mag > 0 ? mag : 0.0f;
-    mag *= mag * 400.0f * (*factors)[0];
+    mag *= mag * (*factors)[0];
     p_ct->accel = Vector2Scale(Vector2Rotate(p_pstate->aim_dir, (PI / 2.0f) * c_ai->side), mag);
 
     // Try to be behind player
     Vector2 target_back = Vector2Add(target->position, Vector2Scale(p_pstate->aim_dir, -target->size * (dot_mag + 1.0f)));
     Vector2 err = Vector2Subtract(self->position, target_back);
-    Vector2 accel_to_back = Vector2Scale(err, -2.5f * (*factors)[1]);
+    Vector2 accel_to_back = Vector2Scale(err, -(*factors)[1]);
     p_ct->accel = Vector2Add(accel_to_back, p_ct->accel);
 
     // Try to get away from player, decaying magnitude
@@ -205,7 +210,6 @@ void test_ai_func(Entity_t* self, void* data)
         Vector2Scale(wall_accel, 900.0f)
     );
 
-    float bullet_dist = 0.0f;
     unsigned long bullet_idx = find_closest_bullet(&level_scene->scene, self->position, &bullet_dist);
 
     if (bullet_idx != MAX_ENTITIES)
@@ -219,7 +223,7 @@ void test_ai_func(Entity_t* self, void* data)
         int8_t side_check = dot_mag > 0 ? 1:-1;
 
         p_ct->accel = Vector2Add(p_ct->accel,
-            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), 1000.0f * (*factors)[3])
+            Vector2Scale(Vector2Rotate(Vector2Normalize(p_bullet_ct->velocity), (PI / 2.0f) * side_check), (*factors)[3])
             );
     }
 
