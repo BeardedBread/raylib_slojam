@@ -33,7 +33,7 @@ static GameEngine_t engine = {
 
 const int screenWidth = 1600;
 const int screenHeight = 1200;
-const float DT = 1/60.0;
+const float DT = 1.0f/60.0f;
 const uint8_t MAX_STEPS = 10;
 
 static Music ambient_mus;
@@ -121,14 +121,14 @@ static int load_all_assets(Assets_t* assets)
     spr->speed = 0;
 
     spr = add_sprite(assets, "enm_maw", game_tex);
-    spr->origin = (Vector2){128,160};
-    spr->frame_size = (Vector2){64,32};
-    spr->anchor = (Vector2){32,16};
-    spr->frame_count = 1;
+    spr->origin = (Vector2){128,224};
+    spr->frame_size = (Vector2){96,64};
+    spr->anchor = (Vector2){48,32};
+    spr->frame_count = 2;
     spr->speed = 0;
 
     spr = add_sprite(assets, "enm_ai", game_tex);
-    spr->origin = (Vector2){128,192};
+    spr->origin = (Vector2){128,160};
     spr->frame_size = (Vector2){64,64};
     spr->anchor = (Vector2){32,32};
     spr->frame_count = 1;
@@ -149,16 +149,16 @@ static int load_all_assets(Assets_t* assets)
     spr->speed = 0;
 
     spr = add_sprite(assets, "ms_ctrl", game_tex);
-    spr->origin = (Vector2){256,64};
-    spr->frame_size = (Vector2){192,256};
-    spr->anchor = (Vector2){96,128};
+    spr->origin = (Vector2){320,64};
+    spr->frame_size = (Vector2){160,224};
+    spr->anchor = (Vector2){80,112};
     spr->frame_count = 1;
     spr->speed = 0;
 
     spr = add_sprite(assets, "kb_ctrl", game_tex);
-    spr->origin = (Vector2){448,64};
-    spr->frame_size = (Vector2){352,256};
-    spr->anchor = (Vector2){176,128};
+    spr->origin = (Vector2){480,64};
+    spr->frame_size = (Vector2){320,224};
+    spr->anchor = (Vector2){160,112};
     spr->frame_count = 1;
     spr->speed = 0;
 

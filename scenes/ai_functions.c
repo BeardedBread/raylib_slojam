@@ -61,8 +61,16 @@ void homing_target_func(Entity_t* self, void* scene)
     CSprite_t* p_cspr = get_component(self, CSPRITE_T);
     if (p_cspr != NULL)
     {
-        float angle = atan2f(to_target.y, to_target.x);
-        p_cspr->rotation = angle * 180 / PI;
+        float angle = atan2f(to_target.y, to_target.x) * 180 / PI;
+        p_cspr->rotation = p_cspr->rotation + (angle -p_cspr->rotation) * 0.25f;
+        if (Vector2LengthSqr(to_target) < 100*100)
+        {
+            p_cspr->current_frame = 1;
+        }
+        else
+        {
+            p_cspr->current_frame = 0;
+        }
     }
 }
 

@@ -180,8 +180,9 @@ typedef struct _CAIFunction_t {
     float counter;
 
     // For counting purposes
-    float sub_sec;
-    uint32_t sec;
+    //float sub_sec;
+    //uint32_t sec;
+    float lag_time;
 
     decision_func_t func;
 } CAIFunction_t;

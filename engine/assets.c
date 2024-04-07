@@ -213,6 +213,9 @@ Font* get_font(Assets_t* assets, const char* name)
 
 void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool flip_x, Color colour)
 {
+    if (frame_num >= spr->frame_count) frame_num = spr->frame_count - 1;
+    if (frame_num < 0) frame_num = 0;
+
     Rectangle rec = {
         spr->origin.x + spr->frame_size.x * frame_num,
         spr->origin.y,

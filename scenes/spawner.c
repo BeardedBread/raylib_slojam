@@ -24,10 +24,10 @@ struct RankSpawnData {
 static const uint32_t SIZE_RANGES[5] = {12,18,32,56,80};
 static const uint32_t SPEED_RANGES[4] = {100,200,250,320};
 static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
-    {50  , {5,1}, {10,100,100,100}, {100,100,100}, 7 , 1.0f, {{0 ,0 }, {0,0 },{1,0}}},
-    {150 , {4,1}, {0 ,100,100,100}, {70 ,100,100}, 12, 1.1f, {{0 ,0 }, {0,0 },{1,0}}},
-    {250 , {3,2}, {0 ,85 ,100,100}, {15 ,100,100}, 13, 1.2f, {{3 ,10}, {0,0 },{1,0}}},
-    {350 , {3,2}, {0 ,25 ,100,100}, {0  ,85 ,100}, 15, 1.4f, {{5 ,10}, {0,5 },{1,0}}},
+    {50  , {5,1}, {10,100,100,100}, {100,100,100}, 7 , 1.0f, {{0 ,0 }, {0,50 },{0,0}}},
+    {150 , {4,1}, {0 ,100,100,100}, {70 ,100,100}, 12, 1.1f, {{0 ,0 }, {0,50 },{0,0}}},
+    {250 , {3,2}, {0 ,85 ,100,100}, {15 ,100,100}, 13, 1.2f, {{3 ,10}, {0,50 },{0,0}}},
+    {350 , {3,2}, {0 ,25 ,100,100}, {0  ,85 ,100}, 15, 1.4f, {{5 ,10}, {0,50 },{0,0}}},
     {450 , {3,2}, {0 ,15 ,95 ,100}, {10 ,65 ,100}, 17, 1.6f, {{7 ,15}, {0,5 },{1,10}}},
     {600 , {3,1}, {0 ,0  ,90 ,100}, {0  ,80 ,100}, 20, 1.8f, {{9,18}, {0,5 },{1,15}}},
     {750, {2,2}, {0 ,10 ,85 ,100}, {10 ,70 ,100}, 22, 2.1f, {{10,20}, {0,10},{1,20}}},
@@ -73,14 +73,16 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     p_ai->target_tag = PLAYER_ENT_TAG;
     p_ai->func = &homing_target_func;
     p_ai->accl = 1000;
+    p_ai->lag_time = 0.2f;
 
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;
     p_life->max_life = 1;
 
     CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
-    p_ct->shape_factor = 3;
-    p_ct->velocity_cap = 500;
+    p_ct->shape_factor = 2;
+    p_ct->velocity_cap = 800;
+    p_ct->velocity = Vector2Scale(p_ct->velocity, 2);
 
     CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
     p_cspr->current_idx = 2;
@@ -93,8 +95,8 @@ static inline void make_enemy_attract(Entity_t* p_ent)
 {
     CAttract_t* p_attract = add_component(p_ent, CATTRACTOR_T);
     p_attract->attract_idx = 1;
-    p_attract->attract_factor = 0.3f * p_ent->size / 32;
-    p_attract->range_factor = 15.0 * p_ent->size / 32;
+    p_attract->attract_factor = 0.03f;
+    p_attract->range_factor = 7.0f;
 
     CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
     p_cspr->current_idx = 1;
@@ -103,18 +105,20 @@ static inline void make_enemy_attract(Entity_t* p_ent)
 void split_spawn_logic_func(Entity_t* new_ent, SpawnerData* data, void* scene)
 {
     data->spawned++;
-
-    if (
-        data->custom_counter[0] < RANK_DATA[data->rank].variant_data[0].max_spawn
-        && GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[0].prob
-    )
-    {
-        make_enemy_attract(new_ent);
-        data->custom_counter[0]++;
-    }
-    else if (GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[1].prob) // Flat percent
+    //if (
+    //    data->custom_counter[0] < RANK_DATA[data->rank].variant_data[0].max_spawn
+    //    && GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[0].prob
+    //)
+    //{
+    //    data->custom_counter[0]++;
+    //}
+    if (GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[1].prob) // Flat percent
     {
         make_enemy_maws(new_ent);
+    }
+    else if (data->rank >= 4)
+    {
+        make_enemy_attract(new_ent);
     }
 }
 
@@ -243,6 +247,10 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
         {
             make_enemy_ai(p_ent);
             spwn_data->custom_counter[1]++;
+        }
+        else if (spwn_data->rank >= 4)
+        {
+            make_enemy_attract(p_ent);
         }
 
     }

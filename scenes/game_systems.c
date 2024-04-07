@@ -967,11 +967,11 @@ void ai_update_system(Scene_t* scene)
         Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         if (!p_ent->m_alive) continue;
 
-        p_enemyai->sub_sec += scene->delta_time;
-        if (p_enemyai->sub_sec > 1.0f)
+        // Give 0.4s of activation time
+        if (p_enemyai->lag_time > 0.0f)
         {
-            p_enemyai->sub_sec -= 1.0f;
-            p_enemyai->sec++;
+            p_enemyai->lag_time -= scene->delta_time;
+            continue;
         }
 
         // Re-target
