@@ -100,7 +100,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
                 if (p_cspr != NULL)
                 {
-                    p_cspr->current_idx = new_weapon;
+                    p_cspr->current_frame = new_weapon;
                 }
                 play_sfx(scene->engine, WEAPON1_HIT_SFX + new_weapon, true);
             }
