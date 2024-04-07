@@ -276,7 +276,8 @@ static int load_all_assets(Assets_t* assets)
     load_sfx(&engine, "snd_thumph", WEAPON2_HIT_SFX);
     add_sound(assets, "snd_mawsh", "res/maw_hit.ogg");
     load_sfx(&engine, "snd_mawsh", WEAPON3_HIT_SFX);
-    load_sfx(&engine, "snd_nailsh", WEAPON4_HIT_SFX);
+    add_sound(assets, "snd_laserh", "res/laser_hit2.ogg");
+    load_sfx(&engine, "snd_laserh", WEAPON4_HIT_SFX);
 
     add_sound(assets, "snd_enmded", "res/enemy_des.ogg");
     load_sfx(&engine, "snd_enmded", ENEMY_DEAD_SFX);
