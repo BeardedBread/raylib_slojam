@@ -24,17 +24,19 @@ struct RankSpawnData {
 static const uint32_t SIZE_RANGES[5] = {12,18,32,56,80};
 static const uint32_t SPEED_RANGES[4] = {100,200,250,320};
 static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
-    {50  , {5,1}, {10,100,100,100}, {100,100,100}, 7 , 1.0f, {{0 ,0 }, {0,50 },{0,0}}},
-    {150 , {4,1}, {0 ,100,100,100}, {70 ,100,100}, 12, 1.1f, {{0 ,0 }, {0,50 },{0,0}}},
-    {250 , {3,2}, {0 ,85 ,100,100}, {15 ,100,100}, 13, 1.2f, {{3 ,10}, {0,50 },{0,0}}},
-    {350 , {3,2}, {0 ,25 ,100,100}, {0  ,85 ,100}, 15, 1.4f, {{5 ,10}, {0,50 },{0,0}}},
-    {450 , {3,2}, {0 ,15 ,95 ,100}, {10 ,65 ,100}, 17, 1.6f, {{7 ,15}, {0,5 },{1,10}}},
-    {600 , {3,1}, {0 ,0  ,90 ,100}, {0  ,80 ,100}, 20, 1.8f, {{9,18}, {0,5 },{1,15}}},
-    {750, {2,2}, {0 ,10 ,85 ,100}, {10 ,70 ,100}, 22, 2.1f, {{10,20}, {0,10},{1,20}}},
-    {900, {2,2}, {0 ,0  ,70 ,100}, {0  ,50 ,100}, 24, 2.4f, {{11,25}, {0,10},{2,10}}},
-    {1100, {2,2}, {0 ,0  ,60 ,100}, {0  ,40 ,100}, 27, 2.7f, {{12,25}, {0,10},{2,20}}},
-    {9999, {2,1}, {0 ,0  ,50 ,100}, {0  ,30 ,100}, 40, 3.0f, {{20,25}, {0,10},{3,20}}},
+    {50  , {5,1}, {10,100,100,100}, {100,100,100}, 7 , 1.0f, {{0 ,0 }, {0,0 },{0,0}}},
+    {150 , {4,1}, {0 ,100,100,100}, {70 ,100,100}, 12, 1.1f, {{0 ,0 }, {0,0 },{0,0}}},
+    {250 , {3,2}, {0 ,85 ,100,100}, {15 ,100,100}, 13, 1.2f, {{3 ,10}, {0,0 },{0,0}}},
+    {350 , {3,2}, {0 ,25 ,100,100}, {0  ,85 ,100}, 15, 1.4f, {{5 ,10}, {3,5 },{0,0}}},
+    {450 , {3,2}, {0 ,15 ,95 ,100}, {10 ,65 ,100}, 17, 1.6f, {{7 ,15}, {5,5 },{0,0}}},
+    {600 , {3,1}, {0 ,0  ,90 ,100}, {0  ,80 ,100}, 20, 1.8f, {{9,18}, {6,5 },{1,15}}},
+    {750, {2,2}, {0 ,10 ,85 ,100}, {10 ,70 ,100}, 22, 2.1f, {{10,20}, {7,8},{1,20}}},
+    {900, {2,2}, {0 ,0  ,70 ,100}, {0  ,50 ,100}, 24, 2.4f, {{11,25}, {8,8},{2,10}}},
+    {1100, {2,2}, {0 ,0  ,60 ,100}, {0  ,40 ,100}, 27, 2.7f, {{12,25}, {10,10},{2,15}}},
+    {9999, {2,1}, {0 ,0  ,50 ,100}, {0  ,30 ,100}, 40, 3.0f, {{20,25}, {20,15},{3,15}}},
 };
+
+#define ATTRACT_RANK 6
 
 static inline void make_enemy_ai(Entity_t* ai_enemy)
 {
@@ -105,18 +107,11 @@ static inline void make_enemy_attract(Entity_t* p_ent)
 void split_spawn_logic_func(Entity_t* new_ent, SpawnerData* data, void* scene)
 {
     data->spawned++;
-    //if (
-    //    data->custom_counter[0] < RANK_DATA[data->rank].variant_data[0].max_spawn
-    //    && GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[0].prob
-    //)
-    //{
-    //    data->custom_counter[0]++;
-    //}
     if (GetRandomValue(0, 100) < RANK_DATA[data->rank].variant_data[1].prob) // Flat percent
     {
         make_enemy_maws(new_ent);
     }
-    else if (data->rank >= 4)
+    else if (data->rank >= ATTRACT_RANK)
     {
         make_enemy_attract(new_ent);
     }
@@ -143,6 +138,7 @@ void despawn_logic_func(Entity_t* self, SpawnerData* data, void* scene)
     if (get_component(self, CWEAPON_T) != NULL)
     {
         data->custom_counter[1]--;
+        data->spawned--;
     }
 }
 
@@ -247,8 +243,9 @@ void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
         {
             make_enemy_ai(p_ent);
             spwn_data->custom_counter[1]++;
+            spwn_data->spawned++;
         }
-        else if (spwn_data->rank >= 4)
+        else if (spwn_data->rank >= ATTRACT_RANK)
         {
             make_enemy_attract(p_ent);
         }
