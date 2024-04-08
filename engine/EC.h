@@ -57,7 +57,8 @@ typedef struct _CPlayerState_t {
     uint8_t boosting;
     uint8_t shoot;
     float boost_cooldown;
-    uint32_t collected;
+    int32_t collected;
+    int32_t prev_collected;
 } CPlayerState_t;
 
 typedef enum ContainerItem {

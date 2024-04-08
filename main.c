@@ -73,21 +73,18 @@ static int load_all_assets(Assets_t* assets)
     }
     Sprite_t* spr;
     char buffer[32];
-    //for (unsigned int i = 0; i < 3; i++)
-    //{
-    //    sprintf(buffer, "plr_wep%u", i+1);
-    //    spr = add_sprite(assets, buffer, game_tex);
-    //    spr->origin = (Vector2){32 * i,0};
-    //    spr->frame_size = (Vector2){32,32};
-    //    spr->anchor = (Vector2){16,16};
-    //    spr->frame_count = 1;
-    //    spr->speed = 0;
-    //}
     spr = add_sprite(assets, "plr_wep", game_tex);
     spr->origin = (Vector2){32,288};
     spr->frame_size = (Vector2){32,32};
     spr->anchor = (Vector2){16,16};
     spr->frame_count = 4;
+    spr->speed = 0;
+
+    spr = add_sprite(assets, "upg_noti", game_tex);
+    spr->origin = (Vector2){160, 288};
+    spr->frame_size = (Vector2){32,32};
+    spr->anchor = (Vector2){16,16};
+    spr->frame_count = 3;
     spr->speed = 0;
 
     for (unsigned int i = 0; i < 3; i++)

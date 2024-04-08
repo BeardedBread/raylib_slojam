@@ -696,6 +696,7 @@ void shop_render_func(Scene_t* scene)
             DrawText("Q/P to resume", data->ui.desc_box.x + 10,
                 data->ui.desc_box.y + data->ui.desc_box.height + 10,
                 24, TEXT_COLOUR);
+
         }
         else
         {
@@ -705,6 +706,77 @@ void shop_render_func(Scene_t* scene)
             };
             DrawText("Press Q or P", text_pos.x, text_pos.y, 30, TEXT_COLOUR);
             DrawText("to enter The Store", text_pos.x, text_pos.y + 30 + 2, 30, TEXT_COLOUR);
+            Entity_t* p_player;
+            sc_map_foreach_value(&scene->parent_scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
+            {
+                CPlayerState_t* p_pstate = get_component(p_player, CPLAYERSTATE_T);
+
+                const Color Dull = {255,255,255,64};
+                Sprite_t* spr = get_sprite(&scene->engine->assets, "upg_noti");
+                if (p_pstate->collected >= data->min_cost)
+                {
+                    draw_sprite(
+                        spr, 2,
+                        (Vector2){text_pos.x + 10, text_pos.y + 92},
+                        0, false, GREEN
+                    );
+                    if (p_pstate->prev_collected < data->min_cost)
+                    {
+                        play_sfx(scene->engine, PLAYER_READY_SFX, false);
+                    }
+                }
+                else
+                {
+                    draw_sprite(
+                        spr, 2,
+                        (Vector2){text_pos.x + 10, text_pos.y + 92},
+                        0, false, Dull
+                    );
+                }
+
+                if (p_pstate->collected >= data->store.full_heal.cost)
+                {
+                    draw_sprite(
+                        spr, 1,
+                        (Vector2){text_pos.x + 42, text_pos.y + 92},
+                        0, false, RED
+                    );
+                    if (p_pstate->prev_collected < data->store.full_heal.cost)
+                    {
+                        play_sfx(scene->engine, PLAYER_READY_SFX, false);
+                    }
+                }
+                else
+                {
+                    draw_sprite(
+                        spr, 1,
+                        (Vector2){text_pos.x + 42, text_pos.y + 92},
+                        0, false, Dull
+                    );
+                }
+
+                if (p_pstate->collected >= data->store.escape.cost)
+                {
+                    draw_sprite(
+                        spr, 0,
+                        (Vector2){text_pos.x + 74, text_pos.y + 92},
+                        0, false, WHITE
+                    );
+                    if (p_pstate->prev_collected < data->store.escape.cost)
+                    {
+                        play_sfx(scene->engine, PLAYER_READY_SFX, false);
+                    }
+                }
+                else
+                {
+                    draw_sprite(
+                        spr, 0,
+                        (Vector2){text_pos.x + 74, text_pos.y + 92},
+                        0, false, Dull
+                    );
+                }
+                break;
+            }
         }
 
     EndTextureMode();
@@ -899,6 +971,20 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                     {
                                         data->ui.upgrades[i].item->cost =  data->ui.upgrades[i].item->cost_cap;
                                     }
+
+                                    // Min cost update, exclude heal and escape
+                                    data->min_cost = 9999;
+                                    for (uint8_t i = 0; i < N_UPGRADES; ++i)
+                                    {
+                                        if (data->ui.upgrades[i].item == &data->store.full_heal) continue;
+                                        if (data->ui.upgrades[i].item == &data->store.escape) continue;
+                                        if (data->ui.upgrades[i].item->remaining == 0) continue;
+                                        
+                                        if (data->ui.upgrades[i].item->cost < data->min_cost)
+                                        {
+                                            data->min_cost = data->ui.upgrades[i].item->cost;
+                                        }
+                                    }
                                 }
                                 else
                                 {
@@ -1056,12 +1142,13 @@ void restart_level_scene(LevelScene_t* scene)
         .projspeed_upgrade = {150, 4, 4, 150, 1000},
         //.damage_upgrade = {150, 3, 3, 150, 1000},
         .health_upgrade = {200, 4, 4, 150, 1000},
-        .full_heal = {100, -1, -1, 100, 600},
+        .full_heal = {100, -1, -1, 100, 800},
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},
         .maws = {400, 1, 1, 0, 1000},
         .flux = {700, 1, 1, 0, 2000},
     };
+    shop_scene->data.min_cost = 150;
 
     for (uint8_t i = 0; i < N_UPGRADES; ++i)
     {

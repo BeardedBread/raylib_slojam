@@ -64,6 +64,7 @@ void money_collection_system(Scene_t* scene)
     unsigned int ent_idx;
     sc_map_foreach(&scene->ent_manager.component_map[CPLAYERSTATE_T], ent_idx, p_pstate)
     {
+        p_pstate->prev_collected = p_pstate->collected;
         Entity_t* p_ent =  get_entity(&scene->ent_manager, ent_idx);
         unsigned int money_idx;
         CMoney_t* p_money;

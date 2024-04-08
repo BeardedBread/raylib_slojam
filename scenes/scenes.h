@@ -13,11 +13,11 @@ typedef struct UIButton {
 
 typedef struct StoreItem
 {
-    unsigned int cost;
+    int32_t cost;
     int8_t cap;
     int8_t remaining;
-    unsigned int cost_increment;
-    unsigned int cost_cap;
+    int32_t cost_increment;
+    int32_t cost_cap;
 } StoreItem;
 
 typedef struct UpgradeBox {
@@ -56,6 +56,7 @@ typedef struct ShopSceneData {
     ShopUI ui;
     bool refresh_rec;
     UpgradeStoreInventory store;
+    uint16_t min_cost;
 } ShopSceneData;
 
 typedef struct ShopScene {

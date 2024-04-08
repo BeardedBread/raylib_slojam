@@ -240,6 +240,8 @@ void draw_sprite(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, bool
 
 void draw_sprite_scaled(Sprite_t* spr, int frame_num, Vector2 pos, float rotation, float scale, Color colour)
 {
+    if (frame_num >= spr->frame_count) frame_num = spr->frame_count - 1;
+    if (frame_num < 0) frame_num = 0;
     Rectangle rec = {
         spr->origin.x + spr->frame_size.x * frame_num,
         spr->origin.y,
