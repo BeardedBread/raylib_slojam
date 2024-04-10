@@ -439,6 +439,7 @@ static void arena_render_func(Scene_t* scene)
             spr_positions[0] = p_ent->position;
 
             CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
+
             if (p_ct != NULL && p_ct->edge_b == EDGE_WRAPAROUND)
             {
                 
@@ -537,6 +538,42 @@ static void arena_render_func(Scene_t* scene)
                         spr_positions[i],
                         Vector2Add(spr_positions[i], Vector2Scale(look_dir, 64)),
                         2, (Color){255,255,255,64}
+                    );
+                }
+            }
+            // Wraparound display
+            if (p_ent->m_tag == PLAYER_ENT_TAG)
+            {
+#define INDICATOR_SIZE 6
+                if (p_ent->position.x < 127)
+                {
+                    DrawCircleV(
+                        (Vector2){data->game_field_size.x - 16, p_ent->position.y},
+                         INDICATOR_SIZE, (Color){255,255,255,255 - (p_ent->position.x * 2)}
+                    );
+                }
+                else if (p_ent->position.x > data->game_field_size.x - 128)
+                {
+                    DrawCircleV(
+                        (Vector2){16, p_ent->position.y},
+                         INDICATOR_SIZE,
+                         (Color){255,255,255,255 - (data->game_field_size.x - p_ent->position.x) * 2}
+                    );
+                }
+                
+                if (p_ent->position.y < 128)
+                {
+                    DrawCircleV(
+                        (Vector2){p_ent->position.x, data->game_field_size.y - 16},
+                         INDICATOR_SIZE, (Color){255,255,255,255 - (p_ent->position.y * 2)}
+                    );
+                }
+                else if (p_ent->position.y > data->game_field_size.y - 128)
+                {
+                    DrawCircleV(
+                        (Vector2){p_ent->position.x, 16},
+                          INDICATOR_SIZE,
+                         (Color){255,255,255,255 - (data->game_field_size.y - p_ent->position.y )* 2}
                     );
                 }
             }
