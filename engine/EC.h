@@ -122,6 +122,7 @@ typedef struct _CWeapon {
     uint8_t weapon_idx;
     uint8_t special_prop;
     const uint8_t* modifiers;
+    bool selected;
 } CWeapon_t;
 
 typedef struct _CWeaponStore {

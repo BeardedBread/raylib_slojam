@@ -98,7 +98,10 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
             if (new_weapon < p_weaponstore->n_weapons && p_weaponstore->unlocked[new_weapon])
             {
                 p_weapon->hold_timer = 0.0f;
+                p_weapon->selected = false;
                 p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
+                p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
+                p_weaponstore->weapons[new_weapon]. selected = true;
                 *p_weapon = p_weaponstore->weapons[new_weapon];
                 CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
                 if (p_cspr != NULL)
@@ -379,11 +382,12 @@ static void arena_render_func(Scene_t* scene)
                 (Color){255,255,255,32}
             );
             int radius = 0;
-            for (uint8_t i = 0; i < MAX_RANK; i++)
+            for (uint8_t i = 0; i < MAX_RANK - 1; i++)
             {
                 DrawCircleLinesV(center, radius, (Color){255,255,255,16});
                 radius += RING_RADIUS_INCREMENT;
             }
+            DrawCircleLinesV(center, radius, (Color){255, 0, 0,64});
             break;
         }
 
@@ -986,7 +990,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             unsigned int ent_idx;
                                             sc_map_foreach(&scene->parent_scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
                                             {
-                                                p_spawner->data.rank = MAX_RANK - 2;
+                                                set_spawn_level(&p_spawner->data, MAX_RANK - 2);
                                             }
                                             play_sfx(scene->engine, RANKUP_SFX, false);
                                         }

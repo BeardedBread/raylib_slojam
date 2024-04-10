@@ -186,6 +186,18 @@ void weapon_cooldown_system(Scene_t* scene)
             p_weapon->cooldown_timer -= scene->delta_time;
         }
     }
+
+    CWeaponStore_t* p_weaponstore;
+    sc_map_foreach(&scene->ent_manager.component_map[CWEAPONSTORE_T], ent_idx, p_weaponstore)
+    {
+        for (uint8_t i = 0; i < p_weaponstore->n_weapons; ++i)
+        {
+            if (!p_weaponstore->weapons[i].selected && p_weaponstore->weapons[i].cooldown_timer> 0)
+            {
+                p_weaponstore->weapons[i].cooldown_timer -= scene->delta_time / 5.0f;
+            }
+        }
+    }
 }
 
 static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float angle, float speed)

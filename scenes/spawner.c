@@ -142,6 +142,14 @@ void despawn_logic_func(Entity_t* self, SpawnerData* data, void* scene)
     }
 }
 
+void set_spawn_level(SpawnerData* spwn_data, uint8_t lvl)
+{
+    spwn_data->rank = lvl;
+    spwn_data->rank_counter = 0;
+    spwn_data->rank_timer = 0;
+    spwn_data->next_rank_count = RANK_DATA[lvl].rank_up_value;
+}
+
 void spawn_logic_func(Entity_t* self, SpawnerData* spwn_data, void* scene)
 {
     LevelScene_t* lvl_scene = (LevelScene_t*)scene;
