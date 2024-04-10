@@ -84,6 +84,9 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                     scene->time_scale = 0.0f;
                     scene->state_bits = 0b110;
                     scene->subscene->state_bits = 0b111;
+                    // This only works because time stops in the store
+                    ShopScene_t* shop_scene = (ShopScene_t*)scene->subscene;
+                    shop_scene->data.curr_money = p_playerstate->collected;
                     return ACTION_CONSUMED;
                 }
             break;
@@ -719,7 +722,10 @@ void shop_render_func(Scene_t* scene)
                 }
 
                 sprintf(buffer, "%04u", data->ui.upgrades[i].item->cost);
-                DrawText(buffer, center.x, center.y - (UPGRADE_FONT_SIZE >> 1), UPGRADE_FONT_SIZE, TEXT_COLOUR);
+                DrawText(
+                    buffer, center.x, center.y - (UPGRADE_FONT_SIZE >> 1),
+                    UPGRADE_FONT_SIZE,
+                    (data->ui.upgrades[i].item->remaining && data->curr_money >= data->ui.upgrades[i].item->cost) ? TEXT_COLOUR : (Color){64,64,64,255});
 
             }
 
@@ -752,10 +758,10 @@ void shop_render_func(Scene_t* scene)
                 Sprite_t* spr = get_sprite(&scene->engine->assets, "upg_noti");
                 if (p_pstate->collected >= data->min_cost)
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 2,
-                        (Vector2){text_pos.x + 10, text_pos.y + 92},
-                        0, false, GREEN
+                        (Vector2){text_pos.x + 60, text_pos.y + 92},
+                        0, 2, GREEN
                     );
                     if (p_pstate->prev_collected < data->min_cost)
                     {
@@ -764,19 +770,19 @@ void shop_render_func(Scene_t* scene)
                 }
                 else
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 2,
-                        (Vector2){text_pos.x + 10, text_pos.y + 92},
-                        0, false, Dull
+                        (Vector2){text_pos.x + 60, text_pos.y + 92},
+                        0, 2, Dull
                     );
                 }
 
                 if (p_pstate->collected >= data->store.full_heal.cost)
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 1,
-                        (Vector2){text_pos.x + 42, text_pos.y + 92},
-                        0, false, RED
+                        (Vector2){text_pos.x + 160, text_pos.y + 92},
+                        0, 2, RED
                     );
                     if (p_pstate->prev_collected < data->store.full_heal.cost)
                     {
@@ -785,19 +791,19 @@ void shop_render_func(Scene_t* scene)
                 }
                 else
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 1,
-                        (Vector2){text_pos.x + 42, text_pos.y + 92},
-                        0, false, Dull
+                        (Vector2){text_pos.x + 160, text_pos.y + 92},
+                        0, 2, Dull
                     );
                 }
 
                 if (p_pstate->collected >= data->store.escape.cost)
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 0,
-                        (Vector2){text_pos.x + 74, text_pos.y + 92},
-                        0, false, WHITE
+                        (Vector2){text_pos.x + 260, text_pos.y + 92},
+                        0, 2, WHITE
                     );
                     if (p_pstate->prev_collected < data->store.escape.cost)
                     {
@@ -806,10 +812,10 @@ void shop_render_func(Scene_t* scene)
                 }
                 else
                 {
-                    draw_sprite(
+                    draw_sprite_scaled(
                         spr, 0,
-                        (Vector2){text_pos.x + 74, text_pos.y + 92},
-                        0, false, Dull
+                        (Vector2){text_pos.x + 260, text_pos.y + 92},
+                        0, 2, Dull
                     );
                 }
                 break;
@@ -1186,6 +1192,7 @@ void restart_level_scene(LevelScene_t* scene)
         .flux = {700, 1, 1, 0, 2000},
     };
     shop_scene->data.min_cost = 150;
+    shop_scene->data.curr_money = 0;
 
     for (uint8_t i = 0; i < N_UPGRADES; ++i)
     {

@@ -57,6 +57,7 @@ typedef struct ShopSceneData {
     bool refresh_rec;
     UpgradeStoreInventory store;
     uint16_t min_cost;
+    uint16_t curr_money;
 } ShopSceneData;
 
 typedef struct ShopScene {
