@@ -39,7 +39,7 @@ Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value)
 
     CContainer_t* p_container = add_component(p_ent, CCONTAINER_T);
     p_container->item = CONTAINER_ENEMY;
-    p_container->num = (rand() % 2) ? 2 : 3; // 50/50
+    p_container->num = GetRandomValue(0, 99) < 75 ? 2 : 3; // 25% to spawn more
 
     if (value > 0)
     {

@@ -1168,7 +1168,7 @@ void restart_level_scene(LevelScene_t* scene)
 
 void init_level_scene(LevelScene_t* scene)
 {
-#define ARENA_START_X 25
+#define ARENA_START_X 70
 #define ARENA_START_Y 70
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
