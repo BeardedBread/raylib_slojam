@@ -100,8 +100,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 p_weapon->hold_timer = 0.0f;
                 p_weapon->selected = false;
                 p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
-                p_weaponstore->weapons[p_weapon->weapon_idx] = *p_weapon;
-                p_weaponstore->weapons[new_weapon]. selected = true;
+                p_weaponstore->weapons[new_weapon].selected = true;
                 *p_weapon = p_weaponstore->weapons[new_weapon];
                 CSprite_t* p_cspr = get_component(p_player, CSPRITE_T);
                 if (p_cspr != NULL)
