@@ -68,6 +68,7 @@ typedef enum ContainerItem {
     CONTAINER_BOMB,
     CONTAINER_GOAL,
     CONTAINER_ENDING,
+    CONTAINER_START,
 } ContainerItem_t;
 
 typedef struct _CContainer_t {

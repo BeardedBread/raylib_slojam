@@ -21,6 +21,7 @@ Entity_t* create_player(EntityManager_t* ent_manager);
 Entity_t* create_bullet(EntityManager_t* ent_manager);
 Entity_t* create_enemy(EntityManager_t* ent_manager, float size, int32_t value);
 Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 pos);
+Entity_t* create_start_target(EntityManager_t* ent_manager, float size, Vector2 pos);
 Entity_t* create_collectible(EntityManager_t* ent_manager, float size, int32_t value);
 Entity_t* create_end_item(EntityManager_t* ent_manager, float size);
 

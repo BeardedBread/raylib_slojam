@@ -109,6 +109,13 @@ static int load_all_assets(Assets_t* assets)
         spr->speed = 0;
     }
 
+    spr = add_sprite(assets, "strt_tgt", game_tex);
+    spr->origin = (Vector2){192,160};
+    spr->frame_size = (Vector2){64,64};
+    spr->anchor = (Vector2){32,32};
+    spr->frame_count = 1;
+    spr->speed = 0;
+
     spr = add_sprite(assets, "enm_normal", game_tex);
     spr->origin = (Vector2){0,32};
     spr->frame_size = (Vector2){128,128};

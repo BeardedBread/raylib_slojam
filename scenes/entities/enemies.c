@@ -1,7 +1,7 @@
 #include "ent_impl.h"
 #include "../assets_tag.h"
 #include <math.h>
-static Sprite_t* enemies_sprite_map[4] = {0};
+static Sprite_t* enemies_sprite_map[5] = {0};
 static Sprite_t* boss_sprite_map[3] = {0};
 
 #define MAX_MOMENTUM 3500
@@ -103,6 +103,31 @@ Entity_t* create_final_enemy(EntityManager_t* ent_manager, float size, Vector2 p
     return p_finalenemy;
 }
 
+Entity_t* create_start_target(EntityManager_t* ent_manager, float size, Vector2 pos)
+{
+    Entity_t* start_target = create_enemy(ent_manager, size, 0);
+    if (start_target == NULL) return NULL;
+
+    start_target->position = pos;
+
+    CContainer_t* p_container = get_component(start_target, CCONTAINER_T);
+    p_container->item = CONTAINER_START;
+    p_container->num = 1;
+
+    remove_component(start_target, CHITBOXES_T);
+    remove_component(start_target, CTRANSFORM_T);
+
+    CLifeTimer_t* p_life = get_component(start_target, CLIFETIMER_T);
+    p_life->current_life = 1;
+    p_life->max_life = 1;
+
+    CSprite_t* p_cspr = get_component(start_target, CSPRITE_T);
+    p_cspr->current_idx = 4;
+    p_cspr->colour = WHITE;
+
+    return start_target;
+}
+
 bool init_enemies_creation(Assets_t* assets)
 {
     Sprite_t* spr = get_sprite(assets, "enm_normal");
@@ -113,6 +138,8 @@ bool init_enemies_creation(Assets_t* assets)
     enemies_sprite_map[2] = spr;
     spr = get_sprite(assets, "enm_ai");
     enemies_sprite_map[3] = spr;
+    spr = get_sprite(assets, "strt_tgt");
+    enemies_sprite_map[4] = spr;
 
     spr = get_sprite(assets, "finale1");
     boss_sprite_map[0] = spr;

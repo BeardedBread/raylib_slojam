@@ -57,12 +57,6 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
                 p_playerstate->boosting |= (pressed) ? 1 : 0;
             break;
             case ACTION_SHOOT:
-                if (data->game_state == GAME_STARTING)
-                {
-                    create_spawner(&scene->ent_manager);
-                    play_sfx(scene->engine, RANKUP_SFX, false);
-                    data->game_state = GAME_PLAYING;
-                }
                 p_playerstate->shoot |= (pressed) ? 1 : 0;
             break;
             case ACTION_SELECT1:
@@ -1178,7 +1172,14 @@ void restart_level_scene(LevelScene_t* scene)
 
     Entity_t* player = create_player(&scene->scene.ent_manager);
     player->position = Vector2Scale(scene->data.game_field_size, 0.5f);
-    //create_spawner(&scene->scene.ent_manager);
+
+    create_start_target(
+        &scene->scene.ent_manager, 64,
+        (Vector2){
+            scene->data.game_field_size.x / 2,
+            scene->data.game_field_size.y / 4
+        }
+    );
 
     update_entity_manager(&scene->scene.ent_manager);
 
@@ -1187,12 +1188,12 @@ void restart_level_scene(LevelScene_t* scene)
         .firerate_upgrade = {200, 4, 4, 125, 1000},
         .projspeed_upgrade = {150, 4, 4, 150, 1000},
         //.damage_upgrade = {150, 3, 3, 150, 1000},
-        .health_upgrade = {200, 4, 4, 150, 1000},
+        .health_upgrade = {200, 4, 4, 150, 10000},
         .full_heal = {100, -1, -1, 100, 800},
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},
-        .maws = {400, 1, 1, 0, 1000},
-        .flux = {700, 1, 1, 0, 2000},
+        .maws = {500, 1, 1, 0, 1000},
+        .flux = {400, 1, 1, 0, 2000},
     };
     shop_scene->data.min_cost = 150;
     shop_scene->data.curr_money = 0;

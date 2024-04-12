@@ -5,6 +5,7 @@
 
 #include "ai_functions.h"
 #include "ent_impl.h"
+#include "level_ent.h"
 #include "raymath.h"
 
 static void simple_particle_system_update(Particle_t* part, void* user_data);
@@ -929,6 +930,32 @@ void container_destroy_system(Scene_t* scene)
                 data->endeffect_timer = 0;
                 data->endeffect_pos = p_ent->position;
                 data->win_flag = true;
+            }
+            break;
+            case CONTAINER_START:
+            {
+                LevelSceneData_t* data = &(((LevelScene_t*)scene)->data);
+                if (data->game_state == GAME_STARTING)
+                {
+                    create_spawner(&scene->ent_manager);
+                    play_sfx(scene->engine, RANKUP_SFX, false);
+                    data->game_state = GAME_PLAYING;
+                    ParticleEmitter_t emitter = {
+                        .spr = NULL,
+                        .config = get_emitter_conf(&scene->engine->assets, "part_ded"),
+                        .position = {
+                            .x = p_ent->position.x,
+                            .y = p_ent->position.y,
+                        },
+                        .angle_offset = 0.0f,
+                        .part_type = PARTICLE_LINE,
+                        .n_particles = 20,
+                        .user_data = scene,
+                        .update_func = &simple_particle_system_update,
+                        .emitter_update_func = NULL,
+                    };
+                    play_particle_emitter(&scene->part_sys, &emitter);
+                }
             }
             break;
             default:
