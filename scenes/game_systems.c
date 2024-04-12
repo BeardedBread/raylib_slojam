@@ -955,6 +955,7 @@ void container_destroy_system(Scene_t* scene)
                         .emitter_update_func = NULL,
                     };
                     play_particle_emitter(&scene->part_sys, &emitter);
+                    play_sfx(scene->engine, ENEMY_DEAD_SFX, true);
                 }
             }
             break;

@@ -18,6 +18,8 @@
 #define ARENA_COLOUR (Color){20,20,20,255}
 #define THEME_COLOUR RED
 #define SELECTION_COLOUR PINK
+#define WEP_ICON_SPACING 150
+static const int total_icons_width = (96 + WEP_ICON_SPACING) * 4;
 
 void restart_level_scene(LevelScene_t* scene);
 
@@ -133,7 +135,6 @@ static void level_scene_render_func(Scene_t* scene)
         }
     }
 
-    const int total_icons_width = (96 + 25) * 4;
     Image stat_view = GenImageColor(
         total_icons_width, 180,
         BG_COLOUR
@@ -156,12 +157,12 @@ static void level_scene_render_func(Scene_t* scene)
             ImageDraw(
                 &stat_view, data->weapon_icons,
                 (Rectangle){0, icon_height*i, icon_width, icon_height},
-                (Rectangle){(icon_width + 25) * i,0,icon_width, icon_height},
+                (Rectangle){(icon_width + WEP_ICON_SPACING) * i,0,icon_width, icon_height},
                 (i == p_weapon->weapon_idx) ? WHITE : GRAY
             );
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){(icon_width + 25) * i,0,icon_width, icon_height},
+                (Rectangle){(icon_width + WEP_ICON_SPACING) * i,0,icon_width, icon_height},
                 (Color){64,64,64,128}
             );
 
@@ -180,7 +181,7 @@ static void level_scene_render_func(Scene_t* scene)
             int show_height = icon_width * (cooldown_timer - current_cooldown) / cooldown_timer;
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){(icon_width + 25) * i, 0, show_height, icon_height},
+                (Rectangle){(icon_width + WEP_ICON_SPACING) * i, 0, show_height, icon_height},
                 (Color){255,255,255,255}
             );
         }
@@ -206,66 +207,7 @@ static void level_scene_render_func(Scene_t* scene)
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 
-        if (player_ent != NULL)
-        {
-            CPlayerState_t* p_pstate = get_component(player_ent, CPLAYERSTATE_T);
-            sprintf(mem_stats, "Essence: %u", p_pstate->collected);
-            DrawText(
-                mem_stats, scene->subscene_pos.x,
-                stat_height + (PLAYER_STAT_FONT >> 1),
-                PLAYER_STAT_FONT, TEXT_COLOUR
-            );
-            stat_height += PLAYER_STAT_FONT + 15;
-
-            CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
-            const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
-            DrawRectangle(
-                data->game_rec.x - 5, data->game_rec.y - 32 -  5 - 4,
-                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 32 + 3, YELLOW
-            );
-            DrawRectangle(
-                data->game_rec.x, data->game_rec.y - 32 - 5,
-                HEALTH_LENGTH - 10, 28, GRAY
-            );
-
-            {
-                static uint8_t health_flash = 0;
-                static float flash_timing = 0.0f;
-                if (p_life->current_life <= CRIT_HEALTH)
-                {
-                    flash_timing += scene->delta_time;
-                    if (flash_timing >= 0.2f)
-                    {
-                        health_flash = !health_flash;
-                        flash_timing -= 0.2f;
-                    }
-                }
-                else
-                {
-                    health_flash = false;
-                    flash_timing = 0.0f;
-                }
-                DrawRectangle(
-                    data->game_rec.x, data->game_rec.y - 32 - 5,
-                    (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
-                    (health_flash) ? WHITE : RED
-                );
-            }
-
-            //stat_height += 40 + 5;
-
-            DrawTextureRec(
-                data->stat_view.texture,
-                (Rectangle){0,0,stat_view.width,stat_view.height},
-                (Vector2){
-                    //scene->subscene_pos.x,
-                    //stat_height,
-                    data->game_rec.x + data->game_rec.width - stat_view.width,
-                    data->game_rec.y - 45 - 10 // Hardcode the height
-                },
-                WHITE
-            );
-        }
+        
 
         draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
@@ -287,14 +229,80 @@ static void level_scene_render_func(Scene_t* scene)
             },
             WHITE
         );
+        if (player_ent != NULL)
+        {
+            CPlayerState_t* p_pstate = get_component(player_ent, CPLAYERSTATE_T);
+            sprintf(mem_stats, "Essence: %u", p_pstate->collected);
+            DrawText(
+                mem_stats, scene->subscene_pos.x,
+                shop_scene->data.shop_rec.y +  shop_scene->data.shop_rec.height + scene->subscene_pos.y + (PLAYER_STAT_FONT >> 1),
+                PLAYER_STAT_FONT, SKYBLUE
+            );
+            stat_height += PLAYER_STAT_FONT + 15;
 
+            CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
+            const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
+
+            Vector2 bar_pos = (Vector2){
+                shop_scene->data.shop_rec.x + scene->subscene_pos.x,
+                scene->subscene_pos.y - 60
+            };
+            DrawRectangle(
+                bar_pos.x, bar_pos.y,
+                HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 32 + 3, YELLOW
+            );
+            DrawRectangle(
+                bar_pos.x, bar_pos.y + 3,
+                HEALTH_LENGTH - 10, 28, GRAY
+            );
+
+            {
+                static uint8_t health_flash = 0;
+                static float flash_timing = 0.0f;
+                if (p_life->current_life <= CRIT_HEALTH)
+                {
+                    flash_timing += scene->delta_time;
+                    if (flash_timing >= 0.2f)
+                    {
+                        health_flash = !health_flash;
+                        flash_timing -= 0.2f;
+                    }
+                }
+                else
+                {
+                    health_flash = false;
+                    flash_timing = 0.0f;
+                }
+                DrawRectangle(
+                    bar_pos.x, bar_pos.y + 3,
+                    //data->game_rec.x, data->game_rec.y - 32 - 5,
+                    (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
+                    (health_flash) ? WHITE : RED
+                );
+            }
+
+            //stat_height += 40 + 5;
+
+            DrawTextureRec(
+                data->stat_view.texture,
+                (Rectangle){0,0,stat_view.width,stat_view.height},
+                (Vector2){
+                    //scene->subscene_pos.x,
+                    //stat_height,
+                    //data->game_rec.x + data->game_rec.width - stat_view.width,
+                    ARENA_START_X + 150,
+                    data->game_rec.y - 45 - 10 // Hardcode the height
+                },
+                WHITE
+            );
+        }
         draw_rec.height = -data->credits_view.texture.height;
         DrawTextureRec(
             data->credits_view.texture,
             draw_rec,
             (Vector2){
                 shop_scene->data.shop_rec.x + scene->subscene_pos.x,
-                shop_scene->data.shop_rec.y + scene->subscene_pos.y + shop_scene->data.shop_rec.height + 10
+                shop_scene->data.shop_rec.y + scene->subscene_pos.y + shop_scene->data.shop_rec.height + 50
             },
             WHITE
         );
@@ -583,8 +591,8 @@ static void arena_render_func(Scene_t* scene)
 
         if (data->game_state == GAME_STARTING)
         {
-            DrawText("Void Particle", data->game_field_size.x / 4, data->game_field_size.y / 4 - (72 >> 1), 72, TEXT_COLOUR);
-            DrawText("by SadPumpkin", data->game_field_size.x / 4 + 300, data->game_field_size.y / 4 + 36 + 5 - (20 >> 1), 20, TEXT_COLOUR);
+            DrawText("Void Particle: Post-Jam Edition", data->game_field_size.x / 16, data->game_field_size.y / 8 - (60 >> 1), 60, TEXT_COLOUR);
+            DrawText("by SadPumpkin", data->game_field_size.x / 2 + 300, data->game_field_size.y / 8 + 36 + 5 - (20 >> 1), 20, TEXT_COLOUR);
 
             Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
             draw_sprite(spr, 0, (Vector2){
@@ -1216,8 +1224,6 @@ void restart_level_scene(LevelScene_t* scene)
 
 void init_level_scene(LevelScene_t* scene)
 {
-#define ARENA_START_X 70
-#define ARENA_START_Y 70
     init_scene(&scene->scene, &level_scene_render_func, &level_do_action);
     init_entity_tag_map(&scene->scene.ent_manager, PLAYER_ENT_TAG, 4);
     init_entity_tag_map(&scene->scene.ent_manager, BULLET_ENT_TAG, 256);
@@ -1297,7 +1303,6 @@ void init_level_scene(LevelScene_t* scene)
 
     generate_shop_UI(&shop_scene->data);
 
-    const int total_icons_width = (96 + 25) * 4;
     scene->data.stat_view = LoadRenderTexture(
         total_icons_width, 180
     );
