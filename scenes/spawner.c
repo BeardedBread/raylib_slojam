@@ -32,8 +32,8 @@ static const struct RankSpawnData RANK_DATA[MAX_RANK] = {
     {650 , {3,1}, {0 ,10  ,90 ,100}, {0  ,85 ,100}, 20, 1.7f, {{9,18}, {6,8 },{1,10}}},
     {850, {2,2}, {0 ,10 ,85 ,100}, {10 ,70 ,100}, 22, 2.0f, {{10,20}, {7,10},{1,10}}},
     {1200, {2,2}, {0 ,10  ,70 ,100}, {0  ,60 ,100}, 23, 2.2f, {{11,25}, {8,10},{1,15}}},
-    {5000, {2,2}, {0 ,5  ,60 ,100}, {0  ,45 ,100}, 25, 2.5f, {{12,25}, {10,12},{1,15}}},
-    {9999, {2,1}, {0 ,0  ,50 ,100}, {0  ,30 ,100}, 33, 3.0f, {{20,25}, {20,15},{2,20}}},
+    {2500, {2,1}, {0 ,5  ,60 ,100}, {0  ,45 ,100}, 25, 2.5f, {{12,25}, {10,12},{1,15}}},
+    {9999, {1,1}, {0 ,0  ,50 ,100}, {0  ,30 ,100}, 40, 3.0f, {{20,25}, {20,15},{2,20}}},
 };
 
 #define ATTRACT_RANK 6
@@ -75,7 +75,7 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     p_ai->target_tag = PLAYER_ENT_TAG;
     p_ai->func = &homing_target_func;
     p_ai->accl = 1000;
-    p_ai->lag_time = 0.2f;
+    p_ai->lag_time = 0.1f;
 
     CLifeTimer_t* p_life = get_component(p_ent, CLIFETIMER_T);
     p_life->current_life = 1;
@@ -84,7 +84,7 @@ static inline void make_enemy_maws(Entity_t* p_ent)
     CTransform_t* p_ct = get_component(p_ent, CTRANSFORM_T);
     p_ct->shape_factor = 2;
     p_ct->velocity_cap = 800;
-    p_ct->velocity = Vector2Scale(p_ct->velocity, 2);
+    //p_ct->velocity = Vector2Scale(p_ct->velocity, 2);
 
     CSprite_t* p_cspr = get_component(p_ent, CSPRITE_T);
     p_cspr->current_idx = 2;
