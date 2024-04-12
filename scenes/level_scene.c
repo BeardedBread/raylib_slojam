@@ -150,21 +150,29 @@ static void level_scene_render_func(Scene_t* scene)
 
         const int icon_width = data->weapon_icons.width;
         const int icon_height = data->weapon_icons.height / 4;
+        const char* WEAPON_KEYS[4] = {"A/J","S/K","D/L","F/;"};
         for (uint8_t i = 0; i < p_weaponstore->n_weapons; ++i)
         {
             if (!p_weaponstore->unlocked[i]) continue;
 
+            int x_pos = (icon_width + WEP_ICON_SPACING) * i;
             ImageDraw(
                 &stat_view, data->weapon_icons,
                 (Rectangle){0, icon_height*i, icon_width, icon_height},
-                (Rectangle){(icon_width + WEP_ICON_SPACING) * i,0,icon_width, icon_height},
+                (Rectangle){x_pos, 0, icon_width, icon_height},
                 (i == p_weapon->weapon_idx) ? WHITE : GRAY
             );
             ImageDrawRectangleRec(
                 &mask,
-                (Rectangle){(icon_width + WEP_ICON_SPACING) * i,0,icon_width, icon_height},
+                (Rectangle){x_pos, 0, icon_width, icon_height},
                 (Color){64,64,64,128}
             );
+            ImageDrawRectangleRec(
+                &mask,
+                (Rectangle){x_pos + icon_width + 10, 0, 72, icon_height},
+                (Color){255, 255 , 255, 255}
+            );
+            ImageDrawText(&stat_view, WEAPON_KEYS[i], x_pos + icon_width + 10, 24 >> 1, 24, WHITE);
 
             float cooldown_timer = 1;
             float current_cooldown = 0;
@@ -178,11 +186,12 @@ static void level_scene_render_func(Scene_t* scene)
                 cooldown_timer = 1.0f / (p_weaponstore->weapons[i].fire_rate  * (1 + p_weaponstore->weapons[i].modifiers[0] * 0.1));
                 current_cooldown = p_weaponstore->weapons[i].cooldown_timer;
             }
+            Color wep_col = (current_cooldown > 0.0f) ? RED : WHITE;
             int show_height = icon_width * (cooldown_timer - current_cooldown) / cooldown_timer;
             ImageDrawRectangleRec(
                 &mask,
                 (Rectangle){(icon_width + WEP_ICON_SPACING) * i, 0, show_height, icon_height},
-                (Color){255,255,255,255}
+                wep_col
             );
         }
     }
@@ -206,8 +215,6 @@ static void level_scene_render_func(Scene_t* scene)
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
         const int PLAYER_STAT_FONT = 24;
         int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
-
-        
 
         draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
@@ -366,7 +373,7 @@ static void arena_render_func(Scene_t* scene)
         {
             // Not going into the final game
             //static char buffer[64];
-            //sprintf(buffer, "Rank %u: %u", p_spawner->data.rank, p_spawner->data.rank_counter);
+            //sprintf(buffer, "Spawned %u", p_spawner->data.spawned);
             //DrawText(buffer, 0, data->game_field_size.y - 32, 32, WHITE);
             Vector2 center = Vector2Scale(data->game_field_size, 0.5f);
             //for (uint8_t i = 0; i < lit_ring; i++)
@@ -595,13 +602,13 @@ static void arena_render_func(Scene_t* scene)
             DrawText("by SadPumpkin", data->game_field_size.x / 2 + 300, data->game_field_size.y / 8 + 36 + 5 - (20 >> 1), 20, TEXT_COLOUR);
 
             Sprite_t* spr = get_sprite(&scene->engine->assets, "ms_ctrl");
-            draw_sprite(spr, 0, (Vector2){
+            draw_sprite_scaled(spr, 0, (Vector2){
                 data->game_field_size.x * 3 / 4,data->game_field_size.y  / 2},
-            0.0f, false, WHITE);
+            0.0f, 1.5f, WHITE);
             spr = get_sprite(&scene->engine->assets, "kb_ctrl");
-            draw_sprite(spr, 0, (Vector2){
-                data->game_field_size.x / 4,data->game_field_size.y / 2},
-            0.0f, false, WHITE);
+            draw_sprite_scaled(spr, 0, (Vector2){
+                data->game_field_size.x / 4,data->game_field_size.y / 2 + 50},
+            0.0f, 1.5f, WHITE);
             DrawText("Objective: Obtain the Void Particle from The Store", 25, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
             DrawText("Move around and get used to the controls", 25, data->game_field_size.y *3/ 4  + 15 + (30 >> 1), 30, TEXT_COLOUR);
             DrawText("Once you are ready, SHOOT to Begin", 25, data->game_field_size.y *3/ 4  + 45 + (30 >> 1), 30, TEXT_COLOUR);
