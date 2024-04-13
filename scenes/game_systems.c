@@ -229,7 +229,7 @@ static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float 
     if (p_weapon->special_prop & 0x1)
     {
         //bullet_life->poison_value = 0;
-        bullet_ct->shape_factor = 7 + 1.2f * p_weapon->modifiers[1];
+        bullet_ct->shape_factor = 5 + 1.2f * p_weapon->modifiers[1];
     }
 
     if (p_weapon->special_prop & 0x2)
@@ -476,7 +476,7 @@ void player_movement_input_system(Scene_t* scene)
                     angle_increment += p_weapon->spread_range;
                 }
 
-                p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.1));
+                p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.07));
                 play_sfx(scene->engine, WEAPON1_FIRE_SFX + p_weapon->weapon_idx, true);
             }
 

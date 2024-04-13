@@ -41,7 +41,7 @@ static ActionResult level_do_action(Scene_t* scene, ActionType_t action, bool pr
         restart_level_scene((LevelScene_t*)scene);
         return ACTION_CONSUMED;
     }
-    LevelSceneData_t* data = &((LevelScene_t*)scene)->data;
+    //LevelSceneData_t* data = &((LevelScene_t*)scene)->data;
             
     Entity_t* p_player;
     sc_map_foreach_value(&scene->ent_manager.entities_map[PLAYER_ENT_TAG], p_player)
@@ -214,7 +214,6 @@ static void level_scene_render_func(Scene_t* scene)
         sprintf(mem_stats, "%u %u %u", GetFPS(), get_num_of_free_entities(), get_number_of_free_emitter(&scene->part_sys));
         DrawText(mem_stats, data->game_rec.x + 10, data->game_rec.y + data->game_rec.height + 12, 12, TEXT_COLOUR);
         const int PLAYER_STAT_FONT = 24;
-        int stat_height = data->game_rec.y - PLAYER_STAT_FONT * 2;
 
         draw_rec = shop_scene->data.shop_rec;
         draw_rec.x = shop_scene->data.shop_rec.x + scene->subscene_pos.x - 2;
@@ -245,21 +244,20 @@ static void level_scene_render_func(Scene_t* scene)
                 shop_scene->data.shop_rec.y +  shop_scene->data.shop_rec.height + scene->subscene_pos.y + (PLAYER_STAT_FONT >> 1),
                 PLAYER_STAT_FONT, SKYBLUE
             );
-            stat_height += PLAYER_STAT_FONT + 15;
 
             CLifeTimer_t* p_life = get_component(player_ent, CLIFETIMER_T);
             const int HEALTH_LENGTH = p_life->max_life * 1.0f / MAXIMUM_HEALTH * shop_scene->data.shop_rec.width;
 
             Vector2 bar_pos = (Vector2){
                 shop_scene->data.shop_rec.x + scene->subscene_pos.x,
-                scene->subscene_pos.y - 60
+                scene->subscene_pos.y - 45
             };
             DrawRectangle(
                 bar_pos.x, bar_pos.y,
                 HEALTH_LENGTH * p_pstate->boost_cooldown / BOOST_COOLDOWN, 32 + 3, YELLOW
             );
             DrawRectangle(
-                bar_pos.x, bar_pos.y + 3,
+                bar_pos.x + 3, bar_pos.y + 3,
                 HEALTH_LENGTH - 10, 28, GRAY
             );
 
@@ -281,7 +279,7 @@ static void level_scene_render_func(Scene_t* scene)
                     flash_timing = 0.0f;
                 }
                 DrawRectangle(
-                    bar_pos.x, bar_pos.y + 3,
+                    bar_pos.x + 3, bar_pos.y + 3,
                     //data->game_rec.x, data->game_rec.y - 32 - 5,
                     (HEALTH_LENGTH - 10) * p_life->current_life * 1.0f / p_life->max_life, 28,
                     (health_flash) ? WHITE : RED
@@ -609,9 +607,9 @@ static void arena_render_func(Scene_t* scene)
             draw_sprite_scaled(spr, 0, (Vector2){
                 data->game_field_size.x / 4,data->game_field_size.y / 2 + 50},
             0.0f, 1.5f, WHITE);
-            DrawText("Objective: Obtain the Void Particle from The Store", 25, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
-            DrawText("Move around and get used to the controls", 25, data->game_field_size.y *3/ 4  + 15 + (30 >> 1), 30, TEXT_COLOUR);
-            DrawText("Once you are ready, SHOOT to Begin", 25, data->game_field_size.y *3/ 4  + 45 + (30 >> 1), 30, TEXT_COLOUR);
+            DrawText("Objective: Obtain the Void Particle from The Store", 40, data->game_field_size.y *3/ 4 - (36 >> 1), 36, TEXT_COLOUR);
+            DrawText("Move about and mess around", 40, data->game_field_size.y *3/ 4  + 15 + (30 >> 1), 30, TEXT_COLOUR);
+            DrawText("Once you are ready, SHOOT IT to Begin", 40, data->game_field_size.y *3/ 4  + 45 + (30 >> 1), 30, TEXT_COLOUR);
         }
         else if (data->game_state == GAME_ENDED)
         {
@@ -1021,6 +1019,7 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                 {
                                     play_sfx(scene->engine, BUYING_SFX, true);
                                     p_pstate->collected -= data->ui.upgrades[i].item->cost;
+                                    data->curr_money = p_pstate->collected;
                                     data->ui.upgrades[i].item->cost +=  data->ui.upgrades[i].item->cost_increment;
                                     if (data->ui.upgrades[i].item->cost > data->ui.upgrades[i].item->cost_cap)
                                     {
