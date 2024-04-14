@@ -18,7 +18,7 @@ CWeapon_t all_weapons[4] = {
     },
     // Homing Rockets
     {
-        .base_dmg = 12, .proj_speed = 450, .fire_rate = 2.3f, .bullet_kb = 5.2f,
+        .base_dmg = 10, .proj_speed = 450, .fire_rate = 2.4f, .bullet_kb = 5.2f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 0.75f * 60.0f, .weapon_idx = 2, .special_prop = 0x1,
     },

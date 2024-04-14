@@ -476,7 +476,7 @@ void player_movement_input_system(Scene_t* scene)
                     angle_increment += p_weapon->spread_range;
                 }
 
-                p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.07));
+                p_weapon->cooldown_timer = 1.0f / (p_weapon->fire_rate  * (1 + p_weapon->modifiers[0] * 0.08));
                 play_sfx(scene->engine, WEAPON1_FIRE_SFX + p_weapon->weapon_idx, true);
             }
 

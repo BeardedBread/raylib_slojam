@@ -996,7 +996,11 @@ static ActionResult shop_do_action(Scene_t* scene, ActionType_t action, bool pre
                                             unsigned int ent_idx;
                                             sc_map_foreach(&scene->parent_scene->ent_manager.component_map[CSPAWNER_T], ent_idx, p_spawner)
                                             {
-                                                set_spawn_level(&p_spawner->data, MAX_RANK - 2);
+
+                                                if (p_spawner->data.rank < MAX_RANK - 2)
+                                                {
+                                                    set_spawn_level(&p_spawner->data, MAX_RANK - 2);
+                                                }
                                             }
                                             play_sfx(scene->engine, RANKUP_SFX, false);
                                         }
@@ -1206,7 +1210,7 @@ void restart_level_scene(LevelScene_t* scene)
         .full_heal = {100, -1, -1, 100, 800},
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},
-        .maws = {500, 1, 1, 0, 1000},
+        .maws = {600, 1, 1, 0, 1000},
         .flux = {400, 1, 1, 0, 2000},
     };
     shop_scene->data.min_cost = 150;
