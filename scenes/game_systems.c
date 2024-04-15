@@ -229,7 +229,7 @@ static inline void update_bullet(Entity_t* p_bullet, CWeapon_t* p_weapon, float 
     if (p_weapon->special_prop & 0x1)
     {
         //bullet_life->poison_value = 0;
-        bullet_ct->shape_factor = 5 + 1.2f * p_weapon->modifiers[1];
+        bullet_ct->shape_factor = 2.3f + 0.3f * p_weapon->modifiers[1];
     }
 
     if (p_weapon->special_prop & 0x2)
@@ -399,37 +399,9 @@ void player_movement_input_system(Scene_t* scene)
                         CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
                         p_ai->target_idx = target_idx;
                         p_ai->target_tag = ENEMY_ENT_TAG;
-                        p_ai->accl = 4000;
+                        p_ai->accl = 1500 + p_weapon->modifiers[1] * 350;
                         p_ai->func = &homing_target_func;
                     }
-
-                    //if (p_weapon->weapon_idx == 3)
-                    //{
-                    //    Entity_t* trail = add_entity(&scene->ent_manager, NO_ENT_TAG);
-                    //    trail->position = p_bullet->position;
-                    //    CTransform_t* trail_ct = add_component(trail, CTRANSFORM_T);
-                    //    trail_ct->velocity = Vector2Scale(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity, 12);
-                    //    trail_ct->velocity_cap = speed * 12;
-                    //    trail_ct->active = true;
-
-                    //    // Knockback
-                    //    p_ctransform->velocity = Vector2Scale(Vector2Normalize(((CTransform_t*)get_component(p_bullet, CTRANSFORM_T))->velocity), -150);
-
-                    //    CEmitter_t* p_emitter = add_component(trail, CEMITTER_T);
-                    //    ParticleEmitter_t emitter = {
-                    //        .spr = get_sprite(&scene->engine->assets, "ellip"),
-                    //        .part_type = PARTICLE_LINE,
-                    //        .config = get_emitter_conf(&scene->engine->assets, "part_ltrail"),
-                    //        //.position = new_pos,
-                    //        .position = trail->position,
-                    //        .n_particles = 50,
-                    //        .user_data = scene,
-                    //        .update_func = &simple_particle_system_update,
-                    //        .emitter_update_func = NULL,
-                    //    };
-                    //    p_emitter->handle = play_particle_emitter(&scene->part_sys, &emitter);
-                    //    update_emitter_handle_rotation(&scene->part_sys, p_emitter->handle, atan2f(trail_ct->velocity.y, trail_ct->velocity.x) *180/PI - 180);
-                    //}
 
                     bullets--;
                     angle -= p_weapon->spread_range;
@@ -455,7 +427,7 @@ void player_movement_input_system(Scene_t* scene)
                         CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
                         p_ai->target_idx = target_idx;
                         p_ai->target_tag = ENEMY_ENT_TAG;
-                        p_ai->accl = 4000;
+                        p_ai->accl = 1500 + p_weapon->modifiers[1] * 350;
                         p_ai->func = &homing_target_func;
                     }
 
@@ -468,7 +440,7 @@ void player_movement_input_system(Scene_t* scene)
                         CAIFunction_t* p_ai = add_component(p_bullet, CAIFUNC_T);
                         p_ai->target_idx = target_idx;
                         p_ai->target_tag = ENEMY_ENT_TAG;
-                        p_ai->accl = 4000;
+                        p_ai->accl = 1500 + p_weapon->modifiers[1] * 350;
                         p_ai->func = &homing_target_func;
                     }
 

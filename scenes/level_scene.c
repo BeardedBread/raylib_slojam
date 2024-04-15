@@ -1206,11 +1206,11 @@ void restart_level_scene(LevelScene_t* scene)
         .firerate_upgrade = {200, 4, 4, 125, 1000},
         .projspeed_upgrade = {150, 4, 4, 150, 1000},
         //.damage_upgrade = {150, 3, 3, 150, 1000},
-        .health_upgrade = {200, 4, 4, 150, 10000},
-        .full_heal = {100, -1, -1, 100, 800},
+        .health_upgrade = {200, 4, 4, 150, 800},
+        .full_heal = {100, -1, -1, 100, 10000},
         .escape = {1850, 1, 1, 0, 5000},
         .thumper = {300, 1, 1, 0, 1000},
-        .maws = {600, 1, 1, 0, 1000},
+        .maws = {500, 1, 1, 0, 1000},
         .flux = {400, 1, 1, 0, 2000},
     };
     shop_scene->data.min_cost = 150;

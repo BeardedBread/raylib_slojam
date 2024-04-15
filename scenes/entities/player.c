@@ -6,7 +6,7 @@ static Sprite_t* player_sprite_map[1] = {0};
 CWeapon_t all_weapons[4] = {
     // Pistol
     {
-        .base_dmg = 8, .proj_speed = 800, .fire_rate = 4.5f, .bullet_kb = 3.3f,
+        .base_dmg = 9, .proj_speed = 800, .fire_rate = 4.5f, .bullet_kb = 3.3f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
         .bullet_lifetime = 0, .weapon_idx = 0, .special_prop = 0x0,
     },
@@ -18,9 +18,9 @@ CWeapon_t all_weapons[4] = {
     },
     // Homing Rockets
     {
-        .base_dmg = 10, .proj_speed = 450, .fire_rate = 2.4f, .bullet_kb = 5.2f,
+        .base_dmg = 7, .proj_speed = 450, .fire_rate = 3.0f, .bullet_kb = 5.2f,
         .cooldown_timer = 0, .spread_range = 0, .n_bullets = 1,
-        .bullet_lifetime = 0.75f * 60.0f, .weapon_idx = 2, .special_prop = 0x1,
+        .bullet_lifetime = 0.8f * 60.0f, .weapon_idx = 2, .special_prop = 0x1,
     },
     // Laser
     {
